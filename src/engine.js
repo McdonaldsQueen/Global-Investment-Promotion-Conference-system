@@ -165,6 +165,29 @@ globalThis.createWorkbench = function (rules) {
     const prefixed = name.startsWith(location) ? name : location + name;
     return /(?:集团|公司)(?:[（(][^）)]+[）)])?$/.test(prefixed) ? prefixed : prefixed + "公司";
   }
+  function matchRegionalCompanies(records) {
+    const parents = new Map();
+    const baseName = (name, location) => {
+      const normalized = key(name);
+      return normalized.startsWith(key(location)) ? normalized.slice(key(location).length) : normalized;
+    };
+    const enterprise = record => record.kind === "意向投资企业" && record.normalizedLocation && !record.override.skip;
+    for (const record of records) {
+      if (!enterprise(record)) continue;
+      const match = /^(.*)集团(?:股份有限公司|有限责任公司|有限公司|公司)?$/.exec(baseName(record.selectedName,record.normalizedLocation));
+      if (!match?.[1]) continue;
+      const id = JSON.stringify([record.normalizedLocation,match[1]]);
+      if (!parents.has(id)) parents.set(id,new Set());
+      parents.get(id).add(record.selectedName);
+    }
+    for (const record of records) {
+      if (!enterprise(record) || record.approvedGroup || record.known) continue;
+      const match = /^(.+)\(([^()]+)\)$/.exec(core(baseName(record.selectedName,record.normalizedLocation)));
+      if (!match || !(country(match[2]) || ["中国区","大湾区","亚太"].includes(match[2]))) continue;
+      const candidates = parents.get(JSON.stringify([record.normalizedLocation,match[1]]));
+      if (candidates?.size === 1) record.selectedName = [...candidates][0];
+    }
+  }
   function process(records, edits = new Map(), groupRules = new Map(), selections = new Map()) {
     const notices = [];
     const rows = [];
@@ -188,6 +211,7 @@ globalThis.createWorkbench = function (rules) {
       const kind = byOption[1].get(substance(values[4])) ?? "";
       return { record, override, values, original, location, explicitCountry, normalizedLocation, kind, selectedName, known, approvedGroup };
     });
+    matchRegionalCompanies(prepared);
     const naming = new Map();
     for (const r of prepared) {
       if (!r.selectedName || !r.normalizedLocation) continue;
