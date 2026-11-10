@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="深圳全球招商大会主会场嘉宾邀请数据处理工作台">
+  <meta name="referrer" content="no-referrer">
+  <title>主会场嘉宾工作台</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="jszip.min.js"></script>
+  <script defer src="sax.js"></script>
+  <script defer src="config.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <a class="brand" href="./" aria-label="主会场嘉宾工作台首页"><span class="mark" aria-hidden="true">招</span><span>主会场嘉宾工作台<small>2026 深圳全球招商大会</small></span></a>
+      <span class="badge"><i></i> 浏览器内处理</span>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-text">
+        <p class="eyebrow">招商大会 <span> / </span> 数据工作台</p>
+        <h1 id="page-title">嘉宾邀请数据处理</h1>
+        <p>导入每日主会场名单，核对分组和嘉宾资料，<br class="desktop">下载按统一模板整理的排座明细。</p>
+      </div>
+      <div class="upload" id="drop">
+        <div class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m-5 5 5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></div>
+        <strong id="file-label">导入当天 Excel</strong>
+        <span>将 .xlsx 拖到这里，或从电脑选择</span>
+        <div id="setup-rules" hidden>
+          <label class="button" for="rules-file">先选择工作台配置</label>
+          <input type="file" id="rules-file" accept=".json,application/json" class="sr">
+        </div>
+        <label class="button primary" for="file">选择 Excel 文件</label>
+        <input type="file" id="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="sr">
+      </div>
+    </section>
+    <div class="message" id="message" role="status" aria-live="polite">每次导入处理一份名单。嘉宾资料留在当前页面，刷新前请下载结果。</div>
+    <section class="workspace" id="workspace" hidden>
+      <div class="toolbar">
+        <div><p class="eyebrow">当前批次</p><h2 id="batch"></h2><p class="muted" id="batch-info"></p></div>
+        <div class="actions"><label class="date-label">数据日期 <input type="date" id="date"></label><button class="button primary" id="download">下载 Excel</button><a id="download-ready" class="button" hidden>手动保存已生成文件</a></div>
+      </div>
+      <div class="metrics" id="metrics"></div>
+      <p class="small muted" id="count-note"></p>
+      <nav class="tabs" aria-label="工作台视图">
+        <button data-view="dashboard" class="current" aria-pressed="true">数据看板</button>
+        <button data-view="confirmed" aria-pressed="false">确认参会集团</button>
+        <button data-view="review" aria-pressed="false">待复核 <span id="review-count"></span></button>
+        <button data-view="names" aria-pressed="false">集团名称</button>
+        <button data-view="detail" aria-pressed="false">整理明细</button>
+      </nav>
+      <div id="content"></div>
+    </section>
+    <section class="steps" id="intro" aria-label="使用流程">
+      <article><span>01</span><h2>识别邀请来源</h2><p>读取主会场明细、合并单元格和邀请单位分组。</p></article>
+      <article><span>02</span><h2>清洗并复核</h2><p>规范国别、分类和集团名称，保留原填名牌文字。</p></article>
+      <article><span>03</span><h2>查看并下载</h2><p>查看确认集团和跨部门重复邀请，导出排座用 Excel。</p></article>
+    </section>
+  </main>
+  <footer class="wrap footer"><span>主会场嘉宾工作台</span><span>Excel 文件在本机浏览器处理</span></footer>
+  <dialog id="dialog"><form id="editor"><div id="editor-fields"></div><div class="actions"><button type="button" class="button" id="cancel">取消</button><button type="submit" class="button primary">保存复核</button></div></form></dialog>
+</body>
+</html>
