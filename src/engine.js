@@ -1,6 +1,6 @@
 globalThis.createWorkbench = function (rules) {
   "use strict";
-  const { options, industryAliases, inviters, headers, template, companyAliases = {} } = rules;
+  const { options, industryAliases, inviters, headers, template, columnWidths, companyAliases = {} } = rules;
   const root = globalThis;
   const clean = value => String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, " ");
   const key = value => clean(value).replace(/\s/g, "").toLowerCase();
@@ -389,11 +389,11 @@ globalThis.createWorkbench = function (rules) {
   const choiceColumns = [countries,...options.slice(1)];
   const mainXml = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
   const relationshipXml = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-  function rowXml(values, number) {
+  function rowXml(values, number, style = "") {
     return '<row r="' + number + '">' + values.map((value,index) =>
       value === "" || value == null ? "" : typeof value === "number" ?
       '<c r="' + letters(index) + number + '"><v>' + value + '</v></c>' :
-      '<c r="' + letters(index) + number + '" t="inlineStr"><is><t xml:space="preserve">' + xml(value) + '</t></is></c>'
+      '<c r="' + letters(index) + number + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' + xml(value) + '</t></is></c>'
     ).join("") + '</row>';
   }
   function simpleSheet(data, widths) {
@@ -401,8 +401,39 @@ globalThis.createWorkbench = function (rules) {
       widths.map((w,i) => '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("") +
       "</cols><sheetData>" + data.map((row,index) => rowXml(row,index+1)).join("") + "</sheetData></worksheet>";
   }
+  function createBlankWorkbook() {
+    const zip = new root.JSZip();
+    const declaration = '<?xml version="1.0" encoding="UTF-8"?>';
+    const spreadsheetType = "application/vnd.openxmlformats-officedocument.spreadsheetml.";
+    const rel = (id,type,target) => '<Relationship Id="'+id+'" Type="'+relationshipXml+'/'+type+'" Target="'+target+'"/>';
+    const relationships = content => '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+content+'</Relationships>';
+    const put = (path,content) => zip.file(path,declaration+content);
+    put("[Content_Types].xml", '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/xl/workbook.xml" ContentType="'+spreadsheetType+'sheet.main+xml"/>'+
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+spreadsheetType+'worksheet+xml"/>'+
+      '<Override PartName="/xl/styles.xml" ContentType="'+spreadsheetType+'styles+xml"/>'+
+      '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>');
+    put("_rels/.rels",relationships(rel("rId1","officeDocument","xl/workbook.xml")+rel("rId2","extended-properties","docProps/app.xml")));
+    put("xl/_rels/workbook.xml.rels",relationships(rel("rId1","worksheet","worksheets/sheet1.xml")+rel("rId2","styles","styles.xml")));
+    put("xl/workbook.xml",'<workbook xmlns="'+mainXml+'" xmlns:r="'+relationshipXml+'"><bookViews><workbookView/></bookViews><sheets><sheet name="form" sheetId="1" r:id="rId1"/></sheets></workbook>');
+    put("xl/worksheets/sheet1.xml",'<worksheet xmlns="'+mainXml+'"><dimension ref="A1:V1"/><cols>'+
+      columnWidths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
+      "</cols><sheetData>"+rowXml(headers,1,' s="1"')+'</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>');
+    put("xl/styles.xml",'<styleSheet xmlns="'+mainXml+'">'+
+      '<fonts count="2"><font><sz val="11"/><name val="等线"/></font><font><b/><sz val="11"/><name val="等线"/></font></fonts>'+
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCE6F1"/></patternFill></fill></fills>'+
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+      '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'+
+      '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+    put("docProps/app.xml",'<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'+
+      '<HeadingPairs><vt:vector size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs>'+
+      '<TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>form</vt:lpstr></vt:vector></TitlesOfParts></Properties>');
+    return zip;
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
-    const zip = await root.JSZip.loadAsync(template,{base64:true});
+    const zip = template ? await root.JSZip.loadAsync(template,{base64:true}) : createBlankWorkbook();
     const get = path => zip.file(path).async("string");
     const rows = confirmedOnly ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
     const end = rows.length + 1;

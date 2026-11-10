@@ -120,7 +120,7 @@ dialog::backdrop{background:#10274588}
 <body>
   <header class="top">
     <div class="wrap top-inner">
-      <a class="brand" href="./" aria-label="主会场嘉宾工作台首页"><span class="mark" aria-hidden="true">招</span><span>主会场嘉宾工作台<small>2026 深圳全球招商大会</small></span></a>
+      <a class="brand" id="home" href="./" aria-label="主会场嘉宾工作台首页"><span class="mark" aria-hidden="true">招</span><span>主会场嘉宾工作台<small>2026 深圳全球招商大会</small></span></a>
       <span class="badge"><i></i> 浏览器内处理</span>
     </div>
   </header>
@@ -2772,7 +2772,7 @@ software or this license, under any kind of legal claim.***
 <script>
 globalThis.createWorkbench = function (rules) {
   "use strict";
-  const { options, industryAliases, inviters, headers, template, companyAliases = {} } = rules;
+  const { options, industryAliases, inviters, headers, template, columnWidths, companyAliases = {} } = rules;
   const root = globalThis;
   const clean = value => String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, " ");
   const key = value => clean(value).replace(/\s/g, "").toLowerCase();
@@ -3161,11 +3161,11 @@ globalThis.createWorkbench = function (rules) {
   const choiceColumns = [countries,...options.slice(1)];
   const mainXml = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
   const relationshipXml = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-  function rowXml(values, number) {
+  function rowXml(values, number, style = "") {
     return '<row r="' + number + '">' + values.map((value,index) =>
       value === "" || value == null ? "" : typeof value === "number" ?
       '<c r="' + letters(index) + number + '"><v>' + value + '</v></c>' :
-      '<c r="' + letters(index) + number + '" t="inlineStr"><is><t xml:space="preserve">' + xml(value) + '</t></is></c>'
+      '<c r="' + letters(index) + number + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' + xml(value) + '</t></is></c>'
     ).join("") + '</row>';
   }
   function simpleSheet(data, widths) {
@@ -3173,8 +3173,39 @@ globalThis.createWorkbench = function (rules) {
       widths.map((w,i) => '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("") +
       "</cols><sheetData>" + data.map((row,index) => rowXml(row,index+1)).join("") + "</sheetData></worksheet>";
   }
+  function createBlankWorkbook() {
+    const zip = new root.JSZip();
+    const declaration = '<?xml version="1.0" encoding="UTF-8"?>';
+    const spreadsheetType = "application/vnd.openxmlformats-officedocument.spreadsheetml.";
+    const rel = (id,type,target) => '<Relationship Id="'+id+'" Type="'+relationshipXml+'/'+type+'" Target="'+target+'"/>';
+    const relationships = content => '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+content+'</Relationships>';
+    const put = (path,content) => zip.file(path,declaration+content);
+    put("[Content_Types].xml", '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/xl/workbook.xml" ContentType="'+spreadsheetType+'sheet.main+xml"/>'+
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="'+spreadsheetType+'worksheet+xml"/>'+
+      '<Override PartName="/xl/styles.xml" ContentType="'+spreadsheetType+'styles+xml"/>'+
+      '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>');
+    put("_rels/.rels",relationships(rel("rId1","officeDocument","xl/workbook.xml")+rel("rId2","extended-properties","docProps/app.xml")));
+    put("xl/_rels/workbook.xml.rels",relationships(rel("rId1","worksheet","worksheets/sheet1.xml")+rel("rId2","styles","styles.xml")));
+    put("xl/workbook.xml",'<workbook xmlns="'+mainXml+'" xmlns:r="'+relationshipXml+'"><bookViews><workbookView/></bookViews><sheets><sheet name="form" sheetId="1" r:id="rId1"/></sheets></workbook>');
+    put("xl/worksheets/sheet1.xml",'<worksheet xmlns="'+mainXml+'"><dimension ref="A1:V1"/><cols>'+
+      columnWidths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
+      "</cols><sheetData>"+rowXml(headers,1,' s="1"')+'</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>');
+    put("xl/styles.xml",'<styleSheet xmlns="'+mainXml+'">'+
+      '<fonts count="2"><font><sz val="11"/><name val="等线"/></font><font><b/><sz val="11"/><name val="等线"/></font></fonts>'+
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCE6F1"/></patternFill></fill></fills>'+
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+      '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'+
+      '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+    put("docProps/app.xml",'<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'+
+      '<HeadingPairs><vt:vector size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs>'+
+      '<TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>form</vt:lpstr></vt:vector></TitlesOfParts></Properties>');
+    return zip;
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
-    const zip = await root.JSZip.loadAsync(template,{base64:true});
+    const zip = template ? await root.JSZip.loadAsync(template,{base64:true}) : createBlankWorkbook();
     const get = path => zip.file(path).async("string");
     const rows = confirmedOnly ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
     const end = rows.length + 1;
@@ -3273,26 +3304,50 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     el("message").textContent = message;
     el("message").classList.toggle("error",error);
   };
+  function applyConfig(config) {
+    const strings = a=>Array.isArray(a) && a.length && a.every(v=>typeof v==="string");
+    const mapping = m=>m && typeof m==="object" && !Array.isArray(m) && Object.values(m).every(v=>typeof v==="string");
+    const templateValid=typeof config?.template==="string" && /^UEsD[A-Za-z0-9+/=]+$/.test(config.template);
+    const widthsValid=Array.isArray(config?.columnWidths) && config.columnWidths.length===22 &&
+      config.columnWidths.every(width=>typeof width==="number" && width>=1 && width<=255);
+    if (config?.version!==1 || config.headers?.length!==22 || !strings(config.headers) ||
+        config.options?.length!==5 || !config.options.every(strings) || !strings(config.inviters) ||
+        !mapping(config.industryAliases) || !mapping(config.companyAliases) ||
+        !(templateValid || widthsValid)) throw new Error("Invalid workbench configuration");
+    api=window.createWorkbench(config);
+    el("file").disabled=false;
+    el("setup-rules").hidden=true;
+  }
+  async function loadSharedConfig(token) {
+    if (!/^[A-Za-z0-9_-]{50,20000}$/.test(token)) throw new Error("Invalid workbench link");
+    const encoded=token.replace(/-/g,"+").replace(/_/g,"/");
+    const zip=await JSZip.loadAsync(encoded.padEnd(Math.ceil(encoded.length/4)*4,"="),{base64:true});
+    const config=zip.file("rules.json");
+    if (!config) throw new Error("Missing workbench configuration");
+    applyConfig(JSON.parse(await config.async("string")));
+    el("home").href="#setup="+token;
+    status("工作台已就绪。请选择当天的 Excel。");
+  }
   if (!api) {
-    el("setup-rules").hidden = false;
     el("file").disabled = true;
-    status("请先选择经办人提供的工作台配置 JSON，再导入当天的 Excel。两个文件均在浏览器内读取。");
+    const token=new URLSearchParams(window.location.hash.slice(1)).get("setup");
+    if (token) {
+      status("正在打开工作台…");
+      loadSharedConfig(token).catch(()=>{
+        el("setup-rules").hidden=false;
+        status("专用链接无法打开。请检查网址是否完整，或向经办人获取新链接。",true);
+      });
+    } else {
+      el("setup-rules").hidden=false;
+      status("请使用经办人发给你的专用链接。也可以手动选择工作台配置 JSON。");
+    }
   }
   el("rules-file").addEventListener("change",async event=>{
     const file=event.target.files[0];
     if (!file || api) return;
     try {
       if (file.size > 1024*1024) throw new Error();
-      const config=JSON.parse(await file.text());
-      const strings = a=>Array.isArray(a) && a.length && a.every(v=>typeof v==="string");
-      const mapping = m=>m && typeof m==="object" && !Array.isArray(m) && Object.values(m).every(v=>typeof v==="string");
-      if (config?.version!==1 || config.headers?.length!==22 || !strings(config.headers) ||
-          config.options?.length!==5 || !config.options.every(strings) || !strings(config.inviters) ||
-          !mapping(config.industryAliases) || !mapping(config.companyAliases) ||
-          typeof config.template!=="string" || !/^UEsD[A-Za-z0-9+/=]+$/.test(config.template)) throw new Error();
-      api=window.createWorkbench(config);
-      el("file").disabled=false;
-      el("setup-rules").hidden=true;
+      applyConfig(JSON.parse(await file.text()));
       status("配置已加载。请选择当天的 Excel。");
     } catch {
       status("配置文件无法读取，请选择经办人提供的工作台配置 JSON。",true);

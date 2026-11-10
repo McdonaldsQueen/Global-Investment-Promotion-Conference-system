@@ -23,26 +23,50 @@
     el("message").textContent = message;
     el("message").classList.toggle("error",error);
   };
+  function applyConfig(config) {
+    const strings = a=>Array.isArray(a) && a.length && a.every(v=>typeof v==="string");
+    const mapping = m=>m && typeof m==="object" && !Array.isArray(m) && Object.values(m).every(v=>typeof v==="string");
+    const templateValid=typeof config?.template==="string" && /^UEsD[A-Za-z0-9+/=]+$/.test(config.template);
+    const widthsValid=Array.isArray(config?.columnWidths) && config.columnWidths.length===22 &&
+      config.columnWidths.every(width=>typeof width==="number" && width>=1 && width<=255);
+    if (config?.version!==1 || config.headers?.length!==22 || !strings(config.headers) ||
+        config.options?.length!==5 || !config.options.every(strings) || !strings(config.inviters) ||
+        !mapping(config.industryAliases) || !mapping(config.companyAliases) ||
+        !(templateValid || widthsValid)) throw new Error("Invalid workbench configuration");
+    api=window.createWorkbench(config);
+    el("file").disabled=false;
+    el("setup-rules").hidden=true;
+  }
+  async function loadSharedConfig(token) {
+    if (!/^[A-Za-z0-9_-]{50,20000}$/.test(token)) throw new Error("Invalid workbench link");
+    const encoded=token.replace(/-/g,"+").replace(/_/g,"/");
+    const zip=await JSZip.loadAsync(encoded.padEnd(Math.ceil(encoded.length/4)*4,"="),{base64:true});
+    const config=zip.file("rules.json");
+    if (!config) throw new Error("Missing workbench configuration");
+    applyConfig(JSON.parse(await config.async("string")));
+    el("home").href="#setup="+token;
+    status("工作台已就绪。请选择当天的 Excel。");
+  }
   if (!api) {
-    el("setup-rules").hidden = false;
     el("file").disabled = true;
-    status("请先选择经办人提供的工作台配置 JSON，再导入当天的 Excel。两个文件均在浏览器内读取。");
+    const token=new URLSearchParams(window.location.hash.slice(1)).get("setup");
+    if (token) {
+      status("正在打开工作台…");
+      loadSharedConfig(token).catch(()=>{
+        el("setup-rules").hidden=false;
+        status("专用链接无法打开。请检查网址是否完整，或向经办人获取新链接。",true);
+      });
+    } else {
+      el("setup-rules").hidden=false;
+      status("请使用经办人发给你的专用链接。也可以手动选择工作台配置 JSON。");
+    }
   }
   el("rules-file").addEventListener("change",async event=>{
     const file=event.target.files[0];
     if (!file || api) return;
     try {
       if (file.size > 1024*1024) throw new Error();
-      const config=JSON.parse(await file.text());
-      const strings = a=>Array.isArray(a) && a.length && a.every(v=>typeof v==="string");
-      const mapping = m=>m && typeof m==="object" && !Array.isArray(m) && Object.values(m).every(v=>typeof v==="string");
-      if (config?.version!==1 || config.headers?.length!==22 || !strings(config.headers) ||
-          config.options?.length!==5 || !config.options.every(strings) || !strings(config.inviters) ||
-          !mapping(config.industryAliases) || !mapping(config.companyAliases) ||
-          typeof config.template!=="string" || !/^UEsD[A-Za-z0-9+/=]+$/.test(config.template)) throw new Error();
-      api=window.createWorkbench(config);
-      el("file").disabled=false;
-      el("setup-rules").hidden=true;
+      applyConfig(JSON.parse(await file.text()));
       status("配置已加载。请选择当天的 Excel。");
     } catch {
       status("配置文件无法读取，请选择经办人提供的工作台配置 JSON。",true);
