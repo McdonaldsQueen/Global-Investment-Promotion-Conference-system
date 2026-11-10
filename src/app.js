@@ -239,7 +239,7 @@
     const old = field=>previous[field] ?? record.values[field] ?? "";
     const fields = [1,2,3,4,5,6,7,8,9,10,13];
     const notices = result.notices.filter(n=>n.line===line);
-    const choices = field=>field===13 ? api.inviters : field>=3 && field<=7 ? api.options[field-3] : null;
+    const choices = field=>field===13 ? api.inviters : field===3 ? result.countryOptions : field>=4 && field<=7 ? api.options[field-3] : null;
     const fieldHtml = fields.map(field=>{
       const v = field === 13 && !Object.hasOwn(previous,13) ? row?.values[13] ?? record.section ?? old(field) : old(field);
       const options = choices(field);

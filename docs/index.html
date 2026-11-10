@@ -2787,9 +2787,28 @@ globalThis.createWorkbench = function (rules) {
     "香港":"中国香港", "中国(香港)":"中国香港", "中国香港特别行政区":"中国香港",
     "澳门":"中国澳门", "中国(澳门)":"中国澳门", "中国澳门特别行政区":"中国澳门",
     "台湾":"中国台湾", "中国(台湾)":"中国台湾", "台湾省":"中国台湾",
-    "迪拜":"阿联酋", "中国大陆":"中国", "中国内地":"中国", "中华人民共和国":"中国"
+    "迪拜":"阿联酋", "中国大陆":"中国", "中国内地":"中国", "中华人民共和国":"中国",
+    "UK":"英国", "USA":"美国"
   }).map(([k,v]) => [key(k),v]));
-  const countries = [...new Set([...options[0], "中国澳门"])];
+  const defaultCountries = [...new Set([...options[0], "中国澳门"])];
+  const countryDirectory = new Map();
+  const chineseRegion = new Intl.DisplayNames(["zh-Hans"],{type:"region",fallback:"none"});
+  const englishRegion = new Intl.DisplayNames(["en"],{type:"region",fallback:"none"});
+  const traditionalRegion = new Intl.DisplayNames(["zh-Hant"],{type:"region",fallback:"none"});
+  const configuredCountries = new Map(defaultCountries.map(value=>[key(value),value]));
+  const regionOverrides = { HK:"中国香港", MO:"中国澳门", TW:"中国台湾" };
+  // ISO alpha-2 regions from Unicode CLDR territory containment and code mappings.
+  const regionCodes = "AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
+  for (const code of regionCodes) {
+    const simplified = chineseRegion.of(code);
+    if (!simplified) continue;
+    const canonical = regionOverrides[code] ?? configuredCountries.get(key(simplified)) ?? simplified;
+    for (const value of [code,simplified,englishRegion.of(code),traditionalRegion.of(code)]) {
+      if (value) countryDirectory.set(key(value),canonical);
+    }
+  }
+  for (const [name,value] of configuredCountries) countryDirectory.set(name,value);
+  const countryPrefixes = [...new Set(countryDirectory.values())].sort((a,b)=>b.length-a.length);
   const domesticKinds = new Set(["世界500强(国内企业)", "中国500强", "中央企业", "国有企业"]);
   const foreignKinds = new Set(["世界500强(外企)", "外资企业"]);
   const knownGroups = new Map(Object.entries(companyAliases).map(([k,v]) => [core(k),v]));
@@ -2922,7 +2941,7 @@ globalThis.createWorkbench = function (rules) {
   function country(value) {
     const raw = key(value);
     if (countryAliases.has(raw)) return countryAliases.get(raw);
-    const exact = countries.find(option => key(option) === raw);
+    const exact = countryDirectory.get(raw) ?? countryDirectory.get(raw.replace(/(?:共和国|共和國|王国|王國)$/,""));
     if (exact) return exact;
     const place = raw.replace(/^中国[(/、-]?/, "").replace(/\)$/, "").replace(/(省|市)$/, "");
     if (mainland.has(place) || /^中国(?:大陆|内地)/.test(raw) || /^中国[\u4e00-\u9fff]+(?:市|省)$/.test(raw)) return "中国";
@@ -2930,7 +2949,8 @@ globalThis.createWorkbench = function (rules) {
     return "";
   }
   function nameCountry(name) {
-    return [...countries].sort((a,b) => b.length - a.length).find(c => clean(name).startsWith(c)) ?? "";
+    const label = clean(name);
+    return countryPrefixes.find(c=>label.startsWith(c)) ?? "";
   }
   function formatGroup(name, location, kind) {
     if (!name || kind === "招商合作机构" || !location || location === "中国") return name;
@@ -2973,10 +2993,10 @@ globalThis.createWorkbench = function (rules) {
       const override = edits.get(record.line) ?? {};
       const values = record.values.map((value, field) => override[field] ?? value);
       const original = clean(values[1]);
-      const approvedGroup = groupRules.get(aliasKey(original, country(values[3])));
+      const location = country(values[3]);
+      const approvedGroup = groupRules.get(aliasKey(original, location));
       const known = knownGroups.get(core(original));
       const selectedName = approvedGroup ?? known ?? original;
-      const location = country(values[3]);
       const prefixed = nameCountry(selectedName);
       const explicitCountry = prefixed === "中国" && location !== "中国" ? "" : prefixed;
       const normalizedLocation = explicitCountry && (known || approvedGroup) ? explicitCountry : location;
@@ -3153,12 +3173,13 @@ globalThis.createWorkbench = function (rules) {
       const confirmed = [...invited.values()].filter(Boolean).length;
       return {name, confirmed, pending:invited.size-confirmed};
     });
-    return { rows, notices, counts, groups, groupInputs, units, confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
+    const countryOptions = [...new Set([...defaultCountries,...prepared.flatMap(r=>r.override.skip ? [] : [r.location,r.normalizedLocation]).filter(Boolean)])];
+    return { rows, notices, counts, groups, groupInputs, units, countryOptions, confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
   }
   function compatible(a,b) {
     return a.every((v,i) => i === 0 || (i >= 13 && i <= 15 && a[13] !== b[13]) || !v || !b[i] || (i === 2 ? v === b[i] : clean(v) === clean(b[i])));
   }
-  const choiceColumns = [countries,...options.slice(1)];
+  const baseOptions = [defaultCountries,...options.slice(1)];
   const mainXml = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
   const relationshipXml = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
   function rowXml(values, number, style = "") {
@@ -3205,6 +3226,7 @@ globalThis.createWorkbench = function (rules) {
     return zip;
   }
   async function exportExcel(result, date, confirmedOnly = false) {
+    const choiceColumns = [result.countryOptions,...baseOptions.slice(1)];
     const zip = template ? await root.JSZip.loadAsync(template,{base64:true}) : createBlankWorkbook();
     const get = path => zip.file(path).async("string");
     const rows = confirmedOnly ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
@@ -3273,7 +3295,7 @@ globalThis.createWorkbench = function (rules) {
     zip.file("docProps/app.xml",appProperties);
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, options:choiceColumns, inviters, headers, confirmed, guestComplete, title };
+  return { readExcel, process, exportExcel, options:baseOptions, inviters, headers, confirmed, guestComplete, title };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
 
@@ -3520,7 +3542,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     const old = field=>previous[field] ?? record.values[field] ?? "";
     const fields = [1,2,3,4,5,6,7,8,9,10,13];
     const notices = result.notices.filter(n=>n.line===line);
-    const choices = field=>field===13 ? api.inviters : field>=3 && field<=7 ? api.options[field-3] : null;
+    const choices = field=>field===13 ? api.inviters : field===3 ? result.countryOptions : field>=4 && field<=7 ? api.options[field-3] : null;
     const fieldHtml = fields.map(field=>{
       const v = field === 13 && !Object.hasOwn(previous,13) ? row?.values[13] ?? record.section ?? old(field) : old(field);
       const options = choices(field);
