@@ -633,7 +633,7 @@ globalThis.createWorkbench = function (rules) {
       const guestId=key(guest);
       if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,titles:[],confirmedTitles:[],nationalities:new Set(),declined:false});
       const person=company.guests.get(guestId);
-      if (no.test(clean(attendance))) {person.declined=true;continue;}
+      if (no.test(clean(attendance))) person.declined=true;
       const level=guestLevel(title);
       person.titles.push({title,level});
       if (yes.test(clean(attendance))) person.confirmedTitles.push({title,level});
@@ -644,9 +644,9 @@ globalThis.createWorkbench = function (rules) {
     }
     const intents = [];
     for (const company of companies.values()) {
-      const guests = [...company.guests.values()].filter(person=>person.titles.length && !person.declined);
+      const guests = [...company.guests.values()];
       if (!guests.length) continue;
-      const confirmedGuests = guests.flatMap(person=>person.confirmedTitles
+      const confirmedGuests = guests.filter(person=>!person.declined).flatMap(person=>person.confirmedTitles
         .map(({title,level})=>({guest:person.guest,title,level}))
         .sort((a,b)=>a.level-b.level).slice(0,1)).sort((a,b)=>a.level-b.level);
       intents.push({...company,guests,confirmedGuests,priority:Math.min(99,...company.categories)});
@@ -661,8 +661,9 @@ globalThis.createWorkbench = function (rules) {
       const guest=company.confirmedGuests.find(person=>person.level<=3 && publishable(person.guest) && publishable(person.title));
       return guest ? [company.name+" "+guest.title+" "+guest.guest] : [];
     }).slice(0,3);
-    const world = intents.filter(company=>company.categories.has(1)||company.categories.has(2)).length;
-    const china = intents.filter(company=>company.categories.has(3)).length;
+    const enterprises = result.confirmedEnterprises;
+    const world = enterprises.filter(company=>[...company.categories].some(category=>[1,2].includes(categorySequence(category)))).length;
+    const china = enterprises.filter(company=>[...company.categories].some(category=>categorySequence(category)===3)).length;
     const foreignExecutives = intents.reduce((count,company)=>count+company.guests.filter(person=>
       person.titles.some(role=>role.level<=3) && person.nationalities.size===1 && !domesticNationality.has([...person.nationalities][0])).length,0);
     const day = date ? "截至"+date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,(_,y,m,d)=>y+"年"+Number(m)+"月"+Number(d)+"日")+"，" : "";
@@ -670,8 +671,10 @@ globalThis.createWorkbench = function (rules) {
     const confirmedText = confirmedNames.length ? confirmedNames.join("、")+"等企业已确认参会。" :
       ordered.some(company=>company.confirmedGuests.length) ? "" : "本批暂无明确确认参加主会场的企业。";
     const guestText = guestNames.length ? "明确参会嘉宾包括"+guestNames.join("、")+"。" : "";
-    return focus+day+"累计收到初步参会意向 "+intents.length+" 家，按填报类别含世界500强 "+world+
+    const metrics = [["初步参会意向",enterprises.length,"家"],["世界500强",world,"家"],["中国500强",china,"家"],["外籍高管",foreignExecutives,"人"]];
+    const text = focus+day+"累计收到初步参会意向 "+enterprises.length+" 家，按填报类别含世界500强 "+world+
       " 家、中国500强 "+china+" 家，外籍高管 "+foreignExecutives+" 人。"+confirmedText+guestText;
+    return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
   const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];

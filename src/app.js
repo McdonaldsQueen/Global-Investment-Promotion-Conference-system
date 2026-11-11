@@ -121,7 +121,10 @@
   drop.addEventListener("drop",event=>{event.preventDefault();drop.classList.remove("over");openFile(event.dataTransfer.files[0]);});
   function updateReport() {
     if (!result) return;
-    el("report-text").value = api.dailySummary(result,el("date").value);
+    const {text,metrics} = api.dailySummary(result,el("date").value);
+    el("report-text").value = text;
+    el("report-metrics").innerHTML = metrics.map(([label,value,unit])=>
+      '<article class="metric"><span>'+safe(label)+'</span><strong>'+format(value)+' <small>'+safe(unit)+'</small></strong></article>').join("");
     el("report-status").textContent = "";
   }
   el("date").addEventListener("change",updateReport);
