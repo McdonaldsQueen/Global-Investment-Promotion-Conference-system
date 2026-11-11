@@ -155,6 +155,7 @@
     if (!result) return;
     const content = el("content");
     if (view === "priority") {renderPriority(content);return;}
+    if (view === "ranking") {renderRankingAudit(content);return;}
     if (view === "dashboard") {
       const bars = [...result.counts.countries].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"zh"));
       const max = bars[0]?.[1] ?? 1;
@@ -225,6 +226,48 @@
       if (!/^\d+$/.test(rank) || Number(rank)<1 || Number(rank)>500 || !name) throw Error("第 "+(index+1)+" 行需要包含名次和企业名称。");
       return {rank:Number(rank),name,aliases:aliases.filter(Boolean)};
     }).filter(Boolean);
+  }
+  function renderRankingAudit(content) {
+    const fields = api.rankingLabels.map((label,i)=>'<label>'+safe(label)+'<textarea data-ranking="'+i+'" rows="3">'+safe(rankingText[i])+'</textarea></label>').join("");
+    content.innerHTML = '<section class="panel priority"><h3>全局榜单核验</h3><p class="small muted">核验本次导入的全部企业集团，包含待确认参会企业。可从 Excel 粘贴「名次」「企业名称」两列，右侧可附加已核实的别名。</p>'+
+      '<details'+(!rankingText.some(Boolean)?" open":"")+'><summary>导入核验榜单</summary>'+fields+
+      '<button type="button" class="button" id="apply-audit-ranking">应用榜单</button><p id="audit-error" role="status"></p></details>'+
+      '<label><input type="checkbox" id="ranking-anomalies" checked> 只看待复核</label>'+
+      '<p class="small muted" id="ranking-summary"></p><div id="ranking-results"></div></section>';
+    function update() {
+      const lists = rankingText.map(parseRanking);
+      const rows = api.rankingAudit(result,lists);
+      const anomalies = rows.filter(row=>row.issues.length);
+      const visible = el("ranking-anomalies").checked ? anomalies : rows;
+      el("ranking-summary").textContent = "本批 "+rows.length+" 家集团，"+anomalies.length+" 家待复核。两份榜单分别载入 "+lists.map(list=>list.length).join("、")+" 条。";
+      el("ranking-results").innerHTML = controls()+'<div id="listing"></div>';
+      attachListing(visible.map(({company,issues})=>[company.name,...company.applicants,...company.lines,...issues]),indices=>
+        table(["集团及报名主体","原填企业性质","榜单结果","待复核事项","原表行号"],indices.map(i=>{
+          const {company,matches,issues} = visible[i];
+          return [
+            '<strong>'+safe(company.name)+'</strong> '+chip(company.confirmed)+'<br>'+safe([...company.applicants].join("、")),
+            safe([...company.rawCategories].join("、") || "未填"),
+            matches.map((entry,j)=>safe(api.rankingLabels[j])+"<br>"+(entry.row ? safe("第 "+entry.row.rank+" 名 · "+entry.row.name) :
+              entry.ambiguous ? "匹配冲突" : lists[j].length ? "当前名单未匹配" : "未导入")).join("<br>"),
+            issues.length ? '<span class="tag pending">待复核</span><br>'+issues.map(safe).join("<br>") : "—",
+            company.lines.map(line=>button("第 "+line+" 行","audit-edit",line)).join(" ")
+          ];
+        }),rankingText.some(Boolean)?"当前条件下没有记录。":"请先粘贴榜单，再查看核验结果。"));
+    }
+    el("ranking-results").onclick = event=>{
+      const edit = event.target.closest("[data-audit-edit]");
+      if (edit) showEditor(Number(edit.dataset.auditEdit));
+    };
+    el("apply-audit-ranking").addEventListener("click",()=>{
+      const next = [...content.querySelectorAll("[data-ranking]")].map(input=>input.value);
+      try { next.forEach(parseRanking); } catch(error) {el("audit-error").textContent=error.message;return;}
+      rankingText=next;
+      el("audit-error").textContent="";
+      page=0;
+      update();
+    });
+    el("ranking-anomalies").addEventListener("change",()=>{page=0;update();});
+    update();
   }
   function renderPriority(content) {
     const categories = api.options[2];

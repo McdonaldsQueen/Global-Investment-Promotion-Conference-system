@@ -340,6 +340,7 @@ globalThis.createWorkbench = function (rules) {
     const groups = new Map();
     const byUnit = new Map(inviters.map(inviter=>[inviter,new Map()]));
     const confirmedEnterprises = new Map();
+    const rankingCompanies = new Map();
     const preparedByLine = new Map(prepared.map(input=>[input.record.line,input]));
     for (const record of active) {
       if (!record.name) continue;
@@ -348,12 +349,24 @@ globalThis.createWorkbench = function (rules) {
       const g = groups.get(id);
       const isConfirmed = !record.excluded && confirmed(record.values);
       const enterprise = record.values[4] === "意向投资企业";
+      const input = preparedByLine.get(record.line);
+      if (!record.excluded && record.values[4] !== "招商合作机构") {
+        if (!rankingCompanies.has(id)) rankingCompanies.set(id,{name:record.name,locations:new Set(),applicants:new Set(),
+          categories:new Set(),rawCategories:new Set(),lines:[],verifiedGroup:false,confirmed:false});
+        const item = rankingCompanies.get(id);
+        if (record.values[3]) item.locations.add(record.values[3]);
+        if (input.original) item.applicants.add(input.original);
+        if (record.values[5]) item.categories.add(record.values[5]);
+        if (input.values[5]) item.rawCategories.add(input.values[5]);
+        item.lines.push(record.line);
+        item.verifiedGroup ||= !!(input.known || input.approvedGroup);
+        item.confirmed ||= isConfirmed && enterprise;
+      }
       if (enterprise && !record.excluded) g.enterprise = true;
       if (isConfirmed) g.statuses.push([record.values[3],record.values[4],substance(record.values[5])]);
       if (isConfirmed && enterprise) {
         if (!confirmedEnterprises.has(id)) confirmedEnterprises.set(id, { name:record.name, locations:new Set(), guests:new Map(), units:new Set(), categories:new Set(), applicants:new Set(), verifiedGroup:false });
         const company = confirmedEnterprises.get(id);
-        const input = preparedByLine.get(record.line);
         if (input?.original) company.applicants.add(input.original);
         if (input?.known || input?.approvedGroup) company.verifiedGroup = true;
         if (record.values[5]) company.categories.add(record.values[5]);
@@ -407,7 +420,7 @@ globalThis.createWorkbench = function (rules) {
       return {name, confirmed, pending:invited.size-confirmed};
     });
     const countryOptions = [...new Set([...defaultCountries,...prepared.flatMap(r=>r.override.skip ? [] : [r.location,r.normalizedLocation]).filter(Boolean)])];
-    return { rows, notices, counts, groups, groupInputs, units, countryOptions, confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
+    return { rows, notices, counts, groups, groupInputs, units, countryOptions, rankingCompanies:[...rankingCompanies.values()], confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
   }
   function compatible(a,b) {
     return a.every((v,i) => i === 0 || (i >= 13 && i <= 15 && a[13] !== b[13]) || !v || !b[i] || (i === 2 ? v === b[i] : clean(v) === clean(b[i])));
@@ -545,8 +558,8 @@ globalThis.createWorkbench = function (rules) {
     if (/总监|部门负责人|经理|director|\bmanager\b/.test(value)) return 4;
     return 5;
   }
-  function priorityGroups(result, selected, lists) {
-    const sequence = value => Number(/^\d+/.exec(value)?.[0] ?? 99);
+  const categorySequence = value => Number(/^\d+/.exec(value)?.[0] ?? 99);
+  function rankingMatcher(lists) {
     const indexes = lists.map(rows=>{
       const index = new Map();
       for (const row of rows) for (const value of [row.name,...row.aliases]) {
@@ -557,19 +570,53 @@ globalThis.createWorkbench = function (rules) {
       }
       return index;
     });
-    return result.confirmedEnterprises.flatMap(company=>{
-      const categories = [...company.categories].filter(c=>selected.has(c)).sort((a,b)=>sequence(a)-sequence(b));
-      if (!categories.length) return [];
-      const guests = [...company.guests.values()].map(values=>({values,level:guestLevel(values[9])})).sort((a,b)=>a.level-b.level);
-      const matches = indexes.map(index=>{
+    return company=>indexes.map(index=>{
         const candidates = new Set();
         const names = [...company.applicants,...(company.verifiedGroup ? [company.name] : [])];
         for (const name of names) for (const alias of rankingKeys(name)) {
           for (const row of index.get(alias) ?? []) candidates.add(row);
         }
         return { row:candidates.size===1 ? [...candidates][0] : null, ambiguous:candidates.size>1 };
+    });
+  }
+  function rankingAudit(result, lists) {
+    const match = rankingMatcher(lists);
+    const complete = lists.map(list=>new Set(list.map(entry=>entry.rank)).size===500);
+    return result.rankingCompanies.map(company=>{
+      const matches = match(company);
+      const reported = new Set([...company.categories].map(categorySequence));
+      const issues = [];
+      const eligible = new Set();
+      const location = company.locations.size===1 ? [...company.locations][0] : "";
+      if (matches[0].row) {
+        if (location) {
+          const worldCategory = location==="中国" ? 2 : 1;
+          eligible.add(worldCategory);
+          if (reported.has(worldCategory===1 ? 2 : 1)) issues.push("世界500强内外资类别与集团国别不一致");
+        }
+        else issues.push("世界500强已匹配，集团国别待核对");
+      }
+      if (matches[1].row) eligible.add(3);
+      if (eligible.size && ![...eligible].some(code=>reported.has(code))) {
+        issues.push("榜单对应第 "+[...eligible].sort().join("、")+" 项，请核对企业机构性质1");
+      }
+      matches.forEach((entry,index)=>{
+        if (entry.ambiguous) issues.push(rankingLabels[index]+"存在多个匹配项");
+        const claimed = index===0 ? reported.has(1)||reported.has(2) : reported.has(3);
+        if (claimed && complete[index] && !entry.row && !entry.ambiguous) {
+          issues.push("原填类别在完整榜单中未匹配，请核对名称或集团归属");
+        }
       });
-      return [{ company,categories,guests,matches,sequence:sequence(categories[0]) }];
+      return {company,matches,issues};
+    }).sort((a,b)=>Number(!!b.issues.length)-Number(!!a.issues.length)||a.company.name.localeCompare(b.company.name,"zh"));
+  }
+  function priorityGroups(result, selected, lists) {
+    const match = rankingMatcher(lists);
+    return result.confirmedEnterprises.flatMap(company=>{
+      const categories = [...company.categories].filter(c=>selected.has(c)).sort((a,b)=>categorySequence(a)-categorySequence(b));
+      if (!categories.length) return [];
+      const guests = [...company.guests.values()].map(values=>({values,level:guestLevel(values[9])})).sort((a,b)=>a.level-b.level);
+      return [{ company,categories,guests,matches:match(company),sequence:categorySequence(categories[0]) }];
     }).sort((a,b)=>a.sequence-b.sequence || a.guests[0].level-b.guests[0].level || a.company.name.localeCompare(b.company.name,"zh"));
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
@@ -592,6 +639,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
