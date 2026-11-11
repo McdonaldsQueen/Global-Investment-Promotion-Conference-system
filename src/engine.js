@@ -619,6 +619,60 @@ globalThis.createWorkbench = function (rules) {
       return [{ company,categories,guests,matches:match(company),sequence:categorySequence(categories[0]) }];
     }).sort((a,b)=>a.sequence-b.sequence || a.guests[0].level-b.guests[0].level || a.company.name.localeCompare(b.company.name,"zh"));
   }
+  function dailySummary(result, date) {
+    const companies = new Map();
+    const yes = /^(是|已确认(?:参会|参加)?|确认(?:参会|参加)?|参加|参会|yes)$/i;
+    const no = /^(否|不参加|不参会|无法参会|取消参会|no)$/i;
+    const domesticNationality = new Set(["中国","中国香港","中国澳门","中国台湾"]);
+    for (const {values} of result.rows) {
+      const [ ,name,,,type,category,,,guest,title,nationality,,,,,,attendance] = values;
+      if (!name || type!=="意向投资企业" || !confirmed(values)) continue;
+      const id=key(name);
+      if (!companies.has(id)) companies.set(id,{name,categories:new Set(),guests:new Map()});
+      const company=companies.get(id);
+      const guestId=key(guest);
+      if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,titles:[],confirmedTitles:[],nationalities:new Set(),declined:false});
+      const person=company.guests.get(guestId);
+      if (no.test(clean(attendance))) {person.declined=true;continue;}
+      const level=guestLevel(title);
+      person.titles.push({title,level});
+      if (yes.test(clean(attendance))) person.confirmedTitles.push({title,level});
+      const code=categorySequence(category);
+      if (code!==99) company.categories.add(code);
+      const nation=country(clean(nationality).replace(/籍$/,""));
+      if (nation) person.nationalities.add(nation);
+    }
+    const intents = [];
+    for (const company of companies.values()) {
+      const guests = [...company.guests.values()].filter(person=>person.titles.length && !person.declined);
+      if (!guests.length) continue;
+      const confirmedGuests = guests.flatMap(person=>person.confirmedTitles
+        .map(({title,level})=>({guest:person.guest,title,level}))
+        .sort((a,b)=>a.level-b.level).slice(0,1)).sort((a,b)=>a.level-b.level);
+      intents.push({...company,guests,confirmedGuests,priority:Math.min(99,...company.categories)});
+    }
+    const ordered = intents.sort((a,b)=>a.priority-b.priority ||
+      (a.confirmedGuests[0]?.level ?? 99)-(b.confirmedGuests[0]?.level ?? 99) || a.name.localeCompare(b.name,"zh"));
+    const publishable = value=>!/(待定|待确认|待核实|暂定|拟邀|待补)/.test(value);
+    const inviteNames = ordered.filter(company=>company.priority<=3 && publishable(company.name)).slice(0,3).map(company=>company.name);
+    const confirmedCompanies = ordered.filter(company=>company.confirmedGuests.length && publishable(company.name));
+    const confirmedNames = confirmedCompanies.slice(0,4).map(company=>company.name);
+    const guestNames = confirmedCompanies.flatMap(company=>{
+      const guest=company.confirmedGuests.find(person=>person.level<=3 && publishable(person.guest) && publishable(person.title));
+      return guest ? [company.name+" "+guest.title+" "+guest.guest] : [];
+    }).slice(0,3);
+    const world = intents.filter(company=>company.categories.has(1)||company.categories.has(2)).length;
+    const china = intents.filter(company=>company.categories.has(3)).length;
+    const foreignExecutives = intents.reduce((count,company)=>count+company.guests.filter(person=>
+      person.titles.some(role=>role.level<=3) && person.nationalities.size===1 && !domesticNationality.has([...person.nationalities][0])).length,0);
+    const day = date ? "截至"+date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,(_,y,m,d)=>y+"年"+Number(m)+"月"+Number(d)+"日")+"，" : "";
+    const focus = inviteNames.length ? "本次重点邀约"+inviteNames.join("、")+"等企业。" : "";
+    const confirmedText = confirmedNames.length ? confirmedNames.join("、")+"等企业已确认参会。" :
+      ordered.some(company=>company.confirmedGuests.length) ? "" : "本批暂无明确确认参加主会场的企业。";
+    const guestText = guestNames.length ? "明确参会嘉宾包括"+guestNames.join("、")+"。" : "";
+    return focus+day+"累计收到初步参会意向 "+intents.length+" 家，按填报类别含世界500强 "+world+
+      " 家、中国500强 "+china+" 家，外籍高管 "+foreignExecutives+" 人。"+confirmedText+guestText;
+  }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
   const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];
   async function exportPriority(rows, date) {
@@ -639,6 +693,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);

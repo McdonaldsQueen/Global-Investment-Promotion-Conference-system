@@ -119,9 +119,27 @@
   drop.addEventListener("dragover",event=>{event.preventDefault();drop.classList.add("over");});
   drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
   drop.addEventListener("drop",event=>{event.preventDefault();drop.classList.remove("over");openFile(event.dataTransfer.files[0]);});
+  function updateReport() {
+    if (!result) return;
+    el("report-text").value = api.dailySummary(result,el("date").value);
+    el("report-status").textContent = "";
+  }
+  el("date").addEventListener("change",updateReport);
+  el("copy-report").addEventListener("click",async ()=>{
+    const text = el("report-text");
+    try {
+      await navigator.clipboard.writeText(text.value);
+      el("report-status").textContent = "已复制汇报摘要。";
+    } catch {
+      text.focus();
+      text.select();
+      el("report-status").textContent = "已选中摘要，请按 Ctrl+C 或 ⌘C 复制。";
+    }
+  });
   function refresh() {
     clearDownloadLink();
     result = api.process(workbook.records,edits,groupRules,leads);
+    updateReport();
     const c = result.counts;
     el("metrics").innerHTML = '<article class="metric"><span>确认参会企业集团</span><strong>'+format(result.confirmedEnterprises.length)+'</strong><div class="metric-actions"><button type="button" id="export-confirmed-card" class="button primary">导出确认企业 Excel ↓</button><button type="button" id="open-confirmed" class="metric-detail">查看明细 →</button></div></article>' + [
       ["国内企业",c.domestic],["外资企业（含港澳台）",c.foreign],
@@ -138,6 +156,7 @@
   }
   function setView(next) {
     view = next;
+    el("report-panel").hidden = next !== "dashboard";
     page = 0;
     search = "";
     document.querySelectorAll("[data-view]").forEach(button=>{

@@ -45,6 +45,12 @@
         <div><p class="eyebrow">当前批次</p><h2 id="batch"></h2><p class="muted" id="batch-info"></p></div>
         <div class="actions"><label class="date-label">数据日期 <input type="date" id="date"></label><button class="button primary" id="download">下载 Excel</button><a id="download-ready" class="button" hidden>手动保存已生成文件</a></div>
       </div>
+      <section class="panel" id="report-panel" aria-labelledby="report-heading" hidden>
+        <div class="panel-heading"><h3 id="report-heading">汇报摘要</h3><button type="button" class="button primary" id="copy-report">复制汇报摘要</button></div>
+        <textarea id="report-text" aria-label="汇报摘要" readonly rows="4"></textarea>
+        <p class="small muted">初步意向按姓名和职务齐全、且未明确拒绝的企业统计。参会举例取「是否参加主会场」填「是」的记录。外籍高管按已填写国籍和现有职级统计。</p>
+        <p class="small muted" id="report-status" role="status"></p>
+      </section>
       <div class="metrics" id="metrics"></div>
       <p class="small muted" id="count-note"></p>
       <nav class="tabs" aria-label="工作台视图">
