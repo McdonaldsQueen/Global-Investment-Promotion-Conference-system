@@ -90,7 +90,7 @@ globalThis.createWorkbench = function (rules) {
     const result = new Map();
     let context = -1;
     for (const [index, value] of row) {
-      const normalized = key(value);
+      const normalized = key(value).replace(/\(在下拉选项选填\)$/,"");
       let field = fieldKeys.indexOf(normalized);
       if (normalized === "参会嘉宾国錐") field = 10;
       if (normalized.startsWith("备注")) field = 21;
