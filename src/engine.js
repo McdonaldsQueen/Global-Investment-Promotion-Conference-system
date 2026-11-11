@@ -340,6 +340,7 @@ globalThis.createWorkbench = function (rules) {
     const groups = new Map();
     const byUnit = new Map(inviters.map(inviter=>[inviter,new Map()]));
     const confirmedEnterprises = new Map();
+    const preparedByLine = new Map(prepared.map(input=>[input.record.line,input]));
     for (const record of active) {
       if (!record.name) continue;
       const id = key(record.name);
@@ -350,8 +351,12 @@ globalThis.createWorkbench = function (rules) {
       if (enterprise && !record.excluded) g.enterprise = true;
       if (isConfirmed) g.statuses.push([record.values[3],record.values[4],substance(record.values[5])]);
       if (isConfirmed && enterprise) {
-        if (!confirmedEnterprises.has(id)) confirmedEnterprises.set(id, { name:record.name, locations:new Set(), guests:new Map(), units:new Set() });
+        if (!confirmedEnterprises.has(id)) confirmedEnterprises.set(id, { name:record.name, locations:new Set(), guests:new Map(), units:new Set(), categories:new Set(), applicants:new Set(), verifiedGroup:false });
         const company = confirmedEnterprises.get(id);
+        const input = preparedByLine.get(record.line);
+        if (input?.original) company.applicants.add(input.original);
+        if (input?.known || input?.approvedGroup) company.verifiedGroup = true;
+        if (record.values[5]) company.categories.add(record.values[5]);
         if (record.values[3]) company.locations.add(record.values[3]);
         const personKey = JSON.stringify([key(record.values[8]),key(record.values[9])]);
         if (!company.guests.has(personKey) || !valid(company.guests.get(personKey)[10])) company.guests.set(personKey,record.values);
@@ -422,7 +427,7 @@ globalThis.createWorkbench = function (rules) {
       widths.map((w,i) => '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("") +
       "</cols><sheetData>" + data.map((row,index) => rowXml(row,index+1)).join("") + "</sheetData></worksheet>";
   }
-  function createBlankWorkbook() {
+  function createBlankWorkbook(widths = columnWidths) {
     const zip = new root.JSZip();
     const declaration = '<?xml version="1.0" encoding="UTF-8"?>';
     const spreadsheetType = "application/vnd.openxmlformats-officedocument.spreadsheetml.";
@@ -439,7 +444,7 @@ globalThis.createWorkbench = function (rules) {
     put("xl/_rels/workbook.xml.rels",relationships(rel("rId1","worksheet","worksheets/sheet1.xml")+rel("rId2","styles","styles.xml")));
     put("xl/workbook.xml",'<workbook xmlns="'+mainXml+'" xmlns:r="'+relationshipXml+'"><bookViews><workbookView/></bookViews><sheets><sheet name="form" sheetId="1" r:id="rId1"/></sheets></workbook>');
     put("xl/worksheets/sheet1.xml",'<worksheet xmlns="'+mainXml+'"><dimension ref="A1:V1"/><cols>'+
-      columnWidths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
+      widths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
       "</cols><sheetData>"+rowXml(headers,1,' s="1"')+'</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>');
     put("xl/styles.xml",'<styleSheet xmlns="'+mainXml+'">'+
       '<fonts count="2"><font><sz val="11"/><name val="等线"/></font><font><b/><sz val="11"/><name val="等线"/></font></fonts>'+
@@ -523,6 +528,70 @@ globalThis.createWorkbench = function (rules) {
     zip.file("docProps/app.xml",appProperties);
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, options:baseOptions, inviters, headers, confirmed, guestComplete, title };
+  function rankingKeys(name) {
+    const normalized = clean(name);
+    const withoutCountry = normalized.slice(nameCountry(normalized).length);
+    const bilingual = /^(.*?)\(([a-z][a-z .&,'-]*)\)$/i.exec(withoutCountry);
+    return [...new Set((bilingual ? bilingual.slice(1) : [withoutCountry]).map(core).filter(Boolean))];
+  }
+  function guestLevel(title) {
+    const value = clean(title).toLowerCase();
+    if (/(助理|assistant\s+to|executive assistant|秘书|secretary)/i.test(value) || /^(董事|创始人|联合创始人|负责人)$/.test(value)) return 5;
+    if (/副董事长|副总裁|\b[se]?vp\b|vice president/.test(value)) return 2;
+    if (/副总经理|总经理|general manager/.test(value)) return 3;
+    if (/董事长|\bceo\b|首席执行官|总裁|chairman|chief executive officer/.test(value)) {
+      return /区|分公司|子公司|regional|china|apac/i.test(value) ? 2 : 1;
+    }
+    if (/总监|部门负责人|经理|director|\bmanager\b/.test(value)) return 4;
+    return 5;
+  }
+  function priorityGroups(result, selected, lists) {
+    const sequence = value => Number(/^\d+/.exec(value)?.[0] ?? 99);
+    const indexes = lists.map(rows=>{
+      const index = new Map();
+      for (const row of rows) for (const value of [row.name,...row.aliases]) {
+        for (const alias of rankingKeys(value)) {
+          if (!index.has(alias)) index.set(alias,new Set());
+          index.get(alias).add(row);
+        }
+      }
+      return index;
+    });
+    return result.confirmedEnterprises.flatMap(company=>{
+      const categories = [...company.categories].filter(c=>selected.has(c)).sort((a,b)=>sequence(a)-sequence(b));
+      if (!categories.length) return [];
+      const guests = [...company.guests.values()].map(values=>({values,level:guestLevel(values[9])})).sort((a,b)=>a.level-b.level);
+      const matches = indexes.map(index=>{
+        const candidates = new Set();
+        const names = [...company.applicants,...(company.verifiedGroup ? [company.name] : [])];
+        for (const name of names) for (const alias of rankingKeys(name)) {
+          for (const row of index.get(alias) ?? []) candidates.add(row);
+        }
+        return { row:candidates.size===1 ? [...candidates][0] : null, ambiguous:candidates.size>1 };
+      });
+      return [{ company,categories,guests,matches,sequence:sequence(categories[0]) }];
+    }).sort((a,b)=>a.sequence-b.sequence || a.guests[0].level-b.guests[0].level || a.company.name.localeCompare(b.company.name,"zh"));
+  }
+  const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
+  const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];
+  async function exportPriority(rows, date) {
+    const widths = [15,34,40,40,19,20,38,29,30,44,44];
+    const sheetName = "重点企业候选";
+    const data = [["数据日期","企业机构性质1","集团名称","参会主体","国别（地区）","嘉宾姓名","原填职务","职级","邀请单位",...rankingLabels]];
+    for (const {company,categories,guests,matches} of rows) {
+      for (const {values,level} of guests) {
+        data.push([date,categories.join("、"),company.name,[...company.applicants].join("、"),
+          values[3],values[8],values[9],priorityLevels[level-1],values[13],
+          ...matches.map(match=>match.row ? "第 "+match.row.rank+" 名 · "+match.row.name : match.ambiguous ? "有多个对应企业，待核对" : "当前名单未匹配")]);
+      }
+    }
+    const zip = createBlankWorkbook(widths);
+    zip.file("xl/worksheets/sheet1.xml",simpleSheet(data,widths));
+    for (const file of ["xl/workbook.xml","docProps/app.xml"]) {
+      zip.file(file,(await zip.file(file).async("string")).replace(/\bform\b/,sheetName));
+    }
+    return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
+  }
+  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);

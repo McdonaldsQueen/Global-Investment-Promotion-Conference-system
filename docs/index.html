@@ -109,6 +109,10 @@ dialog::backdrop{background:#10274588}
 .sr{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
 @media(max-width:850px){.wrap{width:calc(100% - 28px)}.hero{padding:24px;gap:18px}.dash-grid,.unit-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.toolbar{align-items:flex-start}.desktop{display:none}}
 @media(max-width:580px){.hero{grid-template-columns:1fr;margin-top:15px}.steps{grid-template-columns:1fr}.toolbar{flex-direction:column}.actions{justify-content:flex-start}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.edit-grid{grid-template-columns:1fr}.brand{font-size:14px}.top-inner{min-height:60px}}
+.priority fieldset{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0;padding:10px;border:1px solid #dce5ee;border-radius:6px}
+.priority details{margin:12px 0}
+.priority summary{cursor:pointer}
+.priority textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;font:inherit}
 
 </style>
   
@@ -154,6 +158,7 @@ dialog::backdrop{background:#10274588}
       <nav class="tabs" aria-label="工作台视图">
         <button data-view="dashboard" class="current" aria-pressed="true">数据看板</button>
         <button data-view="confirmed" aria-pressed="false">确认参会集团</button>
+        <button data-view="priority" aria-pressed="false">重点企业候选</button>
         <button data-view="review" aria-pressed="false">待复核 <span id="review-count"></span></button>
         <button data-view="names" aria-pressed="false">集团名称</button>
         <button data-view="detail" aria-pressed="false">整理明细</button>
@@ -3112,6 +3117,7 @@ globalThis.createWorkbench = function (rules) {
     const groups = new Map();
     const byUnit = new Map(inviters.map(inviter=>[inviter,new Map()]));
     const confirmedEnterprises = new Map();
+    const preparedByLine = new Map(prepared.map(input=>[input.record.line,input]));
     for (const record of active) {
       if (!record.name) continue;
       const id = key(record.name);
@@ -3122,8 +3128,12 @@ globalThis.createWorkbench = function (rules) {
       if (enterprise && !record.excluded) g.enterprise = true;
       if (isConfirmed) g.statuses.push([record.values[3],record.values[4],substance(record.values[5])]);
       if (isConfirmed && enterprise) {
-        if (!confirmedEnterprises.has(id)) confirmedEnterprises.set(id, { name:record.name, locations:new Set(), guests:new Map(), units:new Set() });
+        if (!confirmedEnterprises.has(id)) confirmedEnterprises.set(id, { name:record.name, locations:new Set(), guests:new Map(), units:new Set(), categories:new Set(), applicants:new Set(), verifiedGroup:false });
         const company = confirmedEnterprises.get(id);
+        const input = preparedByLine.get(record.line);
+        if (input?.original) company.applicants.add(input.original);
+        if (input?.known || input?.approvedGroup) company.verifiedGroup = true;
+        if (record.values[5]) company.categories.add(record.values[5]);
         if (record.values[3]) company.locations.add(record.values[3]);
         const personKey = JSON.stringify([key(record.values[8]),key(record.values[9])]);
         if (!company.guests.has(personKey) || !valid(company.guests.get(personKey)[10])) company.guests.set(personKey,record.values);
@@ -3194,7 +3204,7 @@ globalThis.createWorkbench = function (rules) {
       widths.map((w,i) => '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("") +
       "</cols><sheetData>" + data.map((row,index) => rowXml(row,index+1)).join("") + "</sheetData></worksheet>";
   }
-  function createBlankWorkbook() {
+  function createBlankWorkbook(widths = columnWidths) {
     const zip = new root.JSZip();
     const declaration = '<?xml version="1.0" encoding="UTF-8"?>';
     const spreadsheetType = "application/vnd.openxmlformats-officedocument.spreadsheetml.";
@@ -3211,7 +3221,7 @@ globalThis.createWorkbench = function (rules) {
     put("xl/_rels/workbook.xml.rels",relationships(rel("rId1","worksheet","worksheets/sheet1.xml")+rel("rId2","styles","styles.xml")));
     put("xl/workbook.xml",'<workbook xmlns="'+mainXml+'" xmlns:r="'+relationshipXml+'"><bookViews><workbookView/></bookViews><sheets><sheet name="form" sheetId="1" r:id="rId1"/></sheets></workbook>');
     put("xl/worksheets/sheet1.xml",'<worksheet xmlns="'+mainXml+'"><dimension ref="A1:V1"/><cols>'+
-      columnWidths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
+      widths.map((width,index)=>'<col min="'+(index+1)+'" max="'+(index+1)+'" width="'+width+'" customWidth="1"/>').join("")+
       "</cols><sheetData>"+rowXml(headers,1,' s="1"')+'</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>');
     put("xl/styles.xml",'<styleSheet xmlns="'+mainXml+'">'+
       '<fonts count="2"><font><sz val="11"/><name val="等线"/></font><font><b/><sz val="11"/><name val="等线"/></font></fonts>'+
@@ -3295,7 +3305,71 @@ globalThis.createWorkbench = function (rules) {
     zip.file("docProps/app.xml",appProperties);
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, options:baseOptions, inviters, headers, confirmed, guestComplete, title };
+  function rankingKeys(name) {
+    const normalized = clean(name);
+    const withoutCountry = normalized.slice(nameCountry(normalized).length);
+    const bilingual = /^(.*?)\(([a-z][a-z .&,'-]*)\)$/i.exec(withoutCountry);
+    return [...new Set((bilingual ? bilingual.slice(1) : [withoutCountry]).map(core).filter(Boolean))];
+  }
+  function guestLevel(title) {
+    const value = clean(title).toLowerCase();
+    if (/(助理|assistant\s+to|executive assistant|秘书|secretary)/i.test(value) || /^(董事|创始人|联合创始人|负责人)$/.test(value)) return 5;
+    if (/副董事长|副总裁|\b[se]?vp\b|vice president/.test(value)) return 2;
+    if (/副总经理|总经理|general manager/.test(value)) return 3;
+    if (/董事长|\bceo\b|首席执行官|总裁|chairman|chief executive officer/.test(value)) {
+      return /区|分公司|子公司|regional|china|apac/i.test(value) ? 2 : 1;
+    }
+    if (/总监|部门负责人|经理|director|\bmanager\b/.test(value)) return 4;
+    return 5;
+  }
+  function priorityGroups(result, selected, lists) {
+    const sequence = value => Number(/^\d+/.exec(value)?.[0] ?? 99);
+    const indexes = lists.map(rows=>{
+      const index = new Map();
+      for (const row of rows) for (const value of [row.name,...row.aliases]) {
+        for (const alias of rankingKeys(value)) {
+          if (!index.has(alias)) index.set(alias,new Set());
+          index.get(alias).add(row);
+        }
+      }
+      return index;
+    });
+    return result.confirmedEnterprises.flatMap(company=>{
+      const categories = [...company.categories].filter(c=>selected.has(c)).sort((a,b)=>sequence(a)-sequence(b));
+      if (!categories.length) return [];
+      const guests = [...company.guests.values()].map(values=>({values,level:guestLevel(values[9])})).sort((a,b)=>a.level-b.level);
+      const matches = indexes.map(index=>{
+        const candidates = new Set();
+        const names = [...company.applicants,...(company.verifiedGroup ? [company.name] : [])];
+        for (const name of names) for (const alias of rankingKeys(name)) {
+          for (const row of index.get(alias) ?? []) candidates.add(row);
+        }
+        return { row:candidates.size===1 ? [...candidates][0] : null, ambiguous:candidates.size>1 };
+      });
+      return [{ company,categories,guests,matches,sequence:sequence(categories[0]) }];
+    }).sort((a,b)=>a.sequence-b.sequence || a.guests[0].level-b.guests[0].level || a.company.name.localeCompare(b.company.name,"zh"));
+  }
+  const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
+  const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];
+  async function exportPriority(rows, date) {
+    const widths = [15,34,40,40,19,20,38,29,30,44,44];
+    const sheetName = "重点企业候选";
+    const data = [["数据日期","企业机构性质1","集团名称","参会主体","国别（地区）","嘉宾姓名","原填职务","职级","邀请单位",...rankingLabels]];
+    for (const {company,categories,guests,matches} of rows) {
+      for (const {values,level} of guests) {
+        data.push([date,categories.join("、"),company.name,[...company.applicants].join("、"),
+          values[3],values[8],values[9],priorityLevels[level-1],values[13],
+          ...matches.map(match=>match.row ? "第 "+match.row.rank+" 名 · "+match.row.name : match.ambiguous ? "有多个对应企业，待核对" : "当前名单未匹配")]);
+      }
+    }
+    const zip = createBlankWorkbook(widths);
+    zip.file("xl/worksheets/sheet1.xml",simpleSheet(data,widths));
+    for (const file of ["xl/workbook.xml","docProps/app.xml"]) {
+      zip.file(file,(await zip.file(file).async("string")).replace(/\bform\b/,sheetName));
+    }
+    return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
+  }
+  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
 
@@ -3313,6 +3387,9 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
   const leads = new Map();
   let workbook, result, filename, busy = false, view = "dashboard", page = 0, search = "";
   let downloadUrl;
+  const priorityCategories = new Set();
+  let rankingText = ["",""];
+  let priorityInitialized = false;
   let saveDialog = null;
   function loadGroupRules() {
     try { return new Map(JSON.parse(localStorage.getItem("main-venue-group-rules-v1") ?? "[]")); }
@@ -3454,6 +3531,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
   function render() {
     if (!result) return;
     const content = el("content");
+    if (view === "priority") {renderPriority(content);return;}
     if (view === "dashboard") {
       const bars = [...result.counts.countries].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"zh"));
       const max = bars[0]?.[1] ?? 1;
@@ -3465,6 +3543,8 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
         '<div class="unit-bars" aria-hidden="true"><span style="width:'+u.confirmed/unitMax*100+'%"></span><span style="width:'+u.pending/unitMax*100+'%"></span></div>'
       ]);
       content.innerHTML = '<div class="unit-grid"><section class="panel"><h3>外资集团国别分布</h3><p class="small muted">确认参会意向的外资集团，含港澳台</p><div class="bar-list">'+(barsHtml || '<span class="empty">暂无已确认外资集团。</span>')+'</div></section><section class="panel"><h3>各邀请单位企业进度</h3><p class="small muted">单位内按企业集团去重。有姓名和职务的为确认，同一单位同一集团只计一次。</p>'+table(["邀请单位","确认","待确认","进度分布"],unitRows,"暂无邀请单位统计。")+'</section></div><section class="panel"><h3>跨单位重复邀请 · '+result.duplicates.length+' 家</h3><p class="small muted">含待确认记录。每个集团下列出全部邀请来源。</p>'+controls()+'<div id="listing"></div></section>';
+      content.insertAdjacentHTML("afterbegin",'<section class="panel panel-heading"><div><h3>重点企业候选</h3><p class="small muted">按企业类别筛选，查看嘉宾职级和榜单核验结果。</p></div><button id="open-priority" type="button" class="button primary">查看重点企业</button></section>');
+      el("open-priority").addEventListener("click",()=>{setView("priority");render();});
       attachListing(duplicateRows, visible=>table(["集团","邀请单位及嘉宾"],visible.map(index=>{
         const g = result.duplicates[index];
         return [safe(g.name),[...g.units].map(([unit,guests])=>'<div><strong>'+safe(unit)+'</strong><br>'+guests.map(d=>safe([d.guest,d.position].filter(Boolean).join(" · ") || "嘉宾待定")+" "+chip(d.confirmed)).join("<br>")+"</div>").join("<br>")];
@@ -3514,6 +3594,66 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
       if (edit) showEditor(Number(edit.dataset.edit));
       if (group) showGroup(names[Number(group.dataset.group)]);
     };
+  }
+  function parseRanking(text) {
+    return text.split(/\r?\n/).filter(line=>line.trim()).map((line,index)=>{
+      const [rank,name,...aliases] = line.split("\t").map(value=>value.trim());
+      if (["排名","名次","序号"].includes(rank)) return null;
+      if (!/^\d+$/.test(rank) || Number(rank)<1 || Number(rank)>500 || !name) throw Error("第 "+(index+1)+" 行需要包含名次和企业名称。");
+      return {rank:Number(rank),name,aliases:aliases.filter(Boolean)};
+    }).filter(Boolean);
+  }
+  function renderPriority(content) {
+    const categories = api.options[2];
+    if (!priorityInitialized) {
+      categories.slice(0,3).forEach(value=>priorityCategories.add(value));
+      priorityInitialized = true;
+    }
+    const labels = api.rankingLabels;
+    const levels = api.priorityLevels;
+    const fields = labels.map((label,i)=>'<label>'+safe(label)+'<textarea data-ranking="'+i+'" rows="3">'+safe(rankingText[i])+'</textarea></label>').join("");
+    const filters = categories.map(label=>'<label><input type="checkbox" data-category="'+safe(label)+'"'+(priorityCategories.has(label)?" checked":"")+'> '+safe(label)+'</label>').join("");
+    content.innerHTML = '<section class="panel priority"><div class="panel-heading"><div><h3>重点企业候选</h3><p class="small muted">选择企业机构性质1的序号。先按序号，再按已确认嘉宾职级排序。</p></div><button id="download-priority" type="button" class="button primary">导出重点企业 Excel</button></div>'+
+      '<fieldset><legend>企业机构性质1</legend>'+filters+'</fieldset>'+
+      '<details><summary>导入核验榜单</summary><p>从 Excel 复制「名次」「企业名称」两列并粘贴。可在右侧附加核实过的别名。</p>'+
+      fields+'<button type="button" id="apply-ranking" class="button">应用榜单</button><p id="ranking-status" role="status"></p></details>'+
+      '<p id="priority-count" class="small muted"></p><div id="priority-list"></div></section>';
+    let visibleRows = [];
+    el("download-priority").addEventListener("click",()=>download(false,visibleRows));
+    function update() {
+      try {
+        const lists = rankingText.map(parseRanking);
+        const rows = api.priorityGroups(result,priorityCategories,lists);
+        visibleRows = rows;
+        el("download-priority").disabled = !rows.length;
+        el("priority-count").textContent = rows.length+" 家集团。各榜单已载入 "+lists.map(list=>list.length).join("、")+" 条。";
+        el("priority-list").innerHTML = table(["企业类别","集团及参会主体","已确认嘉宾与职级","榜单核验"],rows.map(({company,categories,guests,matches})=>[
+          safe(categories.join("、")), '<strong>'+safe(company.name)+'</strong><br>'+safe([...company.applicants].join("、")),
+          guests.map(({values,level})=>safe(values[8])+" · "+safe(values[9])+' <span class="tag">'+levels[level-1]+'</span>').join("<br>"),
+          matches.map((m,i)=>{
+            const country = company.locations.size===1 ? [...company.locations][0] : "";
+            const expected = i===1 ? 3 : country==="中国" ? 2 : country ? 1 : null;
+            const different = m.row && expected && ![...company.categories].some(c=>Number(/^\d+/.exec(c)?.[0])===expected);
+            const summary = m.row ? safe("第 "+m.row.rank+" 名 · "+m.row.name) :
+              m.ambiguous ? "有多个对应企业，待核对" : lists[i].length ? "当前名单未匹配" : "未导入";
+            return safe(labels[i])+"<br>"+summary+(different ? '<br><span class="tag pending">与填报类别不同，待核对</span>' : "");
+          }).join("<br>")
+        ]),"当前筛选条件下暂无已确认集团。");
+        el("ranking-status").textContent = "";
+      } catch(error) { el("ranking-status").textContent=error.message; }
+    }
+    el("apply-ranking").addEventListener("click",()=>{
+      const next = [...content.querySelectorAll("[data-ranking]")].map(input=>input.value);
+      try {next.forEach(parseRanking);} catch(error) {el("ranking-status").textContent=error.message;return;}
+      rankingText=next;
+      update();
+    });
+    content.querySelectorAll("[data-category]").forEach(input=>input.addEventListener("change",()=>{
+      if (input.checked) priorityCategories.add(input.dataset.category);
+      else priorityCategories.delete(input.dataset.category);
+      update();
+    }));
+    update();
   }
   function controls() {
     return '<div class="table-controls"><input id="search" type="search" placeholder="输入关键词筛选" aria-label="筛选当前列表" value="'+safe(search)+'"><div class="pager"><button class="button" id="prev" type="button">上一页</button><span class="small" id="pagination"></span><button class="button" id="next" type="button">下一页</button></div></div>';
@@ -3606,24 +3746,24 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     downloadUrl = undefined;
     el("download-ready").hidden = true;
   }
-  async function download(confirmedOnly = false) {
+  async function download(confirmedOnly = false, priorityRows = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
     busy = true;
     el("download").disabled=true;
     clearDownloadLink();
-    status(confirmedOnly?"正在生成确认企业核验 Excel…":"正在生成整理 Excel…");
+    status(priorityRows?"正在生成重点企业 Excel…":confirmedOnly?"正在生成确认企业核验 Excel…":"正在生成整理 Excel…");
     const date=el("date").value;
     const draft=result.notices.length>0;
     try {
-      const data=await api.exportExcel(result,date,confirmedOnly);
+      const data=priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
       downloadUrl=URL.createObjectURL(new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
       const a=el("download-ready");
       a.href=downloadUrl;
-      a.download=(confirmedOnly?"确认参会集团_":"主会场嘉宾整理_")+date+(!confirmedOnly && draft?"_含待复核":"")+".xlsx";
+      a.download=(priorityRows?"重点企业候选_":confirmedOnly?"确认参会集团_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
       a.hidden=false;
       a.click();
-      status(confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
+      status(priorityRows?"已生成重点企业 Excel。如下载未开始，请点「手动保存已生成文件」。":confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
     } catch {
       status("生成 Excel 失败，请重试。",true);
     } finally {busy=false;el("download").disabled=false;}

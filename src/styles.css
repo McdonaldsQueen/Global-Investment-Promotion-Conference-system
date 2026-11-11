@@ -99,3 +99,7 @@ dialog::backdrop{background:#10274588}
 .sr{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
 @media(max-width:850px){.wrap{width:calc(100% - 28px)}.hero{padding:24px;gap:18px}.dash-grid,.unit-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.toolbar{align-items:flex-start}.desktop{display:none}}
 @media(max-width:580px){.hero{grid-template-columns:1fr;margin-top:15px}.steps{grid-template-columns:1fr}.toolbar{flex-direction:column}.actions{justify-content:flex-start}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.edit-grid{grid-template-columns:1fr}.brand{font-size:14px}.top-inner{min-height:60px}}
+.priority fieldset{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0;padding:10px;border:1px solid #dce5ee;border-radius:6px}
+.priority details{margin:12px 0}
+.priority summary{cursor:pointer}
+.priority textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;font:inherit}

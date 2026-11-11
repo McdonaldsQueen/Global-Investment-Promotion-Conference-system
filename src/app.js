@@ -10,6 +10,9 @@
   const leads = new Map();
   let workbook, result, filename, busy = false, view = "dashboard", page = 0, search = "";
   let downloadUrl;
+  const priorityCategories = new Set();
+  let rankingText = ["",""];
+  let priorityInitialized = false;
   let saveDialog = null;
   function loadGroupRules() {
     try { return new Map(JSON.parse(localStorage.getItem("main-venue-group-rules-v1") ?? "[]")); }
@@ -151,6 +154,7 @@
   function render() {
     if (!result) return;
     const content = el("content");
+    if (view === "priority") {renderPriority(content);return;}
     if (view === "dashboard") {
       const bars = [...result.counts.countries].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"zh"));
       const max = bars[0]?.[1] ?? 1;
@@ -162,6 +166,8 @@
         '<div class="unit-bars" aria-hidden="true"><span style="width:'+u.confirmed/unitMax*100+'%"></span><span style="width:'+u.pending/unitMax*100+'%"></span></div>'
       ]);
       content.innerHTML = '<div class="unit-grid"><section class="panel"><h3>外资集团国别分布</h3><p class="small muted">确认参会意向的外资集团，含港澳台</p><div class="bar-list">'+(barsHtml || '<span class="empty">暂无已确认外资集团。</span>')+'</div></section><section class="panel"><h3>各邀请单位企业进度</h3><p class="small muted">单位内按企业集团去重。有姓名和职务的为确认，同一单位同一集团只计一次。</p>'+table(["邀请单位","确认","待确认","进度分布"],unitRows,"暂无邀请单位统计。")+'</section></div><section class="panel"><h3>跨单位重复邀请 · '+result.duplicates.length+' 家</h3><p class="small muted">含待确认记录。每个集团下列出全部邀请来源。</p>'+controls()+'<div id="listing"></div></section>';
+      content.insertAdjacentHTML("afterbegin",'<section class="panel panel-heading"><div><h3>重点企业候选</h3><p class="small muted">按企业类别筛选，查看嘉宾职级和榜单核验结果。</p></div><button id="open-priority" type="button" class="button primary">查看重点企业</button></section>');
+      el("open-priority").addEventListener("click",()=>{setView("priority");render();});
       attachListing(duplicateRows, visible=>table(["集团","邀请单位及嘉宾"],visible.map(index=>{
         const g = result.duplicates[index];
         return [safe(g.name),[...g.units].map(([unit,guests])=>'<div><strong>'+safe(unit)+'</strong><br>'+guests.map(d=>safe([d.guest,d.position].filter(Boolean).join(" · ") || "嘉宾待定")+" "+chip(d.confirmed)).join("<br>")+"</div>").join("<br>")];
@@ -211,6 +217,66 @@
       if (edit) showEditor(Number(edit.dataset.edit));
       if (group) showGroup(names[Number(group.dataset.group)]);
     };
+  }
+  function parseRanking(text) {
+    return text.split(/\r?\n/).filter(line=>line.trim()).map((line,index)=>{
+      const [rank,name,...aliases] = line.split("\t").map(value=>value.trim());
+      if (["排名","名次","序号"].includes(rank)) return null;
+      if (!/^\d+$/.test(rank) || Number(rank)<1 || Number(rank)>500 || !name) throw Error("第 "+(index+1)+" 行需要包含名次和企业名称。");
+      return {rank:Number(rank),name,aliases:aliases.filter(Boolean)};
+    }).filter(Boolean);
+  }
+  function renderPriority(content) {
+    const categories = api.options[2];
+    if (!priorityInitialized) {
+      categories.slice(0,3).forEach(value=>priorityCategories.add(value));
+      priorityInitialized = true;
+    }
+    const labels = api.rankingLabels;
+    const levels = api.priorityLevels;
+    const fields = labels.map((label,i)=>'<label>'+safe(label)+'<textarea data-ranking="'+i+'" rows="3">'+safe(rankingText[i])+'</textarea></label>').join("");
+    const filters = categories.map(label=>'<label><input type="checkbox" data-category="'+safe(label)+'"'+(priorityCategories.has(label)?" checked":"")+'> '+safe(label)+'</label>').join("");
+    content.innerHTML = '<section class="panel priority"><div class="panel-heading"><div><h3>重点企业候选</h3><p class="small muted">选择企业机构性质1的序号。先按序号，再按已确认嘉宾职级排序。</p></div><button id="download-priority" type="button" class="button primary">导出重点企业 Excel</button></div>'+
+      '<fieldset><legend>企业机构性质1</legend>'+filters+'</fieldset>'+
+      '<details><summary>导入核验榜单</summary><p>从 Excel 复制「名次」「企业名称」两列并粘贴。可在右侧附加核实过的别名。</p>'+
+      fields+'<button type="button" id="apply-ranking" class="button">应用榜单</button><p id="ranking-status" role="status"></p></details>'+
+      '<p id="priority-count" class="small muted"></p><div id="priority-list"></div></section>';
+    let visibleRows = [];
+    el("download-priority").addEventListener("click",()=>download(false,visibleRows));
+    function update() {
+      try {
+        const lists = rankingText.map(parseRanking);
+        const rows = api.priorityGroups(result,priorityCategories,lists);
+        visibleRows = rows;
+        el("download-priority").disabled = !rows.length;
+        el("priority-count").textContent = rows.length+" 家集团。各榜单已载入 "+lists.map(list=>list.length).join("、")+" 条。";
+        el("priority-list").innerHTML = table(["企业类别","集团及参会主体","已确认嘉宾与职级","榜单核验"],rows.map(({company,categories,guests,matches})=>[
+          safe(categories.join("、")), '<strong>'+safe(company.name)+'</strong><br>'+safe([...company.applicants].join("、")),
+          guests.map(({values,level})=>safe(values[8])+" · "+safe(values[9])+' <span class="tag">'+levels[level-1]+'</span>').join("<br>"),
+          matches.map((m,i)=>{
+            const country = company.locations.size===1 ? [...company.locations][0] : "";
+            const expected = i===1 ? 3 : country==="中国" ? 2 : country ? 1 : null;
+            const different = m.row && expected && ![...company.categories].some(c=>Number(/^\d+/.exec(c)?.[0])===expected);
+            const summary = m.row ? safe("第 "+m.row.rank+" 名 · "+m.row.name) :
+              m.ambiguous ? "有多个对应企业，待核对" : lists[i].length ? "当前名单未匹配" : "未导入";
+            return safe(labels[i])+"<br>"+summary+(different ? '<br><span class="tag pending">与填报类别不同，待核对</span>' : "");
+          }).join("<br>")
+        ]),"当前筛选条件下暂无已确认集团。");
+        el("ranking-status").textContent = "";
+      } catch(error) { el("ranking-status").textContent=error.message; }
+    }
+    el("apply-ranking").addEventListener("click",()=>{
+      const next = [...content.querySelectorAll("[data-ranking]")].map(input=>input.value);
+      try {next.forEach(parseRanking);} catch(error) {el("ranking-status").textContent=error.message;return;}
+      rankingText=next;
+      update();
+    });
+    content.querySelectorAll("[data-category]").forEach(input=>input.addEventListener("change",()=>{
+      if (input.checked) priorityCategories.add(input.dataset.category);
+      else priorityCategories.delete(input.dataset.category);
+      update();
+    }));
+    update();
   }
   function controls() {
     return '<div class="table-controls"><input id="search" type="search" placeholder="输入关键词筛选" aria-label="筛选当前列表" value="'+safe(search)+'"><div class="pager"><button class="button" id="prev" type="button">上一页</button><span class="small" id="pagination"></span><button class="button" id="next" type="button">下一页</button></div></div>';
@@ -303,24 +369,24 @@
     downloadUrl = undefined;
     el("download-ready").hidden = true;
   }
-  async function download(confirmedOnly = false) {
+  async function download(confirmedOnly = false, priorityRows = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
     busy = true;
     el("download").disabled=true;
     clearDownloadLink();
-    status(confirmedOnly?"正在生成确认企业核验 Excel…":"正在生成整理 Excel…");
+    status(priorityRows?"正在生成重点企业 Excel…":confirmedOnly?"正在生成确认企业核验 Excel…":"正在生成整理 Excel…");
     const date=el("date").value;
     const draft=result.notices.length>0;
     try {
-      const data=await api.exportExcel(result,date,confirmedOnly);
+      const data=priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
       downloadUrl=URL.createObjectURL(new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
       const a=el("download-ready");
       a.href=downloadUrl;
-      a.download=(confirmedOnly?"确认参会集团_":"主会场嘉宾整理_")+date+(!confirmedOnly && draft?"_含待复核":"")+".xlsx";
+      a.download=(priorityRows?"重点企业候选_":confirmedOnly?"确认参会集团_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
       a.hidden=false;
       a.click();
-      status(confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
+      status(priorityRows?"已生成重点企业 Excel。如下载未开始，请点「手动保存已生成文件」。":confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
     } catch {
       status("生成 Excel 失败，请重试。",true);
     } finally {busy=false;el("download").disabled=false;}
