@@ -57,10 +57,25 @@ input:not([type=file]),select{min-height:36px;padding:6px 9px;border:1px solid #
 .metric-detail{padding:4px 0;color:var(--blue);border:0;background:transparent;font-size:12px;text-decoration:underline;text-underline-offset:3px}
 .small{font-size:12px}
 #count-note{margin:9px 0 14px}
-.tabs{display:flex;gap:10px;border-bottom:1px solid var(--line);overflow:auto}
+.header-actions{display:flex;align-items:center;gap:10px}
+.guide-button{white-space:nowrap}
+.guide-button span{display:inline-grid;place-items:center;width:17px;height:17px;border:1px solid currentColor;border-radius:50%;font-size:12px}
+.tabs{display:flex;align-items:stretch;flex-wrap:wrap;gap:4px 10px;border-bottom:1px solid var(--line)}
 .tabs button{background:none;border:none;border-bottom:3px solid transparent;padding:10px 13px;color:var(--muted);font-weight:650;white-space:nowrap}
 .tabs button.current{border-color:var(--blue);color:var(--blue)}
 .tabs span{font-size:11px;color:var(--blue)}
+.more-views{position:relative;align-self:center}
+.more-views summary{display:grid;place-items:center;cursor:pointer;list-style:none;width:38px;height:34px;border-radius:7px;color:var(--muted)}
+.more-views summary::-webkit-details-marker{display:none}
+.more-views summary span{font-size:23px;color:inherit;line-height:1}
+.more-views summary:hover,.more-views[open] summary{background:#e8eff8}
+.more-views:has(button.current) summary{color:var(--blue)}
+.more-options{position:absolute;z-index:5;inset-block-start:100%;inset-inline-end:0;min-width:146px;background:white;border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 20px #10274520;padding:4px}
+.more-options button{display:block;width:100%;text-align:left;border:0;border-radius:5px}
+.more-options button:hover,.more-options button.current{background:#e8eff8}
+#guide ol{padding-inline-start:1.5em}
+#guide li+li{margin-top:10px}
+@media(max-width:580px){.header-actions .badge{display:none}.tabs{gap:2px}.tabs button{padding-inline:8px}.more-views{position:static}.tabs{position:relative}.more-options{inset-block-start:100%;inset-inline-end:0}}
 .panel{padding:17px 18px;margin-top:14px;min-width:0}
 .panel h3{font-size:16px;margin-bottom:4px}
 .panel p{margin:0 0 12px}

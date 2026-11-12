@@ -168,7 +168,26 @@
       button.setAttribute("aria-pressed",String(selected));
     });
   }
-  document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{setView(button.dataset.view);render();}));
+  const moreViews = el("more-views");
+  const moreTrigger = moreViews.querySelector("summary");
+  document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>{
+    if (moreViews.contains(button)) {
+      moreViews.open = false;
+      moreTrigger.focus();
+    }
+    setView(button.dataset.view);
+    render();
+  }));
+  document.addEventListener("click",event=>{
+    if (moreViews.open && !moreViews.contains(event.target)) moreViews.open = false;
+  });
+  moreViews.addEventListener("keydown",event=>{
+    if (event.key === "Escape" && moreViews.open) {
+      moreViews.open = false;
+      moreTrigger.focus();
+    }
+  });
+  el("open-guide").addEventListener("click",()=>el("guide").showModal());
   const table = (head, rows, empty) => rows.length ? '<div class="table-wrap"><table><thead><tr>'+head.map(h=>'<th scope="col">'+safe(h)+'</th>').join("")+'</tr></thead><tbody>'+rows.map(row=>"<tr>"+row.map(cell=>"<td>"+cell+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>" : '<p class="empty">'+safe(empty)+'</p>';
   const button = (label, action, value) => '<button class="button" type="button" data-'+action+'="'+safe(value)+'">'+safe(label)+'</button>';
   const chip = ok => '<span class="tag'+(ok?"":" pending")+'">'+(ok?"意向确认":"待确认")+'</span>';

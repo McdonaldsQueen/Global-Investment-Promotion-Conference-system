@@ -18,7 +18,7 @@
   <header class="top">
     <div class="wrap top-inner">
       <a class="brand" id="home" href="./" aria-label="主会场嘉宾工作台首页"><span class="mark" aria-hidden="true">招</span><span>主会场嘉宾工作台<small>2026 深圳全球招商大会</small></span></a>
-      <span class="badge"><i></i> 浏览器内处理</span>
+      <div class="header-actions"><span class="badge"><i></i> 浏览器内处理</span><button type="button" class="button guide-button" id="open-guide" aria-haspopup="dialog"><span aria-hidden="true">?</span> 操作指引</button></div>
     </div>
   </header>
   <main class="wrap">
@@ -56,13 +56,18 @@
       <div class="metrics" id="metrics"></div>
       <p class="small muted" id="count-note"></p>
       <nav class="tabs" aria-label="工作台视图">
-        <button data-view="dashboard" class="current" aria-pressed="true">数据看板</button>
         <button data-view="confirmed" aria-pressed="false">确认参会集团</button>
         <button data-view="priority" aria-pressed="false">重点企业候选</button>
-        <button data-view="ranking" aria-pressed="false">全局榜单核验</button>
+        <button data-view="dashboard" class="current" aria-pressed="true">数据看板</button>
         <button data-view="review" aria-pressed="false">待复核 <span id="review-count"></span></button>
-        <button data-view="names" aria-pressed="false">集团名称</button>
-        <button data-view="detail" aria-pressed="false">整理明细</button>
+        <details class="more-views" id="more-views">
+          <summary aria-label="更多视图" title="更多视图"><span aria-hidden="true">⋯</span></summary>
+          <div class="more-options">
+            <button data-view="ranking" aria-pressed="false">全局榜单核验</button>
+            <button data-view="names" aria-pressed="false">集团名称</button>
+            <button data-view="detail" aria-pressed="false">整理明细</button>
+          </div>
+        </details>
       </nav>
       <div id="content"></div>
     </section>
@@ -74,5 +79,18 @@
   </main>
   <footer class="wrap footer"><span>主会场嘉宾工作台</span><span>Excel 文件在本机浏览器处理</span></footer>
   <dialog id="dialog"><form id="editor"><div id="editor-fields"></div><div class="actions"><button type="button" class="button" id="cancel">取消</button><button type="submit" class="button primary">保存复核</button></div></form></dialog>
+  <dialog id="guide" aria-labelledby="guide-title">
+    <form method="dialog">
+      <div class="panel-heading"><h2 id="guide-title">操作指引</h2><button class="button" autofocus>关闭</button></div>
+      <ol>
+        <li>用工作人员专用链接打开网页。点击「选择 Excel 文件」，上传当天从报名系统导出的主会场名单。上传后核对文件名和数据日期。</li>
+        <li>点「确认参会集团」查看确认企业和嘉宾明细，也可以下载确认企业 Excel。同一集团只计一家；至少一位嘉宾填了姓名和职务就计为确认。</li>
+        <li>点「重点企业候选」，按企业机构性质筛选，再按职级查看嘉宾。筛选结果可以单独下载。</li>
+        <li>点「数据看板」，查看各单位确认和待确认企业数、外资国家分布及跨单位重复邀请。需要汇报时，点击「复制汇报摘要」。</li>
+        <li>点「待复核」，按原表行号核对缺项或冲突。需要查榜单、统一集团名称或查看整理后的嘉宾行，点导航里的「⋯」。</li>
+        <li>点页面上方「下载 Excel」保存完整名单。刷新网页或换一份名单前，先下载需要保留的结果。</li>
+      </ol>
+    </form>
+  </dialog>
 </body>
 </html>
