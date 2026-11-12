@@ -733,15 +733,28 @@ globalThis.createWorkbench = function (rules) {
     const ordered = intents.sort((a,b)=>a.priority-b.priority ||
       (a.confirmedGuests[0]?.level ?? 99)-(b.confirmedGuests[0]?.level ?? 99) || a.name.localeCompare(b.name,"zh"));
     const publishable = value=>!/(待定|待确认|待核实|暂定|拟邀|待补)/.test(value);
-    const inviteNames = [...result.rankingCompanies].filter(company=>publishable(company.name) && company.categories.size)
+    const inviteNames = [...result.rankingCompanies].filter(company=>publishable(company.name) && company.categories.size && !/拼多多|PDD\s*HOLDINGS/i.test(company.name))
       .sort((a,b)=>Math.min(...[...a.categories].map(categorySequence))-Math.min(...[...b.categories].map(categorySequence)) ||
         a.name.localeCompare(b.name,"zh")).slice(0,21).map(company=>company.name);
     const confirmedCompanies = ordered.filter(company=>company.confirmedGuests.length && publishable(company.name));
     const confirmedNames = confirmedCompanies.slice(0,6).map(company=>company.name);
-    const guestNames = confirmedCompanies.flatMap(company=>{
-      const guest=company.confirmedGuests.find(person=>person.level<=3 && publishable(person.guest) && publishable(person.title));
-      return guest ? [company.name+guest.title+guest.guest] : [];
-    }).slice(0,8);
+    const preferredGuests = ["吴秉琪","李东生","钱堃","晏思","区慧蓓","高小毛","何伟","佘端志","武藤忍"];
+    const centralCompanies = new Set(result.rankingCompanies.filter(company=>
+      [...company.categories,...company.rawCategories].some(value=>/中央企业|央企/.test(value))
+    ).map(company=>key(company.name)));
+    const mentions = confirmedCompanies.flatMap(company=>company.confirmedGuests
+      .filter(person=>publishable(person.guest) && publishable(person.title))
+      .map(person=>({company,person,priority:preferredGuests.indexOf(key(person.guest)),
+        central:centralCompanies.has(key(company.name)) || /^(?:中国)?华侨城集团/.test(company.name)})));
+    const sortedMentions = mentions.sort((a,b)=>Number(b.central)-Number(a.central)
+      || (a.priority<0?99:a.priority)-(b.priority<0?99:b.priority) || a.person.level-b.person.level);
+    const namedGuests = new Set();
+    const guestNames = [];
+    for (const {company,person,priority} of sortedMentions) {
+      if (namedGuests.has(key(person.guest)) || (priority<0 && (person.level>3 || guestNames.length>=8))) continue;
+      namedGuests.add(key(person.guest));
+      guestNames.push(company.name+person.title+person.guest);
+    }
     const enterprises = result.confirmedEnterprises;
     const {invited,feedback,units} = result.invitationStats;
     const day = date ? "截至"+date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>Number(m)+"月"+Number(d)+"日")+"，" : "";
