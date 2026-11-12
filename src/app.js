@@ -11,7 +11,7 @@
   let workbook, result, filename, busy = false, view = "dashboard", page = 0, search = "";
   let downloadUrl;
   const priorityCategories = new Set();
-  let rankingText = ["",""];
+  let rankingText = RankingData.lists.map(list => list.map(({rank,name,aliases}) => [rank,name,...aliases].join("\t")).join("\n"));
   let priorityInitialized = false;
   let saveDialog = null;
   function loadGroupRules() {
@@ -251,7 +251,7 @@
   }
   function renderRankingAudit(content) {
     const fields = api.rankingLabels.map((label,i)=>'<label>'+safe(label)+'<textarea data-ranking="'+i+'" rows="3">'+safe(rankingText[i])+'</textarea></label>').join("");
-    content.innerHTML = '<section class="panel priority"><h3>全局榜单核验</h3><p class="small muted">核验本次导入的全部企业集团，包含待确认参会企业。可从 Excel 粘贴「名次」「企业名称」两列，右侧可附加已核实的别名。</p>'+
+    content.innerHTML = '<section class="panel priority"><h3>全局榜单核验</h3><p class="small muted">核验本次导入的全部企业集团，包含待确认参会企业。已内置 2025 年世界 500 强及 2026 年中国民营企业 500 强，导入名单后自动核验。</p>'+
       '<details'+(!rankingText.some(Boolean)?" open":"")+'><summary>导入核验榜单</summary>'+fields+
       '<button type="button" class="button" id="apply-audit-ranking">应用榜单</button><p id="audit-error" role="status"></p></details>'+
       '<label><input type="checkbox" id="ranking-anomalies" checked> 只看待复核</label>'+

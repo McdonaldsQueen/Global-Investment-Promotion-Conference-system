@@ -4,6 +4,7 @@ globalThis.createWorkbench = function (rules) {
   const root = globalThis;
   const clean = value => String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, " ");
   const key = value => clean(value).replace(/\s/g, "").toLowerCase();
+  const reviewRules = new Map(RankingData.rules.flatMap(rule => rule.names.map(name => [key(name),rule])));
   const valid = value => !!clean(value) && !/^(待定|待确认|暂未确定|待补充|待填|无|暂无|未定|未知|不详|待提供|不参加|未确认|tbd|n\/?a|null|unknown|[-—/]+)$/i.test(clean(value));
   const confirmed = row => valid(row[8]) && valid(row[9]);
   const guestComplete = row => confirmed(row) && valid(row[10]);
@@ -224,12 +225,14 @@ globalThis.createWorkbench = function (rules) {
       const location = country(values[3]);
       const approvedGroup = groupRules.get(aliasKey(original, location));
       const known = knownGroups.get(core(original));
-      const selectedName = approvedGroup ?? known ?? original;
+      const review = reviewRules.get(key(original));
+      const selectedName = approvedGroup ?? review?.group ?? known ?? original;
       const prefixed = nameCountry(selectedName);
       const explicitCountry = prefixed === "中国" && location !== "中国" ? "" : prefixed;
-      const normalizedLocation = explicitCountry && (known || approvedGroup) ? explicitCountry : location;
+      const normalizedLocation = explicitCountry && (known || approvedGroup)
+        ? explicitCountry : location || review?.country || "";
       const kind = byOption[1].get(substance(values[4])) ?? "";
-      return { record, override, values, original, location, explicitCountry, normalizedLocation, kind, selectedName, known, approvedGroup };
+      return { record, override, values, original, location, explicitCountry, normalizedLocation, kind, selectedName, known, approvedGroup, review };
     });
     matchRegionalCompanies(prepared);
     const naming = new Map();
@@ -264,7 +267,11 @@ globalThis.createWorkbench = function (rules) {
       if (!normalizedLocation) add(line, "国别（地区）待确认", values[3], 3);
       if (explicitCountry && location && explicitCountry !== location) add(line, "集团名称与国别不一致", values[3], 3);
       if (!kind) add(line, "参会单位类型待确认", values[4], 4);
-      const f = byOption[2].get(substance(values[5])) ?? (/^外资$/.test(clean(values[5])) ? "4.外资企业" : "");
+      const originalCategory = byOption[2].get(substance(values[5])) ?? (/^外资$/.test(clean(values[5])) ? "4.外资企业" : "");
+      const f = !Object.hasOwn(r.override,5) && r.review?.category
+        ? options[2].find(option => categorySequence(option) === r.review.category) ?? originalCategory
+        : originalCategory;
+      if (kind === "意向投资企业" && r.review?.pending) add(line, "榜单人工复核待确认", r.review.note, 5);
       const g = byOption[3].get(substance(values[6])) ?? "";
       if (values[5] && values[6]) add(line, "F／G 同时填写，确认后清空不适用列", values[5] + " / " + values[6], kind === "招商合作机构" ? 5 : 6);
       if (kind === "意向投资企业" && !f) add(line, "企业机构性质1待确认", values[5], 5);
@@ -595,6 +602,14 @@ globalThis.createWorkbench = function (rules) {
         for (const name of names) for (const alias of rankingKeys(name)) {
           for (const row of index.get(alias) ?? []) candidates.add(row);
         }
+        const listIndex = indexes.indexOf(index);
+        for (const applicant of company.applicants) {
+          const rule = reviewRules.get(key(applicant));
+          const rank = rule?.ranks[listIndex];
+          const source = RankingData.lists[listIndex].find(row=>row.rank===rank);
+          const entry = lists[listIndex].find(row=>row.rank===rank && row.name===source?.name);
+          if (entry) candidates.add(entry);
+        }
         return { row:candidates.size===1 ? [...candidates][0] : null, ambiguous:candidates.size>1 };
     });
   }
@@ -603,8 +618,9 @@ globalThis.createWorkbench = function (rules) {
     const complete = lists.map(list=>new Set(list.map(entry=>entry.rank)).size===500);
     return result.rankingCompanies.map(company=>{
       const matches = match(company);
+      const reviewed = [...new Set([...company.applicants].map(name=>reviewRules.get(key(name))).filter(Boolean))];
       const reported = new Set([...company.categories].map(categorySequence));
-      const issues = [];
+      const issues = reviewed.filter(rule=>rule.pending).map(rule=>rule.note);
       const eligible = new Set();
       const location = company.locations.size===1 ? [...company.locations][0] : "";
       if (matches[0].row) {
@@ -693,7 +709,7 @@ globalThis.createWorkbench = function (rules) {
     return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
-  const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];
+  const rankingLabels = ["2025《财富》世界500强","2026全国工商联中国民营企业500强"];
   async function exportPriority(rows, date) {
     const widths = [15,34,40,40,19,20,38,29,30,44,44];
     const sheetName = "重点企业候选";

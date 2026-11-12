@@ -20,7 +20,7 @@ def inline(match):
     return "<script>\n" + script + "\n</script>"
 
 scripts = []
-page = re.sub(r'<script defer src="([^"]+)"></script>', lambda match: scripts.append(inline(match)) or "", page)
+page = re.sub(r'^  <script defer src="([^"]+)"></script>\n', lambda match: scripts.append(inline(match)) or "", page, flags=re.M)
 page = page.replace("</body>", "\n" + "\n".join(scripts) + "\n</body>")
 target = root / "docs" / "index.html"
 target.parent.mkdir(exist_ok=True)
@@ -34,7 +34,7 @@ class PageParser(HTMLParser):
 
 parsed = PageParser()
 parsed.feed(page)
-assert parsed.scripts == page.count("</script>") == 5
+assert parsed.scripts == page.count("</script>") == 6
 assert 'src="' not in page.split("<script>")[0]
 assert "fetch(" not in (folder / "app.js").read_text(encoding="utf-8")
 print(f"Standalone HTML ready, {target.stat().st_size:,} bytes.")
