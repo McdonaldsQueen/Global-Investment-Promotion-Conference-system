@@ -756,7 +756,7 @@ globalThis.createWorkbench = function (rules) {
     return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
-  const rankingLabels = ["2025《财富》世界500强","2026全国工商联中国民营企业500强"];
+  const rankingLabels = ["2026《财富》世界500强","2026全国工商联中国民营企业500强"];
   async function exportPriority(rows, date) {
     const widths = [15,34,40,40,19,20,38,29,30,44,44];
     const sheetName = "重点企业候选";

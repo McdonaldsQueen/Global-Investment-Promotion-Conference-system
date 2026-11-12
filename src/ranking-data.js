@@ -4,2502 +4,3442 @@ const RankingData = {
   [
    {
     "rank": 1,
-    "name": "沃尔玛（WALMART)",
-    "aliases": []
+    "name": "亚马逊",
+    "aliases": [
+     "亚马逊（AMAZON.COM)"
+    ]
    },
    {
     "rank": 2,
-    "name": "亚马逊（AMAZON.COM)",
-    "aliases": []
+    "name": "沃尔玛",
+    "aliases": [
+     "沃尔玛（WALMART)"
+    ]
    },
    {
     "rank": 3,
-    "name": "国家电网有限公司（STATE GRID)",
-    "aliases": []
+    "name": "国家电网有限公司",
+    "aliases": [
+     "国家电网有限公司（STATE GRID)"
+    ]
    },
    {
     "rank": 4,
-    "name": "沙特阿美公司（SAUDI ARAMCO)",
-    "aliases": []
+    "name": "联合健康集团",
+    "aliases": [
+     "联合健康集团（UNITEDHEALTH GROUP)"
+    ]
    },
    {
     "rank": 5,
-    "name": "中国石油天然气集团有限公司（CHINA NATIONAL PETROLEUM)",
-    "aliases": []
+    "name": "沙特阿美公司",
+    "aliases": [
+     "沙特阿美公司（SAUDI ARAMCO)"
+    ]
    },
    {
     "rank": 6,
-    "name": "中国石油化工集团有限公司（SINOPEC GROUP)",
-    "aliases": []
+    "name": "苹果公司",
+    "aliases": [
+     "苹果公司（APPLE)"
+    ]
    },
    {
     "rank": 7,
-    "name": "联合健康集团（UNITEDHEALTH GROUP)",
-    "aliases": []
+    "name": "麦克森公司",
+    "aliases": [
+     "麦克森公司（MCKESSON)"
+    ]
    },
    {
     "rank": 8,
-    "name": "苹果公司（APPLE)",
-    "aliases": []
+    "name": "Alphabet公司",
+    "aliases": [
+     "Alphabet公司（ALPHABET)"
+    ]
    },
    {
     "rank": 9,
-    "name": "CVS Health公司（CVS HEALTH)",
-    "aliases": []
+    "name": "CVS Health公司",
+    "aliases": [
+     "CVS Health公司（CVS HEALTH)"
+    ]
    },
    {
     "rank": 10,
-    "name": "伯克希尔－哈撒韦公司（BERKSHIRE HATHAWAY)",
-    "aliases": []
+    "name": "中国石油天然气集团有限公司",
+    "aliases": [
+     "中国石油天然气集团有限公司（CHINA NATIONAL PETROLEUM)"
+    ]
    },
    {
     "rank": 11,
-    "name": "麦克森公司（MCKESSON)",
-    "aliases": []
+    "name": "伯克希尔－哈撒韦公司",
+    "aliases": [
+     "伯克希尔－哈撒韦公司（BERKSHIRE HATHAWAY)"
+    ]
    },
    {
     "rank": 12,
-    "name": "大众公司（VOLKSWAGEN)",
-    "aliases": []
+    "name": "中国石油化工集团有限公司",
+    "aliases": [
+     "中国石油化工集团有限公司（SINOPEC GROUP)"
+    ]
    },
    {
     "rank": 13,
-    "name": "Alphabet公司（ALPHABET)",
-    "aliases": []
+    "name": "大众公司",
+    "aliases": [
+     "大众公司（VOLKSWAGEN)"
+    ]
    },
    {
     "rank": 14,
-    "name": "埃克森美孚（EXXON MOBIL)",
-    "aliases": []
+    "name": "丰田汽车公司",
+    "aliases": [
+     "丰田汽车公司（TOYOTA MOTOR)"
+    ]
    },
    {
     "rank": 15,
-    "name": "丰田汽车公司（TOYOTA MOTOR)",
-    "aliases": []
+    "name": "埃克森美孚",
+    "aliases": [
+     "埃克森美孚（EXXON MOBIL)"
+    ]
    },
    {
     "rank": 16,
-    "name": "中国建筑集团有限公司（CHINA STATE CONSTRUCTION ENGINEERING)",
-    "aliases": []
+    "name": "Cencora公司",
+    "aliases": [
+     "Cencora公司（CENCORA)"
+    ]
    },
    {
     "rank": 17,
-    "name": "Cencora公司（CENCORA)",
-    "aliases": []
+    "name": "中国建筑集团有限公司",
+    "aliases": [
+     "中国建筑集团有限公司（CHINA STATE CONSTRUCTION ENGINEERING)"
+    ]
    },
    {
     "rank": 18,
-    "name": "壳牌公司（SHELL)",
-    "aliases": []
+    "name": "微软",
+    "aliases": [
+     "微软（MICROSOFT)"
+    ]
    },
    {
     "rank": 19,
-    "name": "摩根大通公司（JPMORGAN CHASE)",
-    "aliases": []
+    "name": "摩根大通公司",
+    "aliases": [
+     "摩根大通公司（JPMORGAN CHASE)"
+    ]
    },
    {
     "rank": 20,
-    "name": "开市客（COSTCO WHOLESALE)",
-    "aliases": []
+    "name": "开市客",
+    "aliases": [
+     "开市客（COSTCO WHOLESALE)"
+    ]
    },
    {
     "rank": 21,
-    "name": "信诺集团（CIGNA GROUP)",
-    "aliases": []
+    "name": "信诺集团",
+    "aliases": [
+     "信诺集团（CIGNA GROUP)"
+    ]
    },
    {
     "rank": 22,
-    "name": "微软（MICROSOFT)",
-    "aliases": []
+    "name": "壳牌公司",
+    "aliases": [
+     "壳牌公司（SHELL)"
+    ]
    },
    {
     "rank": 23,
-    "name": "托克集团（TRAFIGURA GROUP)",
-    "aliases": []
+    "name": "鸿海精密工业股份有限公司",
+    "aliases": [
+     "鸿海精密工业股份有限公司（HON HAI PRECISION INDUSTRY)"
+    ]
    },
    {
     "rank": 24,
-    "name": "嘉能可（GLENCORE)",
-    "aliases": []
+    "name": "嘉能可",
+    "aliases": [
+     "嘉能可（GLENCORE)"
+    ]
    },
    {
     "rank": 25,
-    "name": "嘉德诺健康集团（CARDINAL HEALTH)",
-    "aliases": []
+    "name": "托克集团",
+    "aliases": [
+     "托克集团（TRAFIGURA GROUP)"
+    ]
    },
    {
     "rank": 26,
-    "name": "中国工商银行股份有限公司（INDUSTRIAL & COMMERCIAL BANK OF CHINA)",
-    "aliases": []
+    "name": "三星电子",
+    "aliases": [
+     "三星电子（SAMSUNG ELECTRONICS)"
+    ]
    },
    {
     "rank": 27,
-    "name": "三星电子（SAMSUNG ELECTRONICS)",
-    "aliases": []
+    "name": "嘉德诺健康集团",
+    "aliases": [
+     "嘉德诺健康集团（CARDINAL HEALTH)"
+    ]
    },
    {
     "rank": 28,
-    "name": "鸿海精密工业股份有限公司（HON HAI PRECISION INDUSTRY)",
-    "aliases": []
+    "name": "英伟达公司",
+    "aliases": [
+     "英伟达公司（NVIDIA)"
+    ]
    },
    {
     "rank": 29,
-    "name": "雪佛龙（CHEVRON)",
-    "aliases": []
+    "name": "中国工商银行股份有限公司",
+    "aliases": [
+     "中国工商银行股份有限公司（INDUSTRIAL & COMMERCIAL BANK OF CHINA)"
+    ]
    },
    {
     "rank": 30,
-    "name": "中国农业银行股份有限公司（AGRICULTURAL BANK OF CHINA)",
-    "aliases": []
+    "name": "Meta Platforms公司",
+    "aliases": [
+     "Meta Platforms公司（META PLATFORMS)"
+    ]
    },
    {
     "rank": 31,
-    "name": "中国建设银行股份有限公司（CHINA CONSTRUCTION BANK)",
-    "aliases": []
+    "name": "Elevance Health公司",
+    "aliases": [
+     "Elevance Health公司（ELEVANCE HEALTH)"
+    ]
    },
    {
     "rank": 32,
-    "name": "道达尔能源公司（TOTALENERGIES)",
-    "aliases": []
+    "name": "Centene公司",
+    "aliases": [
+     "Centene公司（CENTENE)"
+    ]
    },
    {
     "rank": 33,
-    "name": "英国石油公司（BP)",
-    "aliases": []
+    "name": "英国石油公司",
+    "aliases": [
+     "英国石油公司（BP)"
+    ]
    },
    {
     "rank": 34,
-    "name": "美国银行（BANK OF AMERICA)",
-    "aliases": []
+    "name": "美国银行",
+    "aliases": [
+     "美国银行（BANK OF AMERICA)"
+    ]
    },
    {
     "rank": 35,
-    "name": "通用汽车公司（GENERAL MOTORS)",
-    "aliases": []
+    "name": "中国农业银行股份有限公司",
+    "aliases": [
+     "中国农业银行股份有限公司（AGRICULTURAL BANK OF CHINA)"
+    ]
    },
    {
     "rank": 36,
-    "name": "福特汽车公司（FORD MOTOR)",
-    "aliases": []
+    "name": "雪佛龙",
+    "aliases": [
+     "雪佛龙（CHEVRON)"
+    ]
    },
    {
     "rank": 37,
-    "name": "Elevance Health公司（ELEVANCE HEALTH)",
-    "aliases": []
+    "name": "中国建设银行股份有限公司",
+    "aliases": [
+     "中国建设银行股份有限公司（CHINA CONSTRUCTION BANK)"
+    ]
    },
    {
     "rank": 38,
-    "name": "中国银行股份有限公司（BANK OF CHINA)",
-    "aliases": []
+    "name": "福特汽车公司",
+    "aliases": [
+     "福特汽车公司（FORD MOTOR)"
+    ]
    },
    {
     "rank": 39,
-    "name": "花旗集团（CITIGROUP)",
-    "aliases": []
+    "name": "通用汽车公司",
+    "aliases": [
+     "通用汽车公司（GENERAL MOTORS)"
+    ]
    },
    {
     "rank": 40,
-    "name": "Stellantis集团（STELLANTIS)",
-    "aliases": []
+    "name": "道达尔能源公司",
+    "aliases": [
+     "道达尔能源公司（TOTALENERGIES)"
+    ]
    },
    {
     "rank": 41,
-    "name": "Meta Platforms公司（META PLATFORMS)",
-    "aliases": []
+    "name": "京东集团股份有限公司",
+    "aliases": [
+     "京东集团股份有限公司（JD.COM)"
+    ]
    },
    {
     "rank": 42,
-    "name": "Centene公司（CENTENE)",
-    "aliases": []
+    "name": "中国人寿保险（集团）公司",
+    "aliases": [
+     "中国人寿保险（集团）公司（CHINA LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 43,
-    "name": "中国铁路工程集团有限公司（CHINA RAILWAY ENGINEERING GROUP)",
-    "aliases": []
+    "name": "Stellantis集团",
+    "aliases": [
+     "Stellantis集团（STELLANTIS)"
+    ]
    },
    {
     "rank": 44,
-    "name": "京东集团股份有限公司（JD.COM)",
-    "aliases": []
+    "name": "中国银行股份有限公司",
+    "aliases": [
+     "中国银行股份有限公司（BANK OF CHINA)"
+    ]
    },
    {
     "rank": 45,
-    "name": "中国人寿保险（集团）公司（CHINA LIFE INSURANCE)",
-    "aliases": []
+    "name": "花旗集团",
+    "aliases": [
+     "花旗集团（CITIGROUP)"
+    ]
    },
    {
     "rank": 46,
-    "name": "家得宝（HOME DEPOT)",
-    "aliases": []
+    "name": "家得宝",
+    "aliases": [
+     "家得宝（HOME DEPOT)"
+    ]
    },
    {
     "rank": 47,
-    "name": "中国平安保险（集团）股份有限公司（PING AN INSURANCE)",
-    "aliases": []
+    "name": "房利美",
+    "aliases": [
+     "房利美（FANNIE MAE)"
+    ]
    },
    {
     "rank": 48,
-    "name": "梅赛德斯-奔驰集团（MERCEDES-BENZ GROUP)",
-    "aliases": []
+    "name": "中国平安保险（集团）股份有限公司",
+    "aliases": [
+     "中国平安保险（集团）股份有限公司（PING AN INSURANCE)"
+    ]
    },
    {
     "rank": 49,
-    "name": "宝马集团（BMW GROUP)",
-    "aliases": []
+    "name": "中国铁路工程集团有限公司",
+    "aliases": [
+     "中国铁路工程集团有限公司（CHINA RAILWAY ENGINEERING GROUP)"
+    ]
    },
    {
     "rank": 50,
-    "name": "房利美（FANNIE MAE)",
-    "aliases": []
+    "name": "宝马集团",
+    "aliases": [
+     "宝马集团（BMW GROUP)"
+    ]
    },
    {
     "rank": 51,
-    "name": "中国铁道建筑集团有限公司（CHINA RAILWAY CONSTRUCTION)",
-    "aliases": []
+    "name": "梅赛德斯-奔驰集团",
+    "aliases": [
+     "梅赛德斯-奔驰集团（MERCEDES-BENZ GROUP)"
+    ]
    },
    {
     "rank": 52,
-    "name": "沃博联（WALGREENS BOOTS ALLIANCE)",
-    "aliases": []
+    "name": "克罗格",
+    "aliases": [
+     "克罗格（KROGER)"
+    ]
    },
    {
     "rank": 53,
-    "name": "克罗格（KROGER)",
-    "aliases": []
+    "name": "中国移动通信集团有限公司",
+    "aliases": [
+     "中国移动通信集团有限公司（CHINA MOBILE COMMUNICATIONS)"
+    ]
    },
    {
     "rank": 54,
-    "name": "法国巴黎银行（BNP PARIBAS)",
-    "aliases": []
+    "name": "西班牙国家银行",
+    "aliases": [
+     "西班牙国家银行（BANCO SANTANDER)"
+    ]
    },
    {
     "rank": 55,
-    "name": "西班牙国家银行（BANCO SANTANDER)",
-    "aliases": []
+    "name": "本田汽车",
+    "aliases": [
+     "本田汽车（HONDA MOTOR)"
+    ]
    },
    {
     "rank": 56,
-    "name": "汇丰银行控股公司（HSBC HOLDINGS)",
-    "aliases": []
+    "name": "阿里巴巴集团控股有限公司",
+    "aliases": [
+     "阿里巴巴集团控股有限公司（ALIBABA GROUP HOLDING)"
+    ]
    },
    {
     "rank": 57,
-    "name": "Phillips 66公司（PHILLIPS 66)",
-    "aliases": []
+    "name": "中国铁道建筑集团有限公司",
+    "aliases": [
+     "中国铁道建筑集团有限公司（CHINA RAILWAY CONSTRUCTION)"
+    ]
    },
    {
     "rank": 58,
-    "name": "中国移动通信集团有限公司（CHINA MOBILE COMMUNICATIONS)",
-    "aliases": []
+    "name": "法国巴黎银行",
+    "aliases": [
+     "法国巴黎银行（BNP PARIBAS)"
+    ]
    },
    {
     "rank": 59,
-    "name": "本田汽车（HONDA MOTOR)",
-    "aliases": []
+    "name": "中国中信集团有限公司",
+    "aliases": [
+     "中国中信集团有限公司（CITIC GROUP)"
+    ]
    },
    {
     "rank": 60,
-    "name": "马拉松原油公司（MARATHON PETROLEUM)",
-    "aliases": []
+    "name": "威瑞森电信",
+    "aliases": [
+     "威瑞森电信（VERIZON COMMUNICATIONS)"
+    ]
    },
    {
     "rank": 61,
-    "name": "中国交通建设集团有限公司（CHINA COMMUNICATIONS CONSTRUCTION)",
-    "aliases": []
+    "name": "Phillips 66公司",
+    "aliases": [
+     "Phillips 66公司（PHILLIPS 66)"
+    ]
    },
    {
     "rank": 62,
-    "name": "中国中信集团有限公司（CITIC GROUP)",
-    "aliases": []
+    "name": "汇丰银行控股公司",
+    "aliases": [
+     "汇丰银行控股公司（HSBC HOLDINGS)"
+    ]
    },
    {
     "rank": 63,
-    "name": "阿里巴巴集团控股有限公司（ALIBABA GROUP HOLDING)",
-    "aliases": []
+    "name": "马拉松原油公司",
+    "aliases": [
+     "马拉松原油公司（MARATHON PETROLEUM)"
+    ]
    },
    {
     "rank": 64,
-    "name": "威瑞森电信（VERIZON COMMUNICATIONS)",
-    "aliases": []
+    "name": "俄罗斯联邦储蓄银行",
+    "aliases": [
+     "俄罗斯联邦储蓄银行（SBERBANK)"
+    ]
    },
    {
     "rank": 65,
-    "name": "中国海洋石油集团有限公司（CHINA NATIONAL OFFSHORE OIL)",
-    "aliases": []
+    "name": "德国电信",
+    "aliases": [
+     "德国电信（DEUTSCHE TELEKOM)"
+    ]
    },
    {
     "rank": 66,
-    "name": "英伟达公司（NVIDIA)",
-    "aliases": []
+    "name": "中国交通建设集团有限公司",
+    "aliases": [
+     "中国交通建设集团有限公司（CHINA COMMUNICATIONS CONSTRUCTION)"
+    ]
    },
    {
     "rank": 67,
-    "name": "中国华润有限公司（CHINA RESOURCES)",
-    "aliases": []
+    "name": "安联保险集团",
+    "aliases": [
+     "安联保险集团（ALLIANZ)"
+    ]
    },
    {
     "rank": 68,
-    "name": "现代汽车（HYUNDAI MOTOR)",
-    "aliases": []
+    "name": "中国华润有限公司",
+    "aliases": [
+     "中国华润有限公司（CHINA RESOURCES)"
+    ]
    },
    {
     "rank": 69,
-    "name": "法国电力公司（ELECTRICITÉ DE FRANCE)",
-    "aliases": []
+    "name": "StoneX集团",
+    "aliases": [
+     "StoneX集团（STONEX GROUP)"
+    ]
    },
    {
     "rank": 70,
-    "name": "高盛集团（GOLDMAN SACHS GROUP)",
-    "aliases": []
+    "name": "州立农业保险公司",
+    "aliases": [
+     "州立农业保险公司（STATE FARM INSURANCE)"
+    ]
    },
    {
     "rank": 71,
-    "name": "美国富国银行（WELLS FARGO)",
-    "aliases": []
+    "name": "房地美",
+    "aliases": [
+     "房地美（FREDDIE MAC)"
+    ]
    },
    {
     "rank": 72,
-    "name": "德国电信（DEUTSCHE TELEKOM)",
-    "aliases": []
+    "name": "现代汽车",
+    "aliases": [
+     "现代汽车（HYUNDAI MOTOR)"
+    ]
    },
    {
     "rank": 73,
-    "name": "中国宝武钢铁集团有限公司（CHINA BAOWU STEEL GROUP)",
-    "aliases": []
+    "name": "哈门那公司",
+    "aliases": [
+     "哈门那公司（HUMANA)"
+    ]
    },
    {
     "rank": 74,
-    "name": "瓦莱罗能源公司（VALERO ENERGY)",
-    "aliases": []
+    "name": "法国电力公司",
+    "aliases": [
+     "法国电力公司（ELECTRICITÉ DE FRANCE)"
+    ]
    },
    {
     "rank": 75,
-    "name": "美国康卡斯特电信公司（COMCAST)",
-    "aliases": []
+    "name": "美国电话电报公司",
+    "aliases": [
+     "美国电话电报公司（AT&T)"
+    ]
    },
    {
     "rank": 76,
-    "name": "安联保险集团（ALLIANZ)",
-    "aliases": []
+    "name": "三菱商事株式会社",
+    "aliases": [
+     "三菱商事株式会社（MITSUBISHI)"
+    ]
    },
    {
     "rank": 77,
-    "name": "州立农业保险公司（STATE FARM INSURANCE)",
-    "aliases": []
+    "name": "高盛集团",
+    "aliases": [
+     "高盛集团（GOLDMAN SACHS GROUP)"
+    ]
    },
    {
     "rank": 78,
-    "name": "美国电话电报公司（AT&T)",
-    "aliases": []
+    "name": "恒力集团有限公司",
+    "aliases": [
+     "恒力集团有限公司（HENGLI GROUP)"
+    ]
    },
    {
     "rank": 79,
-    "name": "三菱商事株式会社（MITSUBISHI)",
-    "aliases": []
+    "name": "美国康卡斯特电信公司",
+    "aliases": [
+     "美国康卡斯特电信公司（COMCAST)"
+    ]
    },
    {
     "rank": 80,
-    "name": "房地美（FREDDIE MAC)",
-    "aliases": []
+    "name": "美国富国银行",
+    "aliases": [
+     "美国富国银行（WELLS FARGO)"
+    ]
    },
    {
     "rank": 81,
-    "name": "恒力集团有限公司（HENGLI GROUP)",
-    "aliases": []
+    "name": "华为投资控股有限公司",
+    "aliases": [
+     "华为投资控股有限公司（HUAWEI INVESTMENT & HOLDING)"
+    ]
    },
    {
     "rank": 82,
-    "name": "山东能源集团有限公司（SHANDONG ENERGY GROUP)",
-    "aliases": []
+    "name": "台积公司",
+    "aliases": [
+     "台积公司（TAIWAN SEMICONDUCTOR MANUFACTURING)"
+    ]
    },
    {
     "rank": 83,
-    "name": "华为投资控股有限公司（HUAWEI INVESTMENT & HOLDING)",
-    "aliases": []
+    "name": "中国海洋石油集团有限公司",
+    "aliases": [
+     "中国海洋石油集团有限公司（CHINA NATIONAL OFFSHORE OIL)"
+    ]
    },
    {
     "rank": 84,
-    "name": "中国南方电网有限责任公司（CHINA SOUTHERN POWER GRID)",
-    "aliases": []
+    "name": "摩根士丹利",
+    "aliases": [
+     "摩根士丹利（MORGAN STANLEY)"
+    ]
    },
    {
     "rank": 85,
-    "name": "哈门那公司（HUMANA)",
-    "aliases": []
+    "name": "信实工业公司",
+    "aliases": [
+     "信实工业公司（RELIANCE INDUSTRIES)"
+    ]
    },
    {
     "rank": 86,
-    "name": "中国五矿集团有限公司（CHINA MINMETALS)",
-    "aliases": []
+    "name": "中国南方电网有限责任公司",
+    "aliases": [
+     "中国南方电网有限责任公司（CHINA SOUTHERN POWER GRID)"
+    ]
    },
    {
     "rank": 87,
-    "name": "俄罗斯天然气工业股份公司（GAZPROM)",
-    "aliases": []
+    "name": "山东能源集团有限公司",
+    "aliases": [
+     "山东能源集团有限公司（SHANDONG ENERGY GROUP)"
+    ]
    },
    {
     "rank": 88,
-    "name": "信实工业公司（RELIANCE INDUSTRIES)",
-    "aliases": []
+    "name": "瓦莱罗能源公司",
+    "aliases": [
+     "瓦莱罗能源公司（VALERO ENERGY)"
+    ]
    },
    {
     "rank": 89,
-    "name": "法国兴业银行（SOCIÉTÉ GÉNÉRALE)",
-    "aliases": []
+    "name": "俄罗斯天然气工业股份公司",
+    "aliases": [
+     "俄罗斯天然气工业股份公司（GAZPROM)"
+    ]
    },
    {
     "rank": 90,
-    "name": "俄罗斯石油公司（ROSNEFT OIL)",
-    "aliases": []
+    "name": "戴尔科技公司",
+    "aliases": [
+     "戴尔科技公司（DELL TECHNOLOGIES)"
+    ]
    },
    {
     "rank": 91,
-    "name": "比亚迪股份有限公司（BYD)",
-    "aliases": []
+    "name": "比亚迪股份有限公司",
+    "aliases": [
+     "比亚迪股份有限公司（BYD)"
+    ]
    },
    {
     "rank": 92,
-    "name": "国家能源投资集团有限责任公司（CHINA ENERGY INVESTMENT)",
-    "aliases": []
+    "name": "印度人寿保险公司",
+    "aliases": [
+     "印度人寿保险公司（LIFE INSURANCE CORP. OF INDIA)"
+    ]
    },
    {
     "rank": 93,
-    "name": "摩根士丹利（MORGAN STANLEY)",
-    "aliases": []
+    "name": "雀巢公司",
+    "aliases": [
+     "雀巢公司（NESTLÉ)"
+    ]
    },
    {
     "rank": 94,
-    "name": "塔吉特公司（TARGET)",
-    "aliases": []
+    "name": "安盛",
+    "aliases": [
+     "安盛（AXA)"
+    ]
    },
    {
     "rank": 95,
-    "name": "印度人寿保险公司（LIFE INSURANCE CORP. OF INDIA)",
-    "aliases": []
+    "name": "Equinor公司",
+    "aliases": [
+     "Equinor公司（EQUINOR)"
+    ]
    },
    {
     "rank": 96,
-    "name": "Equinor公司（EQUINOR)",
-    "aliases": []
+    "name": "塔吉特公司",
+    "aliases": [
+     "塔吉特公司（TARGET)"
+    ]
    },
    {
     "rank": 97,
-    "name": "雀巢公司（NESTLÉ)",
-    "aliases": []
+    "name": "腾讯控股有限公司",
+    "aliases": [
+     "腾讯控股有限公司（TENCENT HOLDINGS)"
+    ]
    },
    {
     "rank": 98,
-    "name": "厦门建发集团有限公司（XIAMEN C&D)",
-    "aliases": []
+    "name": "皇家阿霍德德尔海兹集团",
+    "aliases": [
+     "皇家阿霍德德尔海兹集团（ROYAL AHOLD DELHAIZE)"
+    ]
    },
    {
     "rank": 99,
-    "name": "StoneX集团（STONEX GROUP)",
-    "aliases": []
+    "name": "中国五矿集团有限公司",
+    "aliases": [
+     "中国五矿集团有限公司（CHINA MINMETALS)"
+    ]
    },
    {
     "rank": 100,
-    "name": "中国电力建设集团有限公司（POWERCHINA)",
-    "aliases": []
+    "name": "中国宝武钢铁集团有限公司",
+    "aliases": [
+     "中国宝武钢铁集团有限公司（CHINA BAOWU STEEL GROUP)"
+    ]
    },
    {
     "rank": 101,
-    "name": "加拿大皇家银行（ROYAL BANK OF CANADA)",
-    "aliases": []
+    "name": "REWE集团",
+    "aliases": [
+     "REWE集团（REWE GROUP)"
+    ]
    },
    {
     "rank": 102,
-    "name": "俄罗斯联邦储蓄银行（SBERBANK)",
-    "aliases": []
+    "name": "博世集团",
+    "aliases": [
+     "博世集团（BOSCH GROUP)"
+    ]
    },
    {
     "rank": 103,
-    "name": "安盛（AXA)",
-    "aliases": []
+    "name": "法国兴业银行",
+    "aliases": [
+     "法国兴业银行（SOCIÉTÉ GÉNÉRALE)"
+    ]
    },
    {
     "rank": 104,
-    "name": "埃尼石油公司（ENI)",
-    "aliases": []
+    "name": "中国电力建设集团有限公司",
+    "aliases": [
+     "中国电力建设集团有限公司（POWERCHINA)"
+    ]
    },
    {
     "rank": 105,
-    "name": "博世集团（BOSCH GROUP)",
-    "aliases": []
+    "name": "乐购",
+    "aliases": [
+     "乐购（TESCO)"
+    ]
    },
    {
     "rank": 106,
-    "name": "特斯拉（TESLA)",
-    "aliases": []
+    "name": "家乐福",
+    "aliases": [
+     "家乐福（CARREFOUR)"
+    ]
    },
    {
     "rank": 107,
-    "name": "中国邮政集团有限公司（CHINA POST GROUP)",
-    "aliases": []
+    "name": "日本伊藤忠商事株式会社",
+    "aliases": [
+     "日本伊藤忠商事株式会社（ITOCHU)"
+    ]
    },
    {
     "rank": 108,
-    "name": "皇家阿霍德德尔海兹集团（ROYAL AHOLD DELHAIZE)",
-    "aliases": []
+    "name": "国家能源投资集团有限责任公司",
+    "aliases": [
+     "国家能源投资集团有限责任公司（CHINA ENERGY INVESTMENT)"
+    ]
    },
    {
     "rank": 109,
-    "name": "日本伊藤忠商事株式会社（ITOCHU)",
-    "aliases": []
+    "name": "俄罗斯石油公司",
+    "aliases": [
+     "俄罗斯石油公司（ROSNEFT OIL)"
+    ]
    },
    {
     "rank": 110,
-    "name": "三井物产株式会社（MITSUI)",
-    "aliases": []
+    "name": "加拿大皇家银行",
+    "aliases": [
+     "加拿大皇家银行（ROYAL BANK OF CANADA)"
+    ]
    },
    {
     "rank": 111,
-    "name": "戴尔科技公司（DELL TECHNOLOGIES)",
-    "aliases": []
+    "name": "日本生命保险公司",
+    "aliases": [
+     "日本生命保险公司（NIPPON LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 112,
-    "name": "REWE集团（REWE GROUP)",
-    "aliases": []
+    "name": "厦门建发集团有限公司",
+    "aliases": [
+     "厦门建发集团有限公司（XIAMEN C&D)"
+    ]
    },
    {
     "rank": 113,
-    "name": "家乐福（CARREFOUR)",
-    "aliases": []
+    "name": "三菱日联金融集团",
+    "aliases": [
+     "三菱日联金融集团（MITSUBISHI UFJ FINANCIAL GROUP)"
+    ]
    },
    {
     "rank": 114,
-    "name": "SK集团（SK)",
-    "aliases": []
+    "name": "日本电报电话公司",
+    "aliases": [
+     "日本电报电话公司（NIPPON TELEGRAPH AND TELEPHONE)"
+    ]
    },
    {
     "rank": 115,
-    "name": "百事公司（PEPSICO)",
-    "aliases": []
+    "name": "浙江荣盛控股集团有限公司",
+    "aliases": [
+     "浙江荣盛控股集团有限公司（ZHEJIANG RONGSHENG HOLDING GROUP)"
+    ]
    },
    {
     "rank": 116,
-    "name": "腾讯控股有限公司（TENCENT HOLDINGS)",
-    "aliases": []
+    "name": "特斯拉",
+    "aliases": [
+     "特斯拉（TESLA)"
+    ]
    },
    {
     "rank": 117,
-    "name": "迪奥公司（CHRISTIAN DIOR)",
-    "aliases": []
+    "name": "华特迪士尼公司",
+    "aliases": [
+     "华特迪士尼公司（WALT DISNEY)"
+    ]
    },
    {
     "rank": 118,
-    "name": "浙江荣盛控股集团有限公司（ZHEJIANG RONGSHENG HOLDING GROUP)",
-    "aliases": []
+    "name": "埃尼石油公司",
+    "aliases": [
+     "埃尼石油公司（ENI)"
+    ]
    },
    {
     "rank": 119,
-    "name": "中国医药集团有限公司（SINOPHARM)",
-    "aliases": []
+    "name": "中国邮政集团有限公司",
+    "aliases": [
+     "中国邮政集团有限公司（CHINA POST GROUP)"
+    ]
    },
    {
     "rank": 120,
-    "name": "巴西国家石油公司（PETROBRAS)",
-    "aliases": []
+    "name": "强生",
+    "aliases": [
+     "强生（JOHNSON & JOHNSON)"
+    ]
    },
    {
     "rank": 121,
-    "name": "墨西哥石油公司（PEMEX)",
-    "aliases": []
+    "name": "百事公司",
+    "aliases": [
+     "百事公司（PEPSICO)"
+    ]
    },
    {
     "rank": 122,
-    "name": "华特迪士尼公司（WALT DISNEY)",
-    "aliases": []
+    "name": "敦豪集团",
+    "aliases": [
+     "敦豪集团（DHL GROUP)"
+    ]
    },
    {
     "rank": 123,
-    "name": "联合包裹速递服务公司（UNITED PARCEL SERVICE)",
-    "aliases": []
+    "name": "中国人民保险集团股份有限公司",
+    "aliases": [
+     "中国人民保险集团股份有限公司（PEOPLE'S INSURANCE CO. OF CHINA)"
+    ]
    },
    {
     "rank": 124,
-    "name": "敦豪集团（DHL GROUP)",
-    "aliases": []
+    "name": "三井物产株式会社",
+    "aliases": [
+     "三井物产株式会社（MITSUI)"
+    ]
    },
    {
     "rank": 125,
-    "name": "法国农业信贷银行（CRÉDIT AGRICOLE)",
-    "aliases": []
+    "name": "上海汽车集团股份有限公司",
+    "aliases": [
+     "上海汽车集团股份有限公司（SAIC MOTOR)"
+    ]
    },
    {
     "rank": 126,
-    "name": "台积公司（TAIWAN SEMICONDUCTOR MANUFACTURING)",
-    "aliases": []
+    "name": "迪奥公司",
+    "aliases": [
+     "迪奥公司（CHRISTIAN DIOR)"
+    ]
    },
    {
     "rank": 127,
-    "name": "印度石油公司（INDIAN OIL)",
-    "aliases": []
+    "name": "意大利国家电力公司",
+    "aliases": [
+     "意大利国家电力公司（ENEL)"
+    ]
    },
    {
     "rank": 128,
-    "name": "日本电报电话公司（NIPPON TELEGRAPH AND TELEPHONE)",
-    "aliases": []
+    "name": "波音",
+    "aliases": [
+     "波音（BOEING)"
+    ]
    },
    {
     "rank": 129,
-    "name": "乐购（TESCO)",
-    "aliases": []
+    "name": "中国医药集团有限公司",
+    "aliases": [
+     "中国医药集团有限公司（SINOPHARM)"
+    ]
    },
    {
     "rank": 130,
-    "name": "三菱日联金融集团（MITSUBISHI UFJ FINANCIAL GROUP)",
-    "aliases": []
+    "name": "印度石油公司",
+    "aliases": [
+     "印度石油公司（INDIAN OIL)"
+    ]
    },
    {
     "rank": 131,
-    "name": "强生（JOHNSON & JOHNSON)",
-    "aliases": []
+    "name": "巴西国家石油公司",
+    "aliases": [
+     "巴西国家石油公司（PETROBRAS)"
+    ]
    },
    {
     "rank": 132,
-    "name": "多伦多道明银行（TORONTO-DOMINION BANK)",
-    "aliases": []
+    "name": "意昂集团",
+    "aliases": [
+     "意昂集团（E.ON)"
+    ]
    },
    {
     "rank": 133,
-    "name": "中粮集团有限公司（COFCO)",
-    "aliases": []
+    "name": "联合包裹速递服务公司",
+    "aliases": [
+     "联合包裹速递服务公司（UNITED PARCEL SERVICE)"
+    ]
    },
    {
     "rank": 134,
-    "name": "中国电信集团有限公司（CHINA TELECOMMUNICATIONS)",
-    "aliases": []
+    "name": "中国电信集团有限公司",
+    "aliases": [
+     "中国电信集团有限公司（CHINA TELECOMMUNICATIONS)"
+    ]
    },
    {
     "rank": 135,
-    "name": "联邦快递（FEDEX)",
-    "aliases": []
+    "name": "雷神技术公司",
+    "aliases": [
+     "雷神技术公司（RTX)"
+    ]
    },
    {
     "rank": 136,
-    "name": "泰国国家石油有限公司（PTT)",
+    "name": "Rajesh Exports公司",
     "aliases": []
    },
    {
     "rank": 137,
-    "name": "西班牙对外银行（BANCO BILBAO VIZCAYA ARGENTARIA)",
-    "aliases": []
+    "name": "联邦快递",
+    "aliases": [
+     "联邦快递（FEDEX)"
+    ]
    },
    {
     "rank": 138,
-    "name": "上海汽车集团股份有限公司（SAIC MOTOR)",
-    "aliases": []
+    "name": "浙江吉利控股集团有限公司",
+    "aliases": [
+     "浙江吉利控股集团有限公司（ZHEJIANG GEELY HOLDING GROUP)"
+    ]
    },
    {
     "rank": 139,
-    "name": "瑞银集团（UBS GROUP)",
-    "aliases": []
+    "name": "前进保险公司",
+    "aliases": [
+     "前进保险公司（PROGRESSIVE)"
+    ]
    },
    {
     "rank": 140,
-    "name": "意昂集团（E.ON)",
-    "aliases": []
+    "name": "多伦多道明银行",
+    "aliases": [
+     "多伦多道明银行（TORONTO-DOMINION BANK)"
+    ]
    },
    {
     "rank": 141,
-    "name": "中国人民保险集团股份有限公司（PEOPLE'S INSURANCE CO. OF CHINA)",
-    "aliases": []
+    "name": "索尼",
+    "aliases": [
+     "索尼（SONY)"
+    ]
    },
    {
     "rank": 142,
-    "name": "博枫公司（BROOKFIELD)",
-    "aliases": []
+    "name": "SK集团",
+    "aliases": [
+     "SK集团（SK)"
+    ]
    },
    {
     "rank": 143,
-    "name": "ADM公司（ARCHER DANIELS MIDLAND)",
-    "aliases": []
+    "name": "西门子",
+    "aliases": [
+     "西门子（SIEMENS)"
+    ]
    },
    {
     "rank": 144,
-    "name": "西门子（SIEMENS)",
-    "aliases": []
+    "name": "西班牙对外银行",
+    "aliases": [
+     "西班牙对外银行（BANCO BILBAO VIZCAYA ARGENTARIA)"
+    ]
    },
    {
     "rank": 145,
-    "name": "意大利国家电力公司（ENEL)",
-    "aliases": []
+    "name": "美国劳氏公司",
+    "aliases": [
+     "美国劳氏公司（LOWE'S)"
+    ]
    },
    {
     "rank": 146,
-    "name": "索尼（SONY)",
-    "aliases": []
+    "name": "巴西JBS公司",
+    "aliases": [
+     "巴西JBS公司（JBS)"
+    ]
    },
    {
     "rank": 147,
-    "name": "宝洁公司（PROCTER & GAMBLE)",
-    "aliases": []
+    "name": "Energy Transfer公司",
+    "aliases": [
+     "Energy Transfer公司（ENERGY TRANSFER)"
+    ]
    },
    {
     "rank": 148,
-    "name": "美国劳氏公司（LOWE'S)",
-    "aliases": []
+    "name": "英国劳埃德银行集团",
+    "aliases": [
+     "英国劳埃德银行集团（LLOYDS BANKING GROUP)"
+    ]
    },
    {
     "rank": 149,
-    "name": "物产中大集团股份有限公司（WUCHAN ZHONGDA GROUP)",
-    "aliases": []
+    "name": "万喜集团",
+    "aliases": [
+     "万喜集团（VINCI)"
+    ]
    },
    {
     "rank": 150,
-    "name": "日产汽车（NISSAN MOTOR)",
-    "aliases": []
+    "name": "法国农业信贷银行",
+    "aliases": [
+     "法国农业信贷银行（CRÉDIT AGRICOLE)"
+    ]
    },
    {
     "rank": 151,
-    "name": "Energy Transfer公司（ENERGY TRANSFER)",
-    "aliases": []
+    "name": "宝洁公司",
+    "aliases": [
+     "宝洁公司（PROCTER & GAMBLE)"
+    ]
    },
    {
     "rank": 152,
-    "name": "法国BPCE银行集团（GROUPE BPCE)",
-    "aliases": []
+    "name": "艾伯森公司",
+    "aliases": [
+     "艾伯森公司（ALBERTSONS)"
+    ]
    },
    {
     "rank": 153,
-    "name": "雷神技术公司（RTX)",
-    "aliases": []
+    "name": "联想集团有限公司",
+    "aliases": [
+     "联想集团有限公司（LENOVO GROUP)"
+    ]
    },
    {
     "rank": 154,
-    "name": "艾伯森公司（ALBERTSONS)",
-    "aliases": []
+    "name": "物产中大集团股份有限公司",
+    "aliases": [
+     "物产中大集团股份有限公司（WUCHAN ZHONGDA GROUP)"
+    ]
    },
    {
     "rank": 155,
-    "name": "浙江吉利控股集团有限公司（ZHEJIANG GEELY HOLDING GROUP)",
-    "aliases": []
+    "name": "空中客车公司",
+    "aliases": [
+     "空中客车公司（AIRBUS)"
+    ]
    },
    {
     "rank": 156,
-    "name": "Engie集团（ENGIE)",
-    "aliases": []
+    "name": "山东魏桥创业集团有限公司",
+    "aliases": [
+     "山东魏桥创业集团有限公司（SHANDONG WEIQIAO PIONEERING GROUP)"
+    ]
    },
    {
     "rank": 157,
-    "name": "美国邮政（U.S. POSTAL SERVICE)",
-    "aliases": []
+    "name": "中粮集团有限公司",
+    "aliases": [
+     "中粮集团有限公司（COFCO)"
+    ]
    },
    {
     "rank": 158,
-    "name": "西斯科公司（SYSCO)",
-    "aliases": []
+    "name": "盛虹控股集团有限公司",
+    "aliases": [
+     "盛虹控股集团有限公司（SHENGHONG HOLDING GROUP)"
+    ]
    },
    {
     "rank": 159,
-    "name": "起亚公司（KIA)",
-    "aliases": []
+    "name": "西斯科公司",
+    "aliases": [
+     "西斯科公司（SYSCO)"
+    ]
    },
    {
     "rank": 160,
-    "name": "万喜集团（VINCI)",
-    "aliases": []
+    "name": "Engie集团",
+    "aliases": [
+     "Engie集团（ENGIE)"
+    ]
    },
    {
     "rank": 161,
-    "name": "盛虹控股集团有限公司（SHENGHONG HOLDING GROUP)",
-    "aliases": []
+    "name": "泰国国家石油有限公司",
+    "aliases": [
+     "泰国国家石油有限公司（PTT)"
+    ]
    },
    {
     "rank": 162,
-    "name": "Seven & I 控股公司（SEVEN & I HOLDINGS)",
-    "aliases": []
+    "name": "印度国家银行",
+    "aliases": [
+     "印度国家银行（STATE BANK OF INDIA)"
+    ]
    },
    {
     "rank": 163,
-    "name": "印度国家银行（STATE BANK OF INDIA)",
-    "aliases": []
+    "name": "美国邮政",
+    "aliases": [
+     "美国邮政（U.S. POSTAL SERVICE)"
+    ]
    },
    {
     "rank": 164,
-    "name": "中国第一汽车集团有限公司（CHINA FAW GROUP)",
-    "aliases": []
+    "name": "江西铜业集团有限公司",
+    "aliases": [
+     "江西铜业集团有限公司（JIANGXI COPPER)"
+    ]
    },
    {
     "rank": 165,
-    "name": "江西铜业集团有限公司（JIANGXI COPPER)",
-    "aliases": []
+    "name": "美国运通公司",
+    "aliases": [
+     "美国运通公司（AMERICAN EXPRESS)"
+    ]
    },
    {
     "rank": 166,
-    "name": "山东魏桥创业集团有限公司（SHANDONG WEIQIAO PIONEERING GROUP)",
-    "aliases": []
+    "name": "起亚公司",
+    "aliases": [
+     "起亚公司（KIA)"
+    ]
    },
    {
     "rank": 167,
-    "name": "巴西JBS公司（JBS)",
-    "aliases": []
+    "name": "ADM公司",
+    "aliases": [
+     "ADM公司（ARCHER DANIELS MIDLAND)"
+    ]
    },
    {
     "rank": 168,
-    "name": "交通银行股份有限公司（BANK OF COMMUNICATIONS)",
-    "aliases": []
+    "name": "日产汽车",
+    "aliases": [
+     "日产汽车（NISSAN MOTOR)"
+    ]
    },
    {
     "rank": 169,
-    "name": "前进保险公司（PROGRESSIVE)",
-    "aliases": []
+    "name": "墨西哥石油公司",
+    "aliases": [
+     "墨西哥石油公司（PEMEX)"
+    ]
    },
    {
     "rank": 170,
-    "name": "太平洋建设集团有限公司（PACIFIC CONSTRUCTION GROUP)",
-    "aliases": []
+    "name": "太平洋建设集团有限公司",
+    "aliases": [
+     "太平洋建设集团有限公司（PACIFIC CONSTRUCTION GROUP)"
+    ]
    },
    {
     "rank": 171,
-    "name": "印尼国家石油公司（PERTAMINA)",
-    "aliases": []
+    "name": "法国BPCE银行集团",
+    "aliases": [
+     "法国BPCE银行集团（GROUPE BPCE)"
+    ]
    },
    {
     "rank": 172,
-    "name": "Uniper公司（UNIPER)",
-    "aliases": []
+    "name": "瑞银集团",
+    "aliases": [
+     "瑞银集团（UBS GROUP)"
+    ]
    },
    {
     "rank": 173,
-    "name": "日本邮政控股公司（JAPAN POST HOLDINGS)",
-    "aliases": []
+    "name": "美国大都会集团",
+    "aliases": [
+     "美国大都会集团（METLIFE)"
+    ]
    },
    {
     "rank": 174,
-    "name": "空中客车公司（AIRBUS)",
-    "aliases": []
+    "name": "伊塔乌联合银行控股公司",
+    "aliases": [
+     "伊塔乌联合银行控股公司（ITAÚ UNIBANCO HOLDING)"
+    ]
    },
    {
     "rank": 175,
-    "name": "美国运通公司（AMERICAN EXPRESS)",
-    "aliases": []
+    "name": "丰田通商公司",
+    "aliases": [
+     "丰田通商公司（TOYOTA TSUSHO)"
+    ]
    },
    {
     "rank": 176,
-    "name": "波兰国营石油公司（ORLEN)",
-    "aliases": []
+    "name": "瑞士罗氏公司",
+    "aliases": [
+     "瑞士罗氏公司（ROCHE GROUP)"
+    ]
    },
    {
     "rank": 177,
-    "name": "德意志银行（DEUTSCHE BANK)",
-    "aliases": []
+    "name": "日本邮政控股公司",
+    "aliases": [
+     "日本邮政控股公司（JAPAN POST HOLDINGS)"
+    ]
    },
    {
     "rank": 178,
-    "name": "陕西煤业化工集团有限责任公司（SHAANXI COAL & CHEMICAL INDUSTRY)",
-    "aliases": []
+    "name": "HCA 医疗保健公司",
+    "aliases": [
+     "HCA 医疗保健公司（HCA HEALTHCARE)"
+    ]
    },
    {
     "rank": 179,
-    "name": "英国劳埃德银行集团（LLOYDS BANKING GROUP)",
+    "name": "EP集团",
     "aliases": []
    },
    {
     "rank": 180,
-    "name": "引能仕控股株式会社（ENEOS HOLDINGS)",
-    "aliases": []
+    "name": "博枫公司",
+    "aliases": [
+     "博枫公司（BROOKFIELD)"
+    ]
    },
    {
     "rank": 181,
-    "name": "印度石油天然气公司（OIL & NATURAL GAS)",
-    "aliases": []
+    "name": "洛克希德－马丁",
+    "aliases": [
+     "洛克希德－马丁（LOCKHEED MARTIN)"
+    ]
    },
    {
     "rank": 182,
-    "name": "卢克石油公司（LUKOIL)",
+    "name": "第一生命保险集团",
     "aliases": []
    },
    {
     "rank": 183,
-    "name": "日本生命保险公司（NIPPON LIFE INSURANCE)",
-    "aliases": []
+    "name": "中国第一汽车集团有限公司",
+    "aliases": [
+     "中国第一汽车集团有限公司（CHINA FAW GROUP)"
+    ]
    },
    {
     "rank": 184,
-    "name": "荷兰国际集团（ING GROUP)",
-    "aliases": []
+    "name": "美国纽约人寿保险公司",
+    "aliases": [
+     "美国纽约人寿保险公司（NEW YORK LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 185,
-    "name": "巴克莱（BARCLAYS)",
-    "aliases": []
+    "name": "Alimentation Couche-Tard公司",
+    "aliases": [
+     "Alimentation Couche-Tard公司（ALIMENTATION COUCHE-TARD)"
+    ]
    },
    {
     "rank": 186,
-    "name": "洛克希德－马丁（LOCKHEED MARTIN)",
-    "aliases": []
+    "name": "巴克莱",
+    "aliases": [
+     "巴克莱（BARCLAYS)"
+    ]
    },
    {
     "rank": 187,
-    "name": "美国大都会集团（METLIFE)",
-    "aliases": []
+    "name": "荷兰国际集团",
+    "aliases": [
+     "荷兰国际集团（ING GROUP)"
+    ]
    },
    {
     "rank": 188,
-    "name": "瑞士罗氏公司（ROCHE GROUP)",
-    "aliases": []
+    "name": "交通银行股份有限公司",
+    "aliases": [
+     "交通银行股份有限公司（BANK OF COMMUNICATIONS)"
+    ]
    },
    {
     "rank": 189,
-    "name": "HCA 医疗保健公司（HCA HEALTHCARE)",
-    "aliases": []
+    "name": "德意志银行",
+    "aliases": [
+     "德意志银行（DEUTSCHE BANK)"
+    ]
    },
    {
     "rank": 190,
-    "name": "巴斯夫公司（BASF)",
-    "aliases": []
+    "name": "日本三井住友金融集团",
+    "aliases": [
+     "日本三井住友金融集团（SUMITOMO MITSUI FINANCIAL GROUP)"
+    ]
    },
    {
     "rank": 191,
-    "name": "KOC集团（KOÇ HOLDING)",
-    "aliases": []
+    "name": "巴斯夫公司",
+    "aliases": [
+     "巴斯夫公司（BASF)"
+    ]
    },
    {
     "rank": 192,
-    "name": "保德信金融集团（PRUDENTIAL FINANCIAL)",
-    "aliases": []
+    "name": "日本永旺集团",
+    "aliases": [
+     "日本永旺集团（AEON)"
+    ]
    },
    {
     "rank": 193,
-    "name": "招商银行股份有限公司（CHINA MERCHANTS BANK)",
-    "aliases": []
+    "name": "波兰国营石油公司",
+    "aliases": [
+     "波兰国营石油公司（ORLEN)"
+    ]
    },
    {
     "rank": 194,
-    "name": "马来西亚国家石油公司（PETRONAS)",
-    "aliases": []
+    "name": "印尼国家石油公司",
+    "aliases": [
+     "印尼国家石油公司（PERTAMINA)"
+    ]
    },
    {
     "rank": 195,
-    "name": "Alimentation Couche-Tard公司（ALIMENTATION COUCHE-TARD)",
-    "aliases": []
+    "name": "丰益国际",
+    "aliases": [
+     "丰益国际（WILMAR INTERNATIONAL)"
+    ]
    },
    {
     "rank": 196,
-    "name": "联想集团有限公司（LENOVO GROUP)",
-    "aliases": []
+    "name": "邦吉公司",
+    "aliases": [
+     "邦吉公司（BUNGE GLOBAL)"
+    ]
    },
    {
     "rank": 197,
-    "name": "韩国电力公司（KOREA ELECTRIC POWER)",
-    "aliases": []
+    "name": "日立",
+    "aliases": [
+     "日立（HITACHI)"
+    ]
    },
    {
     "rank": 198,
-    "name": "丰田通商公司（TOYOTA TSUSHO)",
-    "aliases": []
+    "name": "纬创集团",
+    "aliases": [
+     "纬创集团（WISTRON)"
+    ]
    },
    {
     "rank": 199,
-    "name": "中国保利集团有限公司（CHINA POLY GROUP)",
-    "aliases": []
+    "name": "俄罗斯外贸银行",
+    "aliases": [
+     "俄罗斯外贸银行（VTB BANK)"
+    ]
    },
    {
     "rank": 200,
-    "name": "丰益国际（WILMAR INTERNATIONAL)",
-    "aliases": []
+    "name": "慕尼黑再保险集团",
+    "aliases": [
+     "慕尼黑再保险集团（MUNICH RE GROUP)"
+    ]
    },
    {
     "rank": 201,
-    "name": "北京汽车集团有限公司（BEIJING AUTOMOTIVE GROUP)",
-    "aliases": []
+    "name": "浙江恒逸集团有限公司",
+    "aliases": [
+     "浙江恒逸集团有限公司（ZHEJIANG HENGYI GROUP)"
+    ]
    },
    {
     "rank": 202,
-    "name": "慕尼黑再保险集团（MUNICH RE GROUP)",
-    "aliases": []
+    "name": "苏黎世保险集团",
+    "aliases": [
+     "苏黎世保险集团（ZURICH INSURANCE GROUP)"
+    ]
    },
    {
     "rank": 203,
-    "name": "中国铝业集团有限公司（ALUMINUM CORP. OF CHINA)",
-    "aliases": []
+    "name": "KOC集团",
+    "aliases": [
+     "KOC集团（KOÇ HOLDING)"
+    ]
    },
    {
     "rank": 204,
-    "name": "日本三井住友金融集团（SUMITOMO MITSUI FINANCIAL GROUP)",
-    "aliases": []
+    "name": "埃森哲",
+    "aliases": [
+     "埃森哲（ACCENTURE)"
+    ]
    },
    {
     "rank": 205,
-    "name": "伊塔乌联合银行控股公司（ITAÚ UNIBANCO HOLDING)",
-    "aliases": []
+    "name": "Seven & I 控股公司",
+    "aliases": [
+     "Seven & I 控股公司（SEVEN & I HOLDINGS)"
+    ]
    },
    {
     "rank": 206,
-    "name": "波音（BOEING)",
-    "aliases": []
+    "name": "第一资本金融公司",
+    "aliases": [
+     "第一资本金融公司（CAPITAL ONE FINANCIAL)"
+    ]
    },
    {
     "rank": 207,
-    "name": "日本永旺集团（AEON)",
-    "aliases": []
+    "name": "中国铝业集团有限公司",
+    "aliases": [
+     "中国铝业集团有限公司（ALUMINUM CORP. OF CHINA)"
+    ]
    },
    {
     "rank": 208,
-    "name": "厦门国贸控股集团有限公司（XIAMEN ITG HOLDING GROUP)",
-    "aliases": []
+    "name": "印度石油天然气公司",
+    "aliases": [
+     "印度石油天然气公司（OIL & NATURAL GAS)"
+    ]
    },
    {
     "rank": 209,
-    "name": "苏黎世保险集团（ZURICH INSURANCE GROUP)",
-    "aliases": []
+    "name": "Uniper公司",
+    "aliases": [
+     "Uniper公司（UNIPER)"
+    ]
    },
    {
     "rank": 210,
-    "name": "联合利华（UNILEVER)",
-    "aliases": []
+    "name": "SK海力士公司",
+    "aliases": [
+     "SK海力士公司（SK HYNIX)"
+    ]
    },
    {
     "rank": 211,
-    "name": "埃森哲（ACCENTURE)",
-    "aliases": []
+    "name": "广达电脑公司",
+    "aliases": [
+     "广达电脑公司（QUANTA COMPUTER)"
+    ]
    },
    {
     "rank": 212,
-    "name": "中国远洋海运集团有限公司（COSCO SHIPPING)",
-    "aliases": []
+    "name": "中国保利集团有限公司",
+    "aliases": [
+     "中国保利集团有限公司（CHINA POLY GROUP)"
+    ]
    },
    {
     "rank": 213,
-    "name": "卡特彼勒（CATERPILLAR)",
-    "aliases": []
+    "name": "金川集团股份有限公司",
+    "aliases": [
+     "金川集团股份有限公司（JINCHUAN GROUP)"
+    ]
    },
    {
     "rank": 214,
-    "name": "第一生命控股有限公司（DAI-ICHI LIFE HOLDINGS)",
-    "aliases": []
+    "name": "韩国电力公司",
+    "aliases": [
+     "韩国电力公司（KOREA ELECTRIC POWER)"
+    ]
    },
    {
     "rank": 215,
-    "name": "LG电子（LG ELECTRONICS)",
-    "aliases": []
+    "name": "好事达",
+    "aliases": [
+     "好事达（ALLSTATE)"
+    ]
    },
    {
     "rank": 216,
-    "name": "日立（HITACHI)",
-    "aliases": []
+    "name": "卡特彼勒",
+    "aliases": [
+     "卡特彼勒（CATERPILLAR)"
+    ]
    },
    {
     "rank": 217,
-    "name": "默沙东（MERCK)",
-    "aliases": []
+    "name": "国际商业机器公司",
+    "aliases": [
+     "国际商业机器公司（INTERNATIONAL BUSINESS MACHINES)"
+    ]
    },
    {
     "rank": 218,
-    "name": "好事达（ALLSTATE)",
-    "aliases": []
+    "name": "意大利忠利保险公司",
+    "aliases": [
+     "意大利忠利保险公司（ASSICURAZIONI GENERALI)"
+    ]
    },
    {
     "rank": 219,
-    "name": "辉瑞制药有限公司（PFIZER)",
+    "name": "日本制铁公司",
     "aliases": []
    },
    {
     "rank": 220,
-    "name": "浙江恒逸集团有限公司（ZHEJIANG HENGYI GROUP)",
-    "aliases": []
+    "name": "巴西银行",
+    "aliases": [
+     "巴西银行（BANCO DO BRASIL)"
+    ]
    },
    {
     "rank": 221,
-    "name": "国际商业机器公司（INTERNATIONAL BUSINESS MACHINES)",
-    "aliases": []
+    "name": "招商银行股份有限公司",
+    "aliases": [
+     "招商银行股份有限公司（CHINA MERCHANTS BANK)"
+    ]
    },
    {
     "rank": 222,
-    "name": "美国纽约人寿保险公司（NEW YORK LIFE INSURANCE)",
-    "aliases": []
+    "name": "联合利华",
+    "aliases": [
+     "联合利华（UNILEVER)"
+    ]
    },
    {
     "rank": 223,
-    "name": "安赛乐米塔尔（ARCELORMITTAL)",
-    "aliases": []
+    "name": "雷诺",
+    "aliases": [
+     "雷诺（RENAULT)"
+    ]
    },
    {
     "rank": 224,
-    "name": "意大利忠利保险公司（ASSICURAZIONI GENERALI)",
-    "aliases": []
+    "name": "美国礼来公司",
+    "aliases": [
+     "美国礼来公司（ELI LILLY)"
+    ]
    },
    {
     "rank": 225,
-    "name": "达美航空（DELTA AIR LINES)",
-    "aliases": []
+    "name": "默沙东",
+    "aliases": [
+     "默沙东（MERCK)"
+    ]
    },
    {
     "rank": 226,
-    "name": "中国兵器工业集团有限公司（CHINA NORTH INDUSTRIES GROUP)",
-    "aliases": []
+    "name": "美国全国保险公司",
+    "aliases": [
+     "美国全国保险公司（NATIONWIDE)"
+    ]
    },
    {
     "rank": 227,
-    "name": "法国布伊格集团（BOUYGUES)",
-    "aliases": []
+    "name": "厦门象屿集团有限公司",
+    "aliases": [
+     "厦门象屿集团有限公司（XMXYG)"
+    ]
    },
    {
     "rank": 228,
-    "name": "中国能源建设集团有限公司（CHINA ENERGY ENGINEERING GROUP)",
-    "aliases": []
+    "name": "引能仕控股株式会社",
+    "aliases": [
+     "引能仕控股株式会社（ENEOS HOLDINGS)"
+    ]
    },
    {
     "rank": 229,
-    "name": "雷诺（RENAULT)",
-    "aliases": []
+    "name": "法国布伊格集团",
+    "aliases": [
+     "法国布伊格集团（BOUYGUES)"
+    ]
    },
    {
     "rank": 230,
-    "name": "巴西银行（BANCO DO BRASIL)",
-    "aliases": []
+    "name": "博通公司",
+    "aliases": [
+     "博通公司（BROADCOM)"
+    ]
    },
    {
     "rank": 231,
-    "name": "大众超级市场公司（PUBLIX SUPER MARKETS)",
-    "aliases": []
+    "name": "美的集团股份有限公司",
+    "aliases": [
+     "美的集团股份有限公司（MIDEA GROUP)"
+    ]
    },
    {
     "rank": 232,
-    "name": "百威英博（ANHEUSER-BUSCH INBEV)",
-    "aliases": []
+    "name": "小米集团",
+    "aliases": [
+     "小米集团（XIAOMI)"
+    ]
    },
    {
     "rank": 233,
-    "name": "奇瑞控股集团有限公司（CHERY HOLDING GROUP)",
-    "aliases": []
+    "name": "德国艾德卡公司",
+    "aliases": [
+     "德国艾德卡公司（EDEKA ZENTRALE)"
+    ]
    },
    {
     "rank": 234,
-    "name": "日本瑞穗金融集团（MIZUHO FINANCIAL GROUP)",
-    "aliases": []
+    "name": "中国能源建设集团有限公司",
+    "aliases": [
+     "中国能源建设集团有限公司（CHINA ENERGY ENGINEERING GROUP)"
+    ]
    },
    {
     "rank": 235,
-    "name": "金川集团股份有限公司（JINCHUAN GROUP)",
-    "aliases": []
+    "name": "达美航空",
+    "aliases": [
+     "达美航空（DELTA AIR LINES)"
+    ]
    },
    {
     "rank": 236,
-    "name": "美国全国保险公司（NATIONWIDE)",
-    "aliases": []
+    "name": "大众超级市场公司",
+    "aliases": [
+     "大众超级市场公司（PUBLIX SUPER MARKETS)"
+    ]
    },
    {
     "rank": 237,
-    "name": "德国艾德卡公司（EDEKA ZENTRALE)",
-    "aliases": []
+    "name": "中国远洋海运集团有限公司",
+    "aliases": [
+     "中国远洋海运集团有限公司（COSCO SHIPPING)"
+    ]
    },
    {
     "rank": 238,
-    "name": "戴姆勒卡车控股股份公司（DAIMLER TRUCK HOLDING)",
-    "aliases": []
+    "name": "LG电子",
+    "aliases": [
+     "LG电子（LG ELECTRONICS)"
+    ]
    },
    {
     "rank": 239,
-    "name": "TD Synnex公司（TD SYNNEX)",
-    "aliases": []
+    "name": "卢克石油公司",
+    "aliases": [
+     "卢克石油公司（LUKOIL)"
+    ]
    },
    {
     "rank": 240,
-    "name": "蒙特利尔银行（BANK OF MONTREAL)",
-    "aliases": []
+    "name": "辉瑞制药有限公司",
+    "aliases": [
+     "辉瑞制药有限公司（PFIZER)"
+    ]
    },
    {
     "rank": 241,
-    "name": "厦门象屿集团有限公司（XMXYG)",
-    "aliases": []
+    "name": "TD Synnex公司",
+    "aliases": [
+     "TD Synnex公司（TD SYNNEX)"
+    ]
    },
    {
     "rank": 242,
-    "name": "兴业银行股份有限公司（INDUSTRIAL BANK)",
-    "aliases": []
+    "name": "马来西亚国家石油公司",
+    "aliases": [
+     "马来西亚国家石油公司（PETRONAS)"
+    ]
    },
    {
     "rank": 243,
-    "name": "联合航空控股公司（UNITED AIRLINES HOLDINGS)",
-    "aliases": []
+    "name": "康菲石油公司",
+    "aliases": [
+     "康菲石油公司（CONOCOPHILLIPS)"
+    ]
    },
    {
     "rank": 244,
-    "name": "日本制铁集团公司（NIPPON STEEL CORPORATION)",
+    "name": "Galaxy Digital公司",
     "aliases": []
    },
    {
     "rank": 245,
-    "name": "康菲石油公司（CONOCOPHILLIPS)",
-    "aliases": []
+    "name": "安赛乐米塔尔",
+    "aliases": [
+     "安赛乐米塔尔（ARCELORMITTAL)"
+    ]
    },
    {
     "rank": 246,
-    "name": "美的集团股份有限公司（MIDEA GROUP)",
-    "aliases": []
+    "name": "艾伯维",
+    "aliases": [
+     "艾伯维（ABBVIE)"
+    ]
    },
    {
     "rank": 247,
-    "name": "青山控股集团有限公司（TSINGSHAN HOLDING GROUP)",
-    "aliases": []
+    "name": "保德信金融集团",
+    "aliases": [
+     "保德信金融集团（PRUDENTIAL FINANCIAL)"
+    ]
    },
    {
     "rank": 248,
-    "name": "TJX公司（TJX)",
-    "aliases": []
+    "name": "中国太平洋保险(集团)股份有限公司",
+    "aliases": [
+     "中国太平洋保险(集团)股份有限公司（CHINA PACIFIC INSURANCE (GROUP))"
+    ]
    },
    {
     "rank": 249,
-    "name": "艾伯维（ABBVIE)",
-    "aliases": []
+    "name": "陕西煤业化工集团有限责任公司",
+    "aliases": [
+     "陕西煤业化工集团有限责任公司（SHAANXI COAL & CHEMICAL INDUSTRY)"
+    ]
    },
    {
     "rank": 250,
-    "name": "Enterprise Products Partners公司（ENTERPRISE PRODUCTS PARTNERS)",
-    "aliases": []
+    "name": "巴西布拉德斯科银行",
+    "aliases": [
+     "巴西布拉德斯科银行（BANCO BRADESCO)"
+    ]
    },
    {
     "rank": 251,
-    "name": "中国太平洋保险(集团)股份有限公司（CHINA PACIFIC INSURANCE (GROUP))",
-    "aliases": []
+    "name": "TJX公司",
+    "aliases": [
+     "TJX公司（TJX)"
+    ]
    },
    {
     "rank": 252,
-    "name": "广州汽车工业集团有限公司（GUANGZHOU AUTOMOBILE INDUSTRY GROUP)",
-    "aliases": []
+    "name": "厦门国贸控股集团有限公司",
+    "aliases": [
+     "厦门国贸控股集团有限公司（XIAMEN ITG HOLDING GROUP)"
+    ]
    },
    {
     "rank": 253,
-    "name": "加拿大丰业银行（BANK OF NOVA SCOTIA)",
-    "aliases": []
+    "name": "日本瑞穗金融集团",
+    "aliases": [
+     "日本瑞穗金融集团（MIZUHO FINANCIAL GROUP)"
+    ]
    },
    {
     "rank": 254,
-    "name": "河钢集团有限公司（HBIS GROUP)",
-    "aliases": []
+    "name": "青山控股集团有限公司",
+    "aliases": [
+     "青山控股集团有限公司（TSINGSHAN HOLDING GROUP)"
+    ]
    },
    {
     "rank": 255,
-    "name": "意大利联合圣保罗银行（INTESA SANPAOLO)",
-    "aliases": []
+    "name": "拼多多控股公司",
+    "aliases": [
+     "拼多多控股公司（PDD HOLDINGS)"
+    ]
    },
    {
     "rank": 256,
-    "name": "中国华能集团有限公司（CHINA HUANENG GROUP)",
-    "aliases": []
+    "name": "Performance Food Group公司",
+    "aliases": [
+     "Performance Food Group公司（PERFORMANCE FOOD GROUP)"
+    ]
    },
    {
     "rank": 257,
-    "name": "安达保险公司（CHUBB)",
-    "aliases": []
+    "name": "安达保险公司",
+    "aliases": [
+     "安达保险公司（CHUBB)"
+    ]
    },
    {
     "rank": 258,
-    "name": "HDFC银行（HDFC BANK)",
-    "aliases": []
+    "name": "百威英博",
+    "aliases": [
+     "百威英博（ANHEUSER-BUSCH INBEV)"
+    ]
    },
    {
     "rank": 259,
-    "name": "必和必拓集团（BHP GROUP)",
-    "aliases": []
+    "name": "联合航空控股公司",
+    "aliases": [
+     "联合航空控股公司（UNITED AIRLINES HOLDINGS)"
+    ]
    },
    {
     "rank": 260,
-    "name": "雷普索尔公司（REPSOL)",
-    "aliases": []
+    "name": "宁德时代新能源科技股份有限公司",
+    "aliases": [
+     "宁德时代新能源科技股份有限公司（CONTEMPORARY AMPEREX TECHNOLOGY)"
+    ]
    },
    {
     "rank": 261,
-    "name": "松下控股公司（PANASONIC HOLDINGS)",
-    "aliases": []
+    "name": "东京海上日动火灾保险公司",
+    "aliases": [
+     "东京海上日动火灾保险公司（TOKIO MARINE HOLDINGS)"
+    ]
    },
    {
     "rank": 262,
-    "name": "马士基集团（MAERSK GROUP)",
-    "aliases": []
+    "name": "阿斯利康",
+    "aliases": [
+     "阿斯利康（ASTRAZENECA)"
+    ]
    },
    {
     "rank": 263,
-    "name": "东京海上日动火灾保险公司（TOKIO MARINE HOLDINGS)",
-    "aliases": []
+    "name": "力拓集团",
+    "aliases": [
+     "力拓集团（RIO TINTO GROUP)"
+    ]
    },
    {
     "rank": 264,
-    "name": "特许通讯公司（CHARTER COMMUNICATIONS)",
-    "aliases": []
+    "name": "法国国民互助信贷银行集团",
+    "aliases": [
+     "法国国民互助信贷银行集团（CRÉDIT MUTUEL GROUP)"
+    ]
    },
    {
     "rank": 265,
-    "name": "国家电力投资集团有限公司（STATE POWER INVESTMENT)",
-    "aliases": []
+    "name": "甲骨文公司",
+    "aliases": [
+     "甲骨文公司（ORACLE)"
+    ]
    },
    {
     "rank": 266,
-    "name": "拼多多控股公司（PDD HOLDINGS)",
-    "aliases": []
+    "name": "河钢集团有限公司",
+    "aliases": [
+     "河钢集团有限公司（HBIS GROUP)"
+    ]
    },
    {
     "rank": 267,
-    "name": "Performance Food Group公司（PERFORMANCE FOOD GROUP)",
-    "aliases": []
+    "name": "诺华公司",
+    "aliases": [
+     "诺华公司（NOVARTIS)"
+    ]
    },
    {
     "rank": 268,
-    "name": "美国航空集团（AMERICAN AIRLINES GROUP)",
-    "aliases": []
+    "name": "思科公司",
+    "aliases": [
+     "思科公司（CISCO SYSTEMS)"
+    ]
    },
    {
     "rank": 269,
-    "name": "中国联合网络通信股份有限公司（CHINA UNITED NETWORK COMMUNICATIONS)",
-    "aliases": []
+    "name": "Talanx公司",
+    "aliases": [
+     "Talanx公司（TALANX)"
+    ]
    },
    {
     "rank": 270,
-    "name": "阿斯利康（ASTRAZENECA)",
-    "aliases": []
+    "name": "西班牙ACS集团",
+    "aliases": [
+     "西班牙ACS集团（ACS)"
+    ]
    },
    {
     "rank": 271,
-    "name": "第一资本金融公司（CAPITAL ONE FINANCIAL)",
-    "aliases": []
+    "name": "国家电力投资集团有限公司",
+    "aliases": [
+     "国家电力投资集团有限公司（STATE POWER INVESTMENT)"
+    ]
    },
    {
     "rank": 272,
-    "name": "浦项制铁控股公司（POSCO HOLDINGS)",
-    "aliases": []
+    "name": "HDFC银行",
+    "aliases": [
+     "HDFC银行（HDFC BANK)"
+    ]
    },
    {
     "rank": 273,
-    "name": "思科公司（CISCO SYSTEMS)",
-    "aliases": []
+    "name": "蒙特利尔银行",
+    "aliases": [
+     "蒙特利尔银行（BANK OF MONTREAL)"
+    ]
    },
    {
     "rank": 274,
-    "name": "力拓集团（RIO TINTO GROUP)",
-    "aliases": []
+    "name": "戴姆勒卡车控股股份公司",
+    "aliases": [
+     "戴姆勒卡车控股股份公司（DAIMLER TRUCK HOLDING)"
+    ]
    },
    {
     "rank": 275,
-    "name": "惠普公司（HP)",
+    "name": "X5集团",
     "aliases": []
    },
    {
     "rank": 276,
-    "name": "菲尼克斯医药公司（PHOENIX PHARMA)",
-    "aliases": []
+    "name": "惠普公司",
+    "aliases": [
+     "惠普公司（HP)"
+    ]
    },
    {
     "rank": 277,
-    "name": "赛诺菲（SANOFI)",
-    "aliases": []
+    "name": "丸红株式会社",
+    "aliases": [
+     "丸红株式会社（MARUBENI)"
+    ]
    },
    {
     "rank": 278,
-    "name": "泰森食品（TYSON FOODS)",
-    "aliases": []
+    "name": "特许通讯公司",
+    "aliases": [
+     "特许通讯公司（CHARTER COMMUNICATIONS)"
+    ]
    },
    {
     "rank": 279,
-    "name": "邦吉公司（BUNGE GLOBAL)",
-    "aliases": []
+    "name": "赛诺菲",
+    "aliases": [
+     "赛诺菲（SANOFI)"
+    ]
    },
    {
     "rank": 280,
-    "name": "英特尔公司（INTEL)",
-    "aliases": []
+    "name": "美国航空集团",
+    "aliases": [
+     "美国航空集团（AMERICAN AIRLINES GROUP)"
+    ]
    },
    {
     "rank": 281,
-    "name": "日本出光兴产株式会社（IDEMITSU KOSAN)",
-    "aliases": []
+    "name": "中国联合网络通信股份有限公司",
+    "aliases": [
+     "中国联合网络通信股份有限公司（CHINA UNITED NETWORK COMMUNICATIONS)"
+    ]
    },
    {
     "rank": 282,
-    "name": "甲骨文公司（ORACLE)",
-    "aliases": []
+    "name": "雷普索尔公司",
+    "aliases": [
+     "雷普索尔公司（REPSOL)"
+    ]
    },
    {
     "rank": 283,
-    "name": "印度塔塔汽车公司（TATA MOTORS)",
-    "aliases": []
+    "name": "泰森食品",
+    "aliases": [
+     "泰森食品（TYSON FOODS)"
+    ]
    },
    {
     "rank": 284,
-    "name": "博通公司（BROADCOM)",
-    "aliases": []
+    "name": "马士基集团",
+    "aliases": [
+     "马士基集团（MAERSK GROUP)"
+    ]
    },
    {
     "rank": 285,
-    "name": "巴拉特石油公司（BHARAT PETROLEUM)",
-    "aliases": []
+    "name": "中国华能集团有限公司",
+    "aliases": [
+     "中国华能集团有限公司（CHINA HUANENG GROUP)"
+    ]
    },
    {
     "rank": 286,
-    "name": "俄罗斯外贸银行（VTB BANK)",
-    "aliases": []
+    "name": "松下控股公司",
+    "aliases": [
+     "松下控股公司（PANASONIC HOLDINGS)"
+    ]
    },
    {
     "rank": 287,
-    "name": "诺华公司（NOVARTIS)",
-    "aliases": []
+    "name": "路易达孚集团",
+    "aliases": [
+     "路易达孚集团（LOUIS DREYFUS)"
+    ]
    },
    {
     "rank": 288,
-    "name": "迪尔公司（DEERE)",
-    "aliases": []
+    "name": "兴业银行股份有限公司",
+    "aliases": [
+     "兴业银行股份有限公司（INDUSTRIAL BANK)"
+    ]
    },
    {
     "rank": 289,
-    "name": "晋能控股集团有限公司（JINNENG HOLDING GROUP)",
-    "aliases": []
+    "name": "英特尔公司",
+    "aliases": [
+     "英特尔公司（INTEL)"
+    ]
    },
    {
     "rank": 290,
-    "name": "耐克公司（NIKE)",
-    "aliases": []
+    "name": "加拿大丰业银行",
+    "aliases": [
+     "加拿大丰业银行（BANK OF NOVA SCOTIA)"
+    ]
    },
    {
     "rank": 291,
-    "name": "东风汽车集团有限公司（DONGFENG MOTOR)",
-    "aliases": []
+    "name": "韩华集团",
+    "aliases": [
+     "韩华集团（HANWHA)"
+    ]
    },
    {
     "rank": 292,
-    "name": "敬业集团有限公司（JINGYE GROUP)",
-    "aliases": []
+    "name": "Enterprise Products Partners公司",
+    "aliases": [
+     "Enterprise Products Partners公司（ENTERPRISE PRODUCTS PARTNERS)"
+    ]
    },
    {
     "rank": 293,
-    "name": "巴西布拉德斯科银行（BANCO BRADESCO)",
-    "aliases": []
+    "name": "英迈公司",
+    "aliases": [
+     "英迈公司（INGRAM MICRO HOLDING)"
+    ]
    },
    {
     "rank": 294,
-    "name": "丸红株式会社（MARUBENI)",
-    "aliases": []
+    "name": "通用动力",
+    "aliases": [
+     "通用动力（GENERAL DYNAMICS)"
+    ]
    },
    {
     "rank": 295,
-    "name": "陕西延长石油（集团）有限责任公司（SHAANXI YANCHANG PETROLEUM (GROUP))",
-    "aliases": []
+    "name": "圣戈班集团",
+    "aliases": [
+     "圣戈班集团（SAINT-GOBAIN)"
+    ]
    },
    {
     "rank": 296,
-    "name": "德国联邦铁路公司（DEUTSCHE BAHN)",
-    "aliases": []
+    "name": "Uber Technologies公司",
+    "aliases": [
+     "Uber Technologies公司（UBER TECHNOLOGIES)"
+    ]
    },
    {
     "rank": 297,
-    "name": "小米集团（XIAOMI)",
-    "aliases": []
+    "name": "泰康保险集团股份有限公司",
+    "aliases": [
+     "泰康保险集团股份有限公司（TAIKANG INSURANCE GROUP)"
+    ]
    },
    {
     "rank": 298,
-    "name": "法国国民互助信贷银行集团（CRÉDIT MUTUEL GROUP)",
-    "aliases": []
+    "name": "巴拉特石油公司",
+    "aliases": [
+     "巴拉特石油公司（BHARAT PETROLEUM)"
+    ]
    },
    {
     "rank": 299,
-    "name": "路易达孚集团（LOUIS DREYFUS)",
-    "aliases": []
+    "name": "广州汽车工业集团有限公司",
+    "aliases": [
+     "广州汽车工业集团有限公司（GUANGZHOU AUTOMOBILE INDUSTRY GROUP)"
+    ]
    },
    {
     "rank": 300,
-    "name": "美国利宝互助保险集团（LIBERTY MUTUAL INSURANCE GROUP)",
-    "aliases": []
+    "name": "软银集团",
+    "aliases": [
+     "软银集团（SOFTBANK GROUP)"
+    ]
    },
    {
     "rank": 301,
-    "name": "拜耳集团（BAYER)",
-    "aliases": []
+    "name": "联合服务汽车协会",
+    "aliases": [
+     "联合服务汽车协会（UNITED SERVICES AUTOMOBILE ASSN.)"
+    ]
    },
    {
     "rank": 302,
-    "name": "圣戈班集团（SAINT-GOBAIN)",
-    "aliases": []
+    "name": "新加坡奥兰集团",
+    "aliases": [
+     "新加坡奥兰集团（OLAM GROUP)"
+    ]
    },
    {
     "rank": 303,
-    "name": "宁德时代新能源科技股份有限公司（CONTEMPORARY AMPEREX TECHNOLOGY)",
-    "aliases": []
+    "name": "意大利联合圣保罗银行",
+    "aliases": [
+     "意大利联合圣保罗银行（INTESA SANPAOLO)"
+    ]
    },
    {
     "rank": 304,
-    "name": "Plains GP Holdings公司（PLAINS GP HOLDINGS)",
-    "aliases": []
+    "name": "拜耳集团",
+    "aliases": [
+     "拜耳集团（BAYER)"
+    ]
    },
    {
     "rank": 305,
-    "name": "Talanx公司（TALANX)",
-    "aliases": []
+    "name": "Iberdrola公司",
+    "aliases": [
+     "Iberdrola公司（IBERDROLA)"
+    ]
    },
    {
     "rank": 306,
-    "name": "联合信贷集团（UNICREDIT GROUP)",
-    "aliases": []
+    "name": "敬业集团有限公司",
+    "aliases": [
+     "敬业集团有限公司（JINGYE GROUP)"
+    ]
    },
    {
     "rank": 307,
-    "name": "沃尔沃集团（VOLVO)",
-    "aliases": []
+    "name": "必和必拓集团",
+    "aliases": [
+     "必和必拓集团（BHP GROUP)"
+    ]
    },
    {
     "rank": 308,
-    "name": "HD现代公司（HD HYUNDAI)",
-    "aliases": []
+    "name": "巴西联邦储蓄银行",
+    "aliases": [
+     "巴西联邦储蓄银行（CAIXA ECONÔMICA FEDERAL)"
+    ]
    },
    {
     "rank": 309,
-    "name": "上海浦东发展银行股份有限公司（SHANGHAI PUDONG DEVELOPMENT BANK)",
-    "aliases": []
+    "name": "浙江省交通投资集团有限公司",
+    "aliases": [
+     "浙江省交通投资集团有限公司（ZHEJIANG COMMUNICATIONS INVESTMENT GROUP)"
+    ]
    },
    {
     "rank": 310,
-    "name": "联合服务汽车协会（UNITED SERVICES AUTOMOBILE ASSN.)",
-    "aliases": []
+    "name": "MS&AD保险集团控股有限公司",
+    "aliases": [
+     "MS&AD保险集团控股有限公司（MS&AD INSURANCE GROUP HOLDINGS)"
+    ]
    },
    {
     "rank": 311,
-    "name": "SK海力士公司（SK HYNIX)",
-    "aliases": []
+    "name": "美团公司",
+    "aliases": [
+     "美团公司（MEITUAN)"
+    ]
    },
    {
     "rank": 312,
-    "name": "Iberdrola公司（IBERDROLA)",
-    "aliases": []
+    "name": "美国教师退休基金会",
+    "aliases": [
+     "美国教师退休基金会（TIAA)"
+    ]
    },
    {
     "rank": 313,
-    "name": "法国威立雅环境集团（VEOLIA ENVIRONNEMENT)",
-    "aliases": []
+    "name": "美国利宝互助保险集团",
+    "aliases": [
+     "美国利宝互助保险集团（LIBERTY MUTUAL INSURANCE GROUP)"
+    ]
    },
    {
     "rank": 314,
-    "name": "百时美施贵宝公司（BRISTOL-MYERS SQUIBB)",
-    "aliases": []
+    "name": "HD现代公司",
+    "aliases": [
+     "HD现代公司（HD HYUNDAI)"
+    ]
    },
    {
     "rank": 315,
-    "name": "德国巴登-符腾堡州银行（LANDESBANK BADEN-WÜRTTEMBERG)",
-    "aliases": []
+    "name": "法国威立雅环境集团",
+    "aliases": [
+     "法国威立雅环境集团（VEOLIA ENVIRONNEMENT)"
+    ]
    },
    {
     "rank": 316,
-    "name": "英迈公司（INGRAM MICRO HOLDING)",
-    "aliases": []
+    "name": "电装公司",
+    "aliases": [
+     "电装公司（DENSO)"
+    ]
    },
    {
     "rank": 317,
-    "name": "住友商事（SUMITOMO)",
-    "aliases": []
+    "name": "欧莱雅",
+    "aliases": [
+     "欧莱雅（L'ORÉAL)"
+    ]
    },
    {
     "rank": 318,
-    "name": "通用动力（GENERAL DYNAMICS)",
-    "aliases": []
+    "name": "日本明治安田生命保险公司",
+    "aliases": [
+     "日本明治安田生命保险公司（MEIJI YASUDA LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 319,
-    "name": "万科企业股份有限公司（CHINA VANKE)",
-    "aliases": []
+    "name": "东风汽车集团有限公司",
+    "aliases": [
+     "东风汽车集团有限公司（DONGFENG MOTOR)"
+    ]
    },
    {
     "rank": 320,
-    "name": "软银集团（SOFTBANK GROUP)",
-    "aliases": []
+    "name": "美洲电信",
+    "aliases": [
+     "美洲电信（AMÉRICA MÓVIL)"
+    ]
    },
    {
     "rank": 321,
-    "name": "美洲电信（AMÉRICA MÓVIL)",
-    "aliases": []
+    "name": "Travelers公司",
+    "aliases": [
+     "Travelers公司（TRAVELERS)"
+    ]
    },
    {
     "rank": 322,
-    "name": "加拿大帝国商业银行（CANADIAN IMPERIAL BANK OF COMMERCE)",
-    "aliases": []
+    "name": "沃尔沃集团",
+    "aliases": [
+     "沃尔沃集团（VOLVO)"
+    ]
    },
    {
     "rank": 323,
-    "name": "可口可乐公司（COCA-COLA)",
+    "name": "贺利氏控股集团",
     "aliases": []
    },
    {
     "rank": 324,
-    "name": "欧莱雅（L'ORÉAL)",
-    "aliases": []
+    "name": "住友商事",
+    "aliases": [
+     "住友商事（SUMITOMO)"
+    ]
    },
    {
     "rank": 325,
-    "name": "电装公司（DENSO)",
-    "aliases": []
+    "name": "紫金矿业集团股份有限公司",
+    "aliases": [
+     "紫金矿业集团股份有限公司（ZIJIN MINING GROUP)"
+    ]
    },
    {
     "rank": 326,
-    "name": "美国教师退休基金会（TIAA)",
-    "aliases": []
+    "name": "浦项制铁控股公司",
+    "aliases": [
+     "浦项制铁控股公司（POSCO HOLDINGS)"
+    ]
    },
    {
     "rank": 327,
-    "name": "美团公司（MEITUAN)",
-    "aliases": []
+    "name": "法国国营铁路集团",
+    "aliases": [
+     "法国国营铁路集团（SNCF GROUP)"
+    ]
    },
    {
     "rank": 328,
-    "name": "法国国营铁路集团（SNCF GROUP)",
-    "aliases": []
+    "name": "百时美施贵宝公司",
+    "aliases": [
+     "百时美施贵宝公司（BRISTOL-MYERS SQUIBB)"
+    ]
    },
    {
     "rank": 329,
-    "name": "Travelers公司（TRAVELERS)",
-    "aliases": []
+    "name": "可口可乐公司",
+    "aliases": [
+     "可口可乐公司（COCA-COLA)"
+    ]
    },
    {
     "rank": 330,
-    "name": "浙江省交通投资集团有限公司（ZHEJIANG COMMUNICATIONS INVESTMENT GROUP)",
-    "aliases": []
+    "name": "日本出光兴产株式会社",
+    "aliases": [
+     "日本出光兴产株式会社（IDEMITSU KOSAN)"
+    ]
    },
    {
     "rank": 331,
-    "name": "瑞士再保险股份有限公司（SWISS RE)",
-    "aliases": []
+    "name": "沃达丰集团",
+    "aliases": [
+     "沃达丰集团（VODAFONE GROUP)"
+    ]
    },
    {
     "rank": 332,
-    "name": "中国兵器装备集团公司（CHINA SOUTH INDUSTRIES GROUP)",
-    "aliases": []
+    "name": "乔治威斯顿公司",
+    "aliases": [
+     "乔治威斯顿公司（GEORGE WESTON)"
+    ]
    },
    {
     "rank": 333,
-    "name": "Raízen公司（RAÍZEN)",
-    "aliases": []
+    "name": "诺和诺德公司",
+    "aliases": [
+     "诺和诺德公司（NOVO NORDISK)"
+    ]
    },
    {
     "rank": 334,
-    "name": "泰康保险集团股份有限公司（TAIKANG INSURANCE GROUP)",
-    "aliases": []
+    "name": "加拿大枫信金融控股公司",
+    "aliases": [
+     "加拿大枫信金融控股公司（FAIRFAX FINANCIAL HOLDINGS)"
+    ]
    },
    {
     "rank": 335,
-    "name": "英格卡集团（INGKA GROUP)",
-    "aliases": []
+    "name": "Enbridge公司",
+    "aliases": [
+     "Enbridge公司（ENBRIDGE)"
+    ]
    },
    {
     "rank": 336,
-    "name": "美国礼来公司（ELI LILLY)",
-    "aliases": []
+    "name": "耐克公司",
+    "aliases": [
+     "耐克公司（NIKE)"
+    ]
    },
    {
     "rank": 337,
-    "name": "西班牙ACS集团（ACS)",
-    "aliases": []
+    "name": "立讯精密工业股份有限公司",
+    "aliases": [
+     "立讯精密工业股份有限公司（LUXSHARE PRECISION INDUSTRY)"
+    ]
    },
    {
     "rank": 338,
-    "name": "苏商建设集团有限公司（SUSUN CONSTRUCTION GROUP)",
-    "aliases": []
+    "name": "康帕斯集团",
+    "aliases": [
+     "康帕斯集团（COMPASS GROUP)"
+    ]
    },
    {
     "rank": 339,
-    "name": "中国华电集团有限公司（CHINA HUADIAN)",
-    "aliases": []
+    "name": "万通互惠理财公司",
+    "aliases": [
+     "万通互惠理财公司（MASSACHUSETTS MUTUAL LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 340,
-    "name": "乔治威斯顿公司（GEORGE WESTON)",
-    "aliases": []
+    "name": "苏商建设集团有限公司",
+    "aliases": [
+     "苏商建设集团有限公司（SUSUN CONSTRUCTION GROUP)"
+    ]
    },
    {
     "rank": 341,
-    "name": "Orange公司（ORANGE)",
-    "aliases": []
+    "name": "GE航空航天公司",
+    "aliases": [
+     "GE航空航天公司（GENERAL ELECTRIC (GE AEROSPACE))"
+    ]
    },
    {
     "rank": 342,
-    "name": "采埃孚（ZF FRIEDRICHSHAFEN)",
-    "aliases": []
+    "name": "迪尔公司",
+    "aliases": [
+     "迪尔公司（DEERE)"
+    ]
    },
    {
     "rank": 343,
-    "name": "西班牙电话公司（TELEFÓNICA)",
-    "aliases": []
+    "name": "Plains GP Holdings公司",
+    "aliases": [
+     "Plains GP Holdings公司（PLAINS GP HOLDINGS)"
+    ]
    },
    {
     "rank": 344,
-    "name": "东京电力公司（TOKYO ELECTRIC POWER)",
-    "aliases": []
+    "name": "Orange公司",
+    "aliases": [
+     "Orange公司（ORANGE)"
+    ]
    },
    {
     "rank": 345,
-    "name": "伍尔沃斯集团（WOOLWORTHS GROUP)",
-    "aliases": []
+    "name": "英格卡集团",
+    "aliases": [
+     "英格卡集团（INGKA GROUP)"
+    ]
    },
    {
     "rank": 346,
-    "name": "沃达丰集团（VODAFONE GROUP)",
-    "aliases": []
+    "name": "Inditex公司",
+    "aliases": [
+     "Inditex公司（INDITEX)"
+    ]
    },
    {
     "rank": 347,
-    "name": "Uber Technologies公司（UBER TECHNOLOGIES)",
-    "aliases": []
+    "name": "Molina Healthcare公司",
+    "aliases": [
+     "Molina Healthcare公司（MOLINA HEALTHCARE)"
+    ]
    },
    {
     "rank": 348,
-    "name": "广达电脑公司（QUANTA COMPUTER)",
-    "aliases": []
+    "name": "施耐德电气",
+    "aliases": [
+     "施耐德电气（SCHNEIDER ELECTRIC)"
+    ]
    },
    {
     "rank": 349,
-    "name": "Fomento Económico Mexicano公司（FOMENTO ECONÓMICO MEXICANO)",
-    "aliases": []
+    "name": "上海浦东发展银行股份有限公司",
+    "aliases": [
+     "上海浦东发展银行股份有限公司（SHANGHAI PUDONG DEVELOPMENT BANK)"
+    ]
    },
    {
     "rank": 350,
-    "name": "MS&AD保险集团控股有限公司（MS&AD INSURANCE GROUP HOLDINGS)",
-    "aliases": []
+    "name": "森宝利公司",
+    "aliases": [
+     "森宝利公司（J. SAINSBURY)"
+    ]
    },
    {
     "rank": 351,
-    "name": "中国建材集团有限公司（CHINA NATIONAL BUILDING MATERIAL GROUP)",
-    "aliases": []
+    "name": "Netflix公司",
+    "aliases": [
+     "Netflix公司（NETFLIX)"
+    ]
    },
    {
     "rank": 352,
-    "name": "中国机械工业集团有限公司（SINOMACH)",
-    "aliases": []
+    "name": "澳洲联邦银行",
+    "aliases": [
+     "澳洲联邦银行（COMMONWEALTH BANK OF AUSTRALIA)"
+    ]
    },
    {
     "rank": 353,
-    "name": "德国中央合作银行（DZ BANK)",
-    "aliases": []
+    "name": "联合信贷集团",
+    "aliases": [
+     "联合信贷集团（UNICREDIT GROUP)"
+    ]
    },
    {
     "rank": 354,
-    "name": "万通互惠理财公司（MASSACHUSETTS MUTUAL LIFE INSURANCE)",
-    "aliases": []
+    "name": "伍尔沃斯集团",
+    "aliases": [
+     "伍尔沃斯集团（WOOLWORTHS GROUP)"
+    ]
    },
    {
     "rank": 355,
-    "name": "陶氏公司（DOW)",
-    "aliases": []
+    "name": "汉莎集团",
+    "aliases": [
+     "汉莎集团（LUFTHANSA GROUP)"
+    ]
    },
    {
     "rank": 356,
-    "name": "澳新银行集团（ANZ GROUP HOLDINGS)",
-    "aliases": []
+    "name": "赛默飞世尔科技公司",
+    "aliases": [
+     "赛默飞世尔科技公司（THERMO FISHER SCIENTIFIC)"
+    ]
    },
    {
     "rank": 357,
-    "name": "德国大陆集团（CONTINENTAL)",
-    "aliases": []
+    "name": "加拿大帝国商业银行",
+    "aliases": [
+     "加拿大帝国商业银行（CANADIAN IMPERIAL BANK OF COMMERCE)"
+    ]
    },
    {
     "rank": 358,
-    "name": "澳洲联邦银行（COMMONWEALTH BANK OF AUSTRALIA)",
-    "aliases": []
+    "name": "雅培公司",
+    "aliases": [
+     "雅培公司（ABBOTT LABORATORIES)"
+    ]
    },
    {
     "rank": 359,
-    "name": "赛默飞世尔科技公司（THERMO FISHER SCIENTIFIC)",
-    "aliases": []
+    "name": "高通",
+    "aliases": [
+     "高通（QUALCOMM)"
+    ]
    },
    {
     "rank": 360,
-    "name": "麦格纳国际（MAGNA INTERNATIONAL)",
-    "aliases": []
+    "name": "瑞士再保险股份有限公司",
+    "aliases": [
+     "瑞士再保险股份有限公司（SWISS RE)"
+    ]
    },
    {
     "rank": 361,
-    "name": "美国合众银行（U.S. BANCORP)",
-    "aliases": []
+    "name": "中国通用技术(集团)控股有限责任公司",
+    "aliases": [
+     "中国通用技术(集团)控股有限责任公司（CHINA GENERAL TECHNOLOGY)"
+    ]
    },
    {
     "rank": 362,
-    "name": "巴西联邦储蓄银行（CAIXA ECONÔMICA FEDERAL)",
-    "aliases": []
+    "name": "澳新银行集团",
+    "aliases": [
+     "澳新银行集团（ANZ GROUP HOLDINGS)"
+    ]
    },
    {
     "rank": 363,
-    "name": "加拿大枫信金融控股公司（FAIRFAX FINANCIAL HOLDINGS)",
-    "aliases": []
+    "name": "Fomento Económico Mexicano公司",
+    "aliases": [
+     "Fomento Económico Mexicano公司（FOMENTO ECONÓMICO MEXICANO)"
+    ]
    },
    {
     "rank": 364,
-    "name": "森宝利公司（J. SAINSBURY)",
-    "aliases": []
+    "name": "采埃孚",
+    "aliases": [
+     "采埃孚（ZF FRIEDRICHSHAFEN)"
+    ]
    },
    {
     "rank": 365,
-    "name": "紫金矿业集团股份有限公司（ZIJIN MINING GROUP)",
-    "aliases": []
+    "name": "西北互助人寿保险公司",
+    "aliases": [
+     "西北互助人寿保险公司（NORTHWESTERN MUTUAL)"
+    ]
    },
    {
     "rank": 366,
-    "name": "World Kinect公司（WORLD KINECT)",
-    "aliases": []
+    "name": "中国华电集团有限公司",
+    "aliases": [
+     "中国华电集团有限公司（CHINA HUADIAN)"
+    ]
    },
    {
     "rank": 367,
-    "name": "X5零售集团（X5 RETAIL GROUP)",
+    "name": "俄罗斯铁路公司",
     "aliases": []
    },
    {
     "rank": 368,
-    "name": "诺和诺德公司（NOVO NORDISK)",
-    "aliases": []
+    "name": "西门子能源",
+    "aliases": [
+     "西门子能源（SIEMENS ENERGY)"
+    ]
    },
    {
     "rank": 369,
-    "name": "新加坡奥兰集团（OLAM GROUP)",
-    "aliases": []
+    "name": "Mercadona公司",
+    "aliases": [
+     "Mercadona公司（MERCADONA)"
+    ]
    },
    {
     "rank": 370,
-    "name": "康帕斯集团（COMPASS GROUP)",
-    "aliases": []
+    "name": "葛兰素史克集团",
+    "aliases": [
+     "葛兰素史克集团（GSK)"
+    ]
    },
    {
     "rank": 371,
-    "name": "现代摩比斯公司（HYUNDAI MOBIS)",
-    "aliases": []
+    "name": "现代摩比斯公司",
+    "aliases": [
+     "现代摩比斯公司（HYUNDAI MOBIS)"
+    ]
    },
    {
     "rank": 372,
-    "name": "雅培公司（ABBOTT LABORATORIES)",
-    "aliases": []
+    "name": "顺丰控股股份有限公司",
+    "aliases": [
+     "顺丰控股股份有限公司（S.F. HOLDING)"
+    ]
    },
    {
     "rank": 373,
-    "name": "渣打银行（STANDARD CHARTERED)",
-    "aliases": []
+    "name": "美国合众银行",
+    "aliases": [
+     "美国合众银行（U.S. BANCORP)"
+    ]
    },
    {
     "rank": 374,
-    "name": "上海建工集团股份有限公司（SHANGHAI CONSTRUCTION GROUP)",
-    "aliases": []
+    "name": "Dollar General公司",
+    "aliases": [
+     "Dollar General公司（DOLLAR GENERAL)"
+    ]
    },
    {
     "rank": 375,
-    "name": "Inditex公司（INDITEX)",
-    "aliases": []
+    "name": "Coop集团",
+    "aliases": [
+     "Coop集团（COOP GROUP)"
+    ]
    },
    {
     "rank": 376,
-    "name": "百思买（BEST BUY)",
-    "aliases": []
+    "name": "西班牙电话公司",
+    "aliases": [
+     "西班牙电话公司（TELEFÓNICA)"
+    ]
    },
    {
     "rank": 377,
-    "name": "西北互助人寿保险公司（NORTHWESTERN MUTUAL)",
-    "aliases": []
+    "name": "中国机械工业集团有限公司",
+    "aliases": [
+     "中国机械工业集团有限公司（SINOMACH)"
+    ]
    },
    {
     "rank": 378,
-    "name": "施耐德电气（SCHNEIDER ELECTRIC)",
-    "aliases": []
+    "name": "海尔智家股份有限公司",
+    "aliases": [
+     "海尔智家股份有限公司（HAIER SMART HOME)"
+    ]
    },
    {
     "rank": 379,
-    "name": "KB金融集团（KB FINANCIAL GROUP)",
-    "aliases": []
+    "name": "麦格纳国际",
+    "aliases": [
+     "麦格纳国际（MAGNA INTERNATIONAL)"
+    ]
    },
    {
     "rank": 380,
-    "name": "美国诺斯洛普格拉曼公司（NORTHROP GRUMMAN)",
-    "aliases": []
+    "name": "东京电力公司",
+    "aliases": [
+     "东京电力公司（TOKYO ELECTRIC POWER)"
+    ]
    },
    {
     "rank": 381,
-    "name": "澳大利亚国民银行（NATIONAL AUSTRALIA BANK)",
-    "aliases": []
+    "name": "美国诺斯洛普格拉曼公司",
+    "aliases": [
+     "美国诺斯洛普格拉曼公司（NORTHROP GRUMMAN)"
+    ]
    },
    {
     "rank": 382,
-    "name": "韩华集团（HANWHA)",
-    "aliases": []
+    "name": "Magnit公司",
+    "aliases": [
+     "Magnit公司（MAGNIT)"
+    ]
    },
    {
     "rank": 383,
-    "name": "Molina Healthcare公司（MOLINA HEALTHCARE)",
+    "name": "奇瑞汽车股份有限公司",
     "aliases": []
    },
    {
     "rank": 384,
-    "name": "汉莎集团（LUFTHANSA GROUP)",
-    "aliases": []
+    "name": "铃木汽车",
+    "aliases": [
+     "铃木汽车（SUZUKI MOTOR)"
+    ]
    },
    {
     "rank": 385,
-    "name": "Dollar General公司（DOLLAR GENERAL)",
-    "aliases": []
+    "name": "百思买",
+    "aliases": [
+     "百思买（BEST BUY)"
+    ]
    },
    {
     "rank": 386,
-    "name": "利安德巴塞尔工业公司（LYONDELLBASELL INDUSTRIES)",
-    "aliases": []
+    "name": "赛富时",
+    "aliases": [
+     "赛富时（SALESFORCE)"
+    ]
    },
    {
     "rank": 387,
-    "name": "中国民生银行股份有限公司（CHINA MINSHENG BANKING)",
-    "aliases": []
+    "name": "SAP公司",
+    "aliases": [
+     "SAP公司（SAP)"
+    ]
    },
    {
     "rank": 388,
-    "name": "葛兰素史克集团（GSK)",
-    "aliases": []
+    "name": "KB金融集团",
+    "aliases": [
+     "KB金融集团（KB FINANCIAL GROUP)"
+    ]
    },
    {
     "rank": 389,
-    "name": "纽约梅隆银行（BANK OF NEW YORK (BNY))",
-    "aliases": []
+    "name": "广州工业投资控股集团有限公司",
+    "aliases": [
+     "广州工业投资控股集团有限公司（GUANGZHOU INDUSTRIAL INVESTMENT HOLDINGS)"
+    ]
    },
    {
     "rank": 390,
-    "name": "海尔智家股份有限公司（HAIER SMART HOME)",
-    "aliases": []
+    "name": "晋能控股集团有限公司",
+    "aliases": [
+     "晋能控股集团有限公司（JINNENG HOLDING GROUP)"
+    ]
    },
    {
     "rank": 391,
-    "name": "Cenovus Energy公司（CENOVUS ENERGY)",
-    "aliases": []
+    "name": "山东高速集团有限公司",
+    "aliases": [
+     "山东高速集团有限公司（SHANDONG HI-SPEED GROUP)"
+    ]
    },
    {
     "rank": 392,
-    "name": "Coop集团（COOP GROUP)",
-    "aliases": []
+    "name": "中国建材集团有限公司",
+    "aliases": [
+     "中国建材集团有限公司（CHINA NATIONAL BUILDING MATERIAL GROUP)"
+    ]
    },
    {
     "rank": 393,
-    "name": "顺丰控股股份有限公司（S.F. HOLDING)",
-    "aliases": []
+    "name": "陕西延长石油（集团）有限责任公司",
+    "aliases": [
+     "陕西延长石油（集团）有限责任公司（SHAANXI YANCHANG PETROLEUM (GROUP))"
+    ]
    },
    {
     "rank": 394,
-    "name": "杭州市实业投资集团有限公司（HANGZHOU INDUSTRIAL INVESTMENT GROUP)",
-    "aliases": []
+    "name": "纽约梅隆银行",
+    "aliases": [
+     "纽约梅隆银行（BANK OF NEW YORK (BNY))"
+    ]
    },
    {
     "rank": 395,
-    "name": "华纳兄弟探索公司（WARNER BROS. DISCOVERY)",
-    "aliases": []
+    "name": "霍尼韦尔国际公司",
+    "aliases": [
+     "霍尼韦尔国际公司（HONEYWELL INTERNATIONAL)"
+    ]
    },
    {
     "rank": 396,
-    "name": "CHS公司（CHS)",
-    "aliases": []
+    "name": "菲利普－莫里斯国际公司",
+    "aliases": [
+     "菲利普－莫里斯国际公司（PHILIP MORRIS INTERNATIONAL)"
+    ]
    },
    {
     "rank": 397,
-    "name": "Enbridge公司（ENBRIDGE)",
-    "aliases": []
+    "name": "渣打银行",
+    "aliases": [
+     "渣打银行（STANDARD CHARTERED)"
+    ]
    },
    {
     "rank": 398,
-    "name": "Netflix公司（NETFLIX)",
-    "aliases": []
+    "name": "Jerónimo Martins公司",
+    "aliases": [
+     "Jerónimo Martins公司（JERÓNIMO MARTINS)"
+    ]
    },
    {
     "rank": 399,
-    "name": "高通（QUALCOMM)",
+    "name": "塔塔汽车乘用车公司",
     "aliases": []
    },
    {
     "rank": 400,
-    "name": "日本KDDI电信公司（KDDI)",
-    "aliases": []
+    "name": "世邦魏理仕集团",
+    "aliases": [
+     "世邦魏理仕集团（CBRE GROUP)"
+    ]
    },
    {
     "rank": 401,
-    "name": "山东高速集团有限公司（SHANDONG HI-SPEED GROUP)",
-    "aliases": []
+    "name": "日本KDDI电信公司",
+    "aliases": [
+     "日本KDDI电信公司（KDDI)"
+    ]
    },
    {
     "rank": 402,
-    "name": "GE航空航天公司（GENERAL ELECTRIC (GE AEROSPACE))",
-    "aliases": []
+    "name": "德国中央合作银行",
+    "aliases": [
+     "德国中央合作银行（DZ BANK)"
+    ]
    },
    {
     "rank": 403,
-    "name": "Mercadona公司（MERCADONA)",
-    "aliases": []
+    "name": "Visa公司",
+    "aliases": [
+     "Visa公司（VISA)"
+    ]
    },
    {
     "rank": 404,
-    "name": "霍尼韦尔国际公司（HONEYWELL INTERNATIONAL)",
-    "aliases": []
+    "name": "陶氏公司",
+    "aliases": [
+     "陶氏公司（DOW)"
+    ]
    },
    {
     "rank": 405,
-    "name": "杭州钢铁集团有限公司（HANGZHOU IRON AND STEEL GROUP)",
-    "aliases": []
+    "name": "国民威斯敏斯特银行集团",
+    "aliases": [
+     "国民威斯敏斯特银行集团（NATWEST GROUP)"
+    ]
    },
    {
     "rank": 406,
-    "name": "广州工业投资控股集团有限公司（GUANGZHOU INDUSTRIAL INVESTMENT HOLDINGS)",
-    "aliases": []
+    "name": "广东省广新控股集团有限公司",
+    "aliases": [
+     "广东省广新控股集团有限公司（GUANGDONG GUANGXIN HOLDINGS GROUP)"
+    ]
    },
    {
     "rank": 407,
-    "name": "上海医药集团股份有限公司（SHANGHAI PHARMACEUTICALS HOLDING)",
-    "aliases": []
+    "name": "St. James's Place公司",
+    "aliases": [
+     "St. James's Place公司（ST. JAMES'S PLACE)"
+    ]
    },
    {
     "rank": 408,
-    "name": "铃木汽车（SUZUKI MOTOR)",
-    "aliases": []
+    "name": "住友生命保险公司",
+    "aliases": [
+     "住友生命保险公司（SUMITOMO LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 409,
-    "name": "巴西淡水河谷公司（VALE)",
-    "aliases": []
+    "name": "友邦保险控股有限公司",
+    "aliases": [
+     "友邦保险控股有限公司（AIA GROUP)"
+    ]
    },
    {
     "rank": 410,
-    "name": "蒂森克虏伯（THYSSENKRUPP)",
-    "aliases": []
+    "name": "中国中车集团有限公司",
+    "aliases": [
+     "中国中车集团有限公司（CRRC GROUP)"
+    ]
    },
    {
     "rank": 411,
-    "name": "赛富时（SALESFORCE)",
-    "aliases": []
+    "name": "上海医药集团股份有限公司",
+    "aliases": [
+     "上海医药集团股份有限公司（SHANGHAI PHARMACEUTICALS HOLDING)"
+    ]
    },
    {
     "rank": 412,
-    "name": "菲利普－莫里斯国际公司（PHILIP MORRIS INTERNATIONAL)",
-    "aliases": []
+    "name": "US Foods Holding公司",
+    "aliases": [
+     "US Foods Holding公司（US FOODS HOLDING)"
+    ]
    },
    {
     "rank": 413,
-    "name": "US Foods Holding公司（US FOODS HOLDING)",
-    "aliases": []
+    "name": "北京汽车集团有限公司",
+    "aliases": [
+     "北京汽车集团有限公司（BEIJING AUTOMOTIVE GROUP)"
+    ]
    },
    {
     "rank": 414,
-    "name": "深圳市投资控股有限公司（SHENZHEN INVESTMENT HOLDINGS)",
-    "aliases": []
+    "name": "新华人寿保险股份有限公司",
+    "aliases": [
+     "新华人寿保险股份有限公司（NEW CHINA LIFE INSURANCE)"
+    ]
    },
    {
     "rank": 415,
-    "name": "西太平洋银行（WESTPAC BANKING)",
-    "aliases": []
+    "name": "杭州钢铁集团有限公司",
+    "aliases": [
+     "杭州钢铁集团有限公司（HANGZHOU IRON AND STEEL GROUP)"
+    ]
    },
    {
     "rank": 416,
-    "name": "江苏沙钢集团有限公司（JIANGSU SHAGANG GROUP)",
-    "aliases": []
+    "name": "三菱电机股份有限公司",
+    "aliases": [
+     "三菱电机股份有限公司（MITSUBISHI ELECTRIC)"
+    ]
    },
    {
     "rank": 417,
-    "name": "友邦保险控股有限公司（AIA GROUP)",
-    "aliases": []
+    "name": "巴登-符腾堡州能源公司",
+    "aliases": [
+     "巴登-符腾堡州能源公司（ENERGIE BADEN-WÜRTTEMBERG)"
+    ]
    },
    {
     "rank": 418,
-    "name": "广东省广新控股集团有限公司（GUANGDONG GUANGXIN HOLDINGS GROUP)",
-    "aliases": []
+    "name": "法国邮政",
+    "aliases": [
+     "法国邮政（LA POSTE)"
+    ]
    },
    {
     "rank": 419,
-    "name": "卡塔尔国民银行（QNB GROUP)",
-    "aliases": []
+    "name": "杭州市实业投资集团有限公司",
+    "aliases": [
+     "杭州市实业投资集团有限公司（HANGZHOU INDUSTRIAL INVESTMENT GROUP)"
+    ]
    },
    {
     "rank": 420,
-    "name": "国民威斯敏斯特银行集团（NATWEST GROUP)",
-    "aliases": []
+    "name": "澳大利亚国民银行",
+    "aliases": [
+     "澳大利亚国民银行（NATIONAL AUSTRALIA BANK)"
+    ]
    },
    {
     "rank": 421,
-    "name": "法国邮政（LA POSTE)",
-    "aliases": []
+    "name": "深圳市投资控股有限公司",
+    "aliases": [
+     "深圳市投资控股有限公司（SHENZHEN INVESTMENT HOLDINGS)"
+    ]
    },
    {
     "rank": 422,
-    "name": "西门子能源（SIEMENS ENERGY)",
-    "aliases": []
+    "name": "亿滋国际",
+    "aliases": [
+     "亿滋国际（MONDELEZ INTERNATIONAL)"
+    ]
    },
    {
     "rank": 423,
-    "name": "立讯精密工业股份有限公司（LUXSHARE PRECISION INDUSTRY)",
-    "aliases": []
+    "name": "曼福集团",
+    "aliases": [
+     "曼福集团（MAPFRE GROUP)"
+    ]
    },
    {
     "rank": 424,
-    "name": "巴登-符腾堡州能源公司（ENERGIE BADEN-WÜRTTEMBERG)",
-    "aliases": []
+    "name": "巴西淡水河谷公司",
+    "aliases": [
+     "巴西淡水河谷公司（VALE)"
+    ]
    },
    {
     "rank": 425,
-    "name": "森科能源公司（SUNCOR ENERGY)",
+    "name": "CDP集团",
     "aliases": []
    },
    {
     "rank": 426,
-    "name": "新希望控股集团有限公司（NEW HOPE HOLDING GROUP)",
-    "aliases": []
+    "name": "Lithia Motors公司",
+    "aliases": [
+     "Lithia Motors公司（LITHIA MOTORS)"
+    ]
    },
    {
     "rank": 427,
-    "name": "中国电子信息产业集团有限公司（CHINA ELECTRONICS)",
-    "aliases": []
+    "name": "GE Vernova公司",
+    "aliases": [
+     "GE Vernova公司（GE VERNOVA)"
+    ]
    },
    {
     "rank": 428,
-    "name": "LG化学公司（LG CHEM)",
-    "aliases": []
+    "name": "山东黄金集团有限公司",
+    "aliases": [
+     "山东黄金集团有限公司（SHANDONG GOLD GROUP)"
+    ]
    },
    {
     "rank": 429,
-    "name": "SAP公司（SAP)",
-    "aliases": []
+    "name": "卡塔尔国民银行",
+    "aliases": [
+     "卡塔尔国民银行（QNB GROUP)"
+    ]
    },
    {
     "rank": 430,
-    "name": "Migros集团（MIGROS GROUP)",
-    "aliases": []
+    "name": "广州市建筑集团有限公司",
+    "aliases": [
+     "广州市建筑集团有限公司（GUANGZHOU MUNICIPAL CONSTRUCTION GROUP)"
+    ]
    },
    {
     "rank": 431,
-    "name": "日本明治安田生命保险公司（MEIJI YASUDA LIFE INSURANCE)",
+    "name": "文晔科技公司",
     "aliases": []
    },
    {
     "rank": 432,
-    "name": "D.R. Horton公司（D.R. HORTON)",
+    "name": "英国标准人寿保险公司",
     "aliases": []
    },
    {
     "rank": 433,
-    "name": "奥地利石油天然气集团（OMV GROUP)",
-    "aliases": []
+    "name": "海亮集团有限公司",
+    "aliases": [
+     "海亮集团有限公司（HAILIANG GROUP)"
+    ]
    },
    {
     "rank": 434,
-    "name": "Lithia Motors公司（LITHIA MOTORS)",
-    "aliases": []
+    "name": "国际航空集团",
+    "aliases": [
+     "国际航空集团（INTERNATIONAL AIRLINES GROUP)"
+    ]
    },
    {
     "rank": 435,
-    "name": "CFE公司（CFE)",
-    "aliases": []
+    "name": "CRH公司",
+    "aliases": [
+     "CRH公司（CRH)"
+    ]
    },
    {
     "rank": 436,
-    "name": "亿滋国际（MONDELEZ INTERNATIONAL)",
-    "aliases": []
+    "name": "铜陵有色金属集团控股有限公司",
+    "aliases": [
+     "铜陵有色金属集团控股有限公司（TONGLING NONFERROUS METALS GROUP)"
+    ]
    },
    {
     "rank": 437,
-    "name": "斯伦贝谢公司（SCHLUMBERGER)",
+    "name": "DSV公司",
     "aliases": []
    },
    {
     "rank": 438,
-    "name": "鞍钢集团有限公司（ANSTEEL GROUP)",
+    "name": "美光科技公司",
     "aliases": []
    },
    {
     "rank": 439,
-    "name": "三菱电机股份有限公司（MITSUBISHI ELECTRIC)",
-    "aliases": []
+    "name": "德国联邦铁路公司",
+    "aliases": [
+     "德国联邦铁路公司（DEUTSCHE BAHN)"
+    ]
    },
    {
     "rank": 440,
-    "name": "Jerónimo Martins公司（JERÓNIMO MARTINS)",
-    "aliases": []
+    "name": "西太平洋银行",
+    "aliases": [
+     "西太平洋银行（WESTPAC BANKING)"
+    ]
    },
    {
     "rank": 441,
-    "name": "星巴克公司（STARBUCKS)",
-    "aliases": []
+    "name": "BAE系统公司",
+    "aliases": [
+     "BAE系统公司（BAE SYSTEMS)"
+    ]
    },
    {
     "rank": 442,
-    "name": "海亮集团有限公司（HAILIANG GROUP)",
-    "aliases": []
+    "name": "华纳兄弟探索公司",
+    "aliases": [
+     "华纳兄弟探索公司（WARNER BROS. DISCOVERY)"
+    ]
    },
    {
     "rank": 443,
-    "name": "曼福集团（MAPFRE GROUP)",
-    "aliases": []
+    "name": "日本三菱重工业股份有限公司",
+    "aliases": [
+     "日本三菱重工业股份有限公司（MITSUBISHI HEAVY INDUSTRIES)"
+    ]
    },
    {
     "rank": 444,
-    "name": "长江和记实业有限公司（CK HUTCHISON HOLDINGS)",
-    "aliases": []
+    "name": "法国航空－荷兰皇家航空集团",
+    "aliases": [
+     "法国航空－荷兰皇家航空集团（AIR FRANCE-KLM GROUP)"
+    ]
    },
    {
     "rank": 445,
-    "name": "ELO集团（ELO GROUP)",
-    "aliases": []
+    "name": "蜀道投资集团有限责任公司",
+    "aliases": [
+     "蜀道投资集团有限责任公司（SHUDAO INVESTMENT GROUP)"
+    ]
    },
    {
     "rank": 446,
-    "name": "Visa公司（VISA)",
-    "aliases": []
+    "name": "星巴克公司",
+    "aliases": [
+     "星巴克公司（STARBUCKS)"
+    ]
    },
    {
     "rank": 447,
-    "name": "中国大唐集团有限公司（CHINA DATANG)",
-    "aliases": []
+    "name": "中国民生银行股份有限公司",
+    "aliases": [
+     "中国民生银行股份有限公司（CHINA MINSHENG BANKING)"
+    ]
    },
    {
     "rank": 448,
-    "name": "中国中车集团有限公司（CRRC GROUP)",
-    "aliases": []
+    "name": "Migros集团",
+    "aliases": [
+     "Migros集团（MIGROS GROUP)"
+    ]
    },
    {
     "rank": 449,
-    "name": "怡和集团（JARDINE MATHESON)",
-    "aliases": []
+    "name": "大和房建",
+    "aliases": [
+     "大和房建（DAIWA HOUSE INDUSTRY)"
+    ]
    },
    {
     "rank": 450,
-    "name": "损保控股有限公司（SOMPO HOLDINGS)",
-    "aliases": []
+    "name": "江苏沙钢集团有限公司",
+    "aliases": [
+     "江苏沙钢集团有限公司（JIANGSU SHAGANG GROUP)"
+    ]
    },
    {
     "rank": 451,
-    "name": "铜陵有色金属集团控股有限公司（TONGLING NONFERROUS METALS GROUP)",
-    "aliases": []
+    "name": "中国电子信息产业集团有限公司",
+    "aliases": [
+     "中国电子信息产业集团有限公司（CHINA ELECTRONICS)"
+    ]
    },
    {
     "rank": 452,
-    "name": "世邦魏理仕集团（CBRE GROUP)",
-    "aliases": []
+    "name": "World Kinect公司",
+    "aliases": [
+     "World Kinect公司（WORLD KINECT)"
+    ]
    },
    {
     "rank": 453,
-    "name": "荷兰合作银行集团（RABOBANK GROUP)",
+    "name": "阿斯麦公司",
     "aliases": []
    },
    {
     "rank": 454,
-    "name": "蜀道投资集团有限责任公司（SHUDAO INVESTMENT GROUP)",
-    "aliases": []
+    "name": "安进",
+    "aliases": [
+     "安进（AMGEN)"
+    ]
    },
    {
     "rank": 455,
-    "name": "广州市建筑集团有限公司（GUANGZHOU MUNICIPAL CONSTRUCTION GROUP)",
-    "aliases": []
+    "name": "蒂森克虏伯",
+    "aliases": [
+     "蒂森克虏伯（THYSSENKRUPP)"
+    ]
    },
    {
     "rank": 456,
-    "name": "大和房建（DAIWA HOUSE INDUSTRY)",
-    "aliases": []
+    "name": "中国大唐集团有限公司",
+    "aliases": [
+     "中国大唐集团有限公司（CHINA DATANG)"
+    ]
    },
    {
     "rank": 457,
-    "name": "CRH公司（CRH)",
-    "aliases": []
+    "name": "长江和记实业有限公司",
+    "aliases": [
+     "长江和记实业有限公司（CK HUTCHISON HOLDINGS)"
+    ]
    },
    {
     "rank": 458,
-    "name": "莱纳公司（LENNAR)",
-    "aliases": []
+    "name": "奥地利石油天然气集团",
+    "aliases": [
+     "奥地利石油天然气集团（OMV GROUP)"
+    ]
    },
    {
     "rank": 459,
-    "name": "广州医药集团有限公司（GUANGZHOU PHARMACEUTICAL HOLDINGS)",
+    "name": "和硕",
     "aliases": []
    },
    {
     "rank": 460,
-    "name": "碧桂园控股有限公司（COUNTRY GARDEN HOLDINGS)",
-    "aliases": []
+    "name": "斯伦贝谢公司",
+    "aliases": [
+     "斯伦贝谢公司（SCHLUMBERGER)"
+    ]
    },
    {
     "rank": 461,
-    "name": "和硕联合科技股份有限公司（PEGATRON)",
+    "name": "赛峰集团",
     "aliases": []
    },
    {
     "rank": 462,
-    "name": "GE Vernova公司（GE VERNOVA)",
-    "aliases": []
+    "name": "损保控股有限公司",
+    "aliases": [
+     "损保控股有限公司（SOMPO HOLDINGS)"
+    ]
    },
    {
     "rank": 463,
-    "name": "GS加德士（GS CALTEX)",
-    "aliases": []
+    "name": "湖南钢铁集团有限公司",
+    "aliases": [
+     "湖南钢铁集团有限公司（HUNAN IRON & STEEL GROUP)"
+    ]
    },
    {
     "rank": 464,
-    "name": "印度工业信贷投资银行（ICICI BANK)",
-    "aliases": []
+    "name": "通威集团有限公司",
+    "aliases": [
+     "通威集团有限公司（TONGWEI GROUP)"
+    ]
    },
    {
     "rank": 465,
-    "name": "山东黄金集团有限公司（SHANDONG GOLD GROUP)",
-    "aliases": []
+    "name": "Cenovus Energy公司",
+    "aliases": [
+     "Cenovus Energy公司（CENOVUS ENERGY)"
+    ]
    },
    {
     "rank": 466,
-    "name": "国际航空集团（INTERNATIONAL AIRLINES GROUP)",
-    "aliases": []
+    "name": "瑞士ABB集团",
+    "aliases": [
+     "瑞士ABB集团（ABB)"
+    ]
    },
    {
     "rank": 467,
-    "name": "上海德龙钢铁集团有限公司（SHANGHAI DELONG STEEL GROUP)",
-    "aliases": []
+    "name": "广州医药集团有限公司",
+    "aliases": [
+     "广州医药集团有限公司（GUANGZHOU PHARMACEUTICAL HOLDINGS)"
+    ]
    },
    {
     "rank": 468,
-    "name": "美国PNC金融服务集团（PNC FINANCIAL SERVICES GROUP)",
-    "aliases": []
+    "name": "CHS公司",
+    "aliases": [
+     "CHS公司（CHS)"
+    ]
    },
    {
     "rank": 469,
-    "name": "Perusahaan Listrik Negara公司（PERUSAHAAN LISTRIK NEGARA)",
-    "aliases": []
+    "name": "Perusahaan Listrik Negara公司",
+    "aliases": [
+     "Perusahaan Listrik Negara公司（PERUSAHAAN LISTRIK NEGARA)"
+    ]
    },
    {
     "rank": 470,
-    "name": "阿联酋航空集团（EMIRATES GROUP)",
-    "aliases": []
+    "name": "CFE公司",
+    "aliases": [
+     "CFE公司（CFE)"
+    ]
    },
    {
     "rank": 471,
-    "name": "北京建龙重工集团有限公司（BEIJING JIANLONG HEAVY INDUSTRY GROUP)",
-    "aliases": []
+    "name": "印度工业信贷投资银行",
+    "aliases": [
+     "印度工业信贷投资银行（ICICI BANK)"
+    ]
    },
    {
     "rank": 472,
-    "name": "康明斯公司（CUMMINS)",
-    "aliases": []
+    "name": "森科能源公司",
+    "aliases": [
+     "森科能源公司（SUNCOR ENERGY)"
+    ]
    },
    {
     "rank": 473,
-    "name": "中国中煤能源集团有限公司（CHINA NATIONAL COAL GROUP)",
-    "aliases": []
+    "name": "德国巴登-符腾堡州银行",
+    "aliases": [
+     "德国巴登-符腾堡州银行（LANDESBANK BADEN-WÜRTTEMBERG)"
+    ]
    },
    {
     "rank": 474,
-    "name": "法国航空－荷兰皇家航空集团（AIR FRANCE-KLM GROUP)",
-    "aliases": []
+    "name": "阿联酋航空集团",
+    "aliases": [
+     "阿联酋航空集团（EMIRATES GROUP)"
+    ]
    },
    {
     "rank": 475,
-    "name": "住友生命保险公司（SUMITOMO LIFE INSURANCE)",
+    "name": "德龙钢铁产业集团有限公司",
     "aliases": []
    },
    {
     "rank": 476,
-    "name": "帕卡公司（PACCAR)",
+    "name": "加拿大鲍尔集团",
     "aliases": []
    },
    {
     "rank": 477,
-    "name": "麦德龙（METRO)",
-    "aliases": []
+    "name": "荷兰合作银行集团",
+    "aliases": [
+     "荷兰合作银行集团（RABOBANK GROUP)"
+    ]
    },
    {
     "rank": 478,
-    "name": "BAE系统公司（BAE SYSTEMS)",
+    "name": "超威半导体公司",
     "aliases": []
    },
    {
     "rank": 479,
-    "name": "通威集团有限公司（TONGWEI GROUP)",
+    "name": "Coupang公司",
     "aliases": []
    },
    {
     "rank": 480,
-    "name": "绿地控股集团股份有限公司（GREENLAND HOLDING GROUP)",
-    "aliases": []
+    "name": "新希望控股集团有限公司",
+    "aliases": [
+     "新希望控股集团有限公司（NEW HOPE HOLDING GROUP)"
+    ]
    },
    {
     "rank": 481,
-    "name": "中国航空油料集团有限公司（CHINA NATIONAL AVIATION FUEL GROUP)",
+    "name": "慧与公司",
     "aliases": []
    },
    {
     "rank": 482,
-    "name": "安进（AMGEN)",
-    "aliases": []
+    "name": "D.R. Horton公司",
+    "aliases": [
+     "D.R. Horton公司（D.R. HORTON)"
+    ]
    },
    {
     "rank": 483,
-    "name": "湖南钢铁集团有限公司（HUNAN IRON & STEEL GROUP)",
-    "aliases": []
+    "name": "怡和集团",
+    "aliases": [
+     "怡和集团（JARDINE MATHESON)"
+    ]
    },
    {
     "rank": 484,
-    "name": "St. James's Place公司（ST. JAMES'S PLACE)",
-    "aliases": []
+    "name": "北京建龙重工集团有限公司",
+    "aliases": [
+     "北京建龙重工集团有限公司（BEIJING JIANLONG HEAVY INDUSTRY GROUP)"
+    ]
    },
    {
     "rank": 485,
-    "name": "PBF Energy公司（PBF ENERGY)",
-    "aliases": []
+    "name": "莱纳公司",
+    "aliases": [
+     "莱纳公司（LENNAR)"
+    ]
    },
    {
     "rank": 486,
-    "name": "英美烟草集团（BRITISH AMERICAN TOBACCO)",
+    "name": "俄罗斯天然气工业银行‌",
     "aliases": []
    },
    {
     "rank": 487,
-    "name": "林德集团（LINDE)",
-    "aliases": []
+    "name": "美国PNC金融服务集团",
+    "aliases": [
+     "美国PNC金融服务集团（PNC FINANCIAL SERVICES GROUP)"
+    ]
    },
    {
     "rank": 488,
-    "name": "日本三菱重工业股份有限公司（MITSUBISHI HEAVY INDUSTRIES)",
-    "aliases": []
+    "name": "林德集团",
+    "aliases": [
+     "林德集团（LINDE)"
+    ]
    },
    {
     "rank": 489,
-    "name": "广西投资集团有限公司（GUANGXI INVESTMENT GROUP)",
+    "name": "爱信",
     "aliases": []
    },
    {
     "rank": 490,
-    "name": "GuideWell Mutual Holding公司（GUIDEWELL MUTUAL HOLDING)",
+    "name": "住友电工",
     "aliases": []
    },
    {
     "rank": 491,
-    "name": "马自达汽车株式会社（MAZDA MOTOR)",
-    "aliases": []
+    "name": "鞍钢集团有限公司",
+    "aliases": [
+     "鞍钢集团有限公司（ANSTEEL GROUP)"
+    ]
    },
    {
     "rank": 492,
-    "name": "瑞士ABB集团（ABB)",
+    "name": "Vibra Energia公司",
     "aliases": []
    },
    {
     "rank": 493,
-    "name": "Magnit公司（MAGNIT)",
-    "aliases": []
+    "name": "英美烟草集团",
+    "aliases": [
+     "英美烟草集团（BRITISH AMERICAN TOBACCO)"
+    ]
    },
    {
     "rank": 494,
-    "name": "台湾中油股份有限公司（CPC)",
-    "aliases": []
+    "name": "康明斯公司",
+    "aliases": [
+     "康明斯公司（CUMMINS)"
+    ]
    },
    {
     "rank": 495,
-    "name": "哥伦比亚国家石油公司（ECOPETROL)",
+    "name": "Oneok公司",
     "aliases": []
    },
    {
     "rank": 496,
-    "name": "纬创集团（WISTRON)",
-    "aliases": []
+    "name": "美敦力公司",
+    "aliases": [
+     "美敦力公司（MEDTRONIC)"
+    ]
    },
    {
     "rank": 497,
-    "name": "美敦力公司（MEDTRONIC)",
-    "aliases": []
+    "name": "广西投资集团有限公司",
+    "aliases": [
+     "广西投资集团有限公司（GUANGXI INVESTMENT GROUP)"
+    ]
    },
    {
     "rank": 498,
-    "name": "新华人寿保险股份有限公司（NEW CHINA LIFE INSURANCE)",
+    "name": "大金集团",
     "aliases": []
    },
    {
     "rank": 499,
-    "name": "中国通用技术(集团)控股有限责任公司（CHINA GENERAL TECHNOLOGY)",
-    "aliases": []
+    "name": "LG化学公司",
+    "aliases": [
+     "LG化学公司（LG CHEM)"
+    ]
    },
    {
     "rank": 500,
-    "name": "喜力公司（HEINEKEN)",
+    "name": "贝宝公司",
     "aliases": []
    }
   ],
@@ -5014,7 +5954,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    63,
+    56,
     0
    ],
    "pending": false
@@ -5026,7 +5966,7 @@ const RankingData = {
    "category": 1,
    "country": "爱尔兰",
    "ranks": [
-    211,
+    204,
     0
    ],
    "pending": false
@@ -5074,7 +6014,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    327,
+    311,
     19
    ],
    "pending": false
@@ -5088,7 +6028,7 @@ const RankingData = {
    "country": "",
    "group": "比利时百威英博集团",
    "ranks": [
-    232,
+    258,
     0
    ],
    "pending": false
@@ -5101,7 +6041,7 @@ const RankingData = {
    "country": "",
    "group": "比利时百威英博集团",
    "ranks": [
-    232,
+    258,
     0
    ],
    "pending": false
@@ -5125,7 +6065,7 @@ const RankingData = {
    "category": 1,
    "country": "美国",
    "ranks": [
-    111,
+    90,
     0
    ],
    "pending": false
@@ -5138,7 +6078,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    190,
+    191,
     0
    ],
    "pending": false
@@ -5151,7 +6091,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    342,
+    364,
     0
    ],
    "pending": false
@@ -5164,7 +6104,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    48,
+    51,
     0
    ],
    "pending": false
@@ -5176,7 +6116,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    144,
+    143,
     0
    ],
    "pending": false
@@ -5200,7 +6140,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    103,
+    94,
     0
    ],
    "pending": false
@@ -5237,7 +6177,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    117,
+    126,
     0
    ],
    "pending": false
@@ -5249,7 +6189,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    313,
+    315,
     0
    ],
    "pending": false
@@ -5275,7 +6215,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    63,
+    56,
     0
    ],
    "pending": false
@@ -5323,7 +6263,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    265,
+    271,
     0
    ],
    "pending": false
@@ -5370,10 +6310,10 @@ const RankingData = {
    "names": [
     "荷兰阿斯麦公司"
    ],
-   "category": 4,
+   "category": 1,
    "country": "",
    "ranks": [
-    0,
+    453,
     0
    ],
    "pending": false
@@ -5397,7 +6337,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    44,
+    41,
     1
    ],
    "pending": false
@@ -5448,7 +6388,7 @@ const RankingData = {
    "country": "",
    "group": "美国霍尼韦尔国际公司",
    "ranks": [
-    404,
+    395,
     0
    ],
    "pending": false
@@ -5461,7 +6401,7 @@ const RankingData = {
    "country": "",
    "group": "美国霍尼韦尔国际公司",
    "ranks": [
-    404,
+    395,
     0
    ],
    "pending": false
@@ -5473,7 +6413,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    245,
+    243,
     0
    ],
    "pending": false
@@ -5483,10 +6423,10 @@ const RankingData = {
     "美国美光科技(Micron )公司",
     "美国美光科技(Micron )"
    ],
-   "category": 4,
+   "category": 1,
    "country": "",
    "ranks": [
-    0,
+    438,
     0
    ],
    "pending": false
@@ -5524,7 +6464,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    280,
+    289,
     0
    ],
    "pending": false
@@ -5563,7 +6503,7 @@ const RankingData = {
    "category": 1,
    "country": "美国",
    "ranks": [
-    290,
+    336,
     0
    ],
    "pending": false
@@ -5602,7 +6542,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    204,
+    190,
     0
    ],
    "pending": false
@@ -5616,7 +6556,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    439,
+    416,
     0
    ],
    "pending": false
@@ -5642,7 +6582,7 @@ const RankingData = {
    "category": 1,
    "country": "",
    "ranks": [
-    59,
+    55,
     0
    ],
    "pending": false
@@ -5654,7 +6594,7 @@ const RankingData = {
    "category": 1,
    "country": "日本",
    "ranks": [
-    216,
+    197,
     0
    ],
    "pending": false
@@ -5678,7 +6618,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    208,
+    252,
     0
    ],
    "pending": false
@@ -5742,7 +6682,7 @@ const RankingData = {
    "category": 1,
    "country": "日本",
    "ranks": [
-    146,
+    141,
     0
    ],
    "pending": false
@@ -5754,7 +6694,7 @@ const RankingData = {
    "category": 1,
    "country": "美国",
    "ranks": [
-    106,
+    116,
     0
    ],
    "pending": false
@@ -5766,7 +6706,7 @@ const RankingData = {
    "category": 1,
    "country": "德国",
    "ranks": [
-    422,
+    368,
     0
    ],
    "pending": false
@@ -5790,7 +6730,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    297,
+    232,
     0
    ],
    "pending": false
@@ -5840,7 +6780,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    427,
+    451,
     0
    ],
    "pending": false
@@ -5877,7 +6817,7 @@ const RankingData = {
    "category": 2,
    "country": "",
    "ranks": [
-    43,
+    49,
     0
    ],
    "pending": false
