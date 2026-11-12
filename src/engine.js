@@ -659,10 +659,35 @@ globalThis.createWorkbench = function (rules) {
       || a.guests[0].level-b.guests[0].level
       || a.company.name.localeCompare(b.company.name,"zh"));
   }
+  const attendanceYes = /^(是|已确认(?:参会|参加)?|确认(?:参会|参加)?|参加|参会|yes)$/i;
+  const attendanceNo = /^(否|不参加|不参会|无法参会|取消参会|no)$/i;
+  function guestAttendance(result) {
+    const people = new Map();
+    const domestic = new Set(["中国","中国香港","中国澳门","中国台湾","香港","澳门","台湾"]);
+    for (const {values} of result.rows) {
+      if (!confirmed(values)) continue;
+      const id = JSON.stringify([key(values[1]),key(values[8])]);
+      const attendance = clean(values[16]);
+      if (!people.has(id)) people.set(id,{yes:false,no:false,countries:new Set()});
+      const person = people.get(id);
+      person.yes ||= attendanceYes.test(attendance);
+      person.no ||= attendanceNo.test(attendance);
+      const raw = clean(values[10]);
+      const nationality = domestic.has(raw) ? raw : country(raw);
+      if (nationality) person.countries.add(domestic.has(nationality) ? "中国" : nationality);
+    }
+    const counts = {total:0,domestic:0,foreign:0,unknown:0};
+    for (const person of people.values()) {
+      if (!person.yes || person.no) continue;
+      counts.total++;
+      if (person.countries.size !== 1) counts.unknown++;
+      else if (person.countries.has("中国")) counts.domestic++;
+      else counts.foreign++;
+    }
+    return counts;
+  }
   function dailySummary(result, date) {
     const companies = new Map();
-    const yes = /^(是|已确认(?:参会|参加)?|确认(?:参会|参加)?|参加|参会|yes)$/i;
-    const no = /^(否|不参加|不参会|无法参会|取消参会|no)$/i;
     for (const {values} of result.rows) {
       const [ ,name,,,type,category,,,guest,title,,,,,,,attendance] = values;
       if (!name || type!=="意向投资企业" || !confirmed(values)) continue;
@@ -672,9 +697,9 @@ globalThis.createWorkbench = function (rules) {
       const guestId=key(guest);
       if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,confirmedTitles:[],declined:false});
       const person=company.guests.get(guestId);
-      if (no.test(clean(attendance))) person.declined=true;
+      if (attendanceNo.test(clean(attendance))) person.declined=true;
       const level=guestLevel(title);
-      if (yes.test(clean(attendance))) person.confirmedTitles.push({title,level});
+      if (attendanceYes.test(clean(attendance))) person.confirmedTitles.push({title,level});
       const code=categorySequence(category);
       if (code!==99) company.categories.add(code);
     }
@@ -733,6 +758,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
