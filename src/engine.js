@@ -685,21 +685,23 @@ globalThis.createWorkbench = function (rules) {
       if (!confirmed(values)) continue;
       const id = JSON.stringify([key(values[1]),key(values[8])]);
       const attendance = clean(values[16]);
-      if (!people.has(id)) people.set(id,{yes:false,no:false,countries:new Set()});
+      if (!people.has(id)) people.set(id,{yes:false,no:false,confirmedNationality:"",otherNationality:""});
       const person = people.get(id);
       person.yes ||= attendanceYes.test(attendance);
       person.no ||= attendanceNo.test(attendance);
       const raw = clean(values[10]);
       const nationality = /^(港籍|香港籍)$/.test(raw) ? "中国香港" : country(raw);
-      if (nationality) person.countries.add(nationality === "中国香港" ? nationality : domestic.has(nationality) ? "中国" : nationality);
+      if (attendanceYes.test(attendance)) person.confirmedNationality ||= nationality;
+      else person.otherNationality ||= nationality;
     }
     const counts = {total:0,domestic:0,hongKong:0,foreign:0,unknown:0};
     for (const person of people.values()) {
       if (!person.yes || person.no) continue;
       counts.total++;
-      if (person.countries.size !== 1) counts.unknown++;
-      else if (person.countries.has("中国香港")) counts.hongKong++;
-      else if (person.countries.has("中国")) counts.domestic++;
+      const nationality = person.confirmedNationality || person.otherNationality;
+      if (!nationality) counts.unknown++;
+      else if (nationality === "中国香港") counts.hongKong++;
+      else if (domestic.has(nationality)) counts.domestic++;
       else counts.foreign++;
     }
     return counts;

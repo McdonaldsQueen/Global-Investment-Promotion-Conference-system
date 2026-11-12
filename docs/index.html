@@ -179,7 +179,7 @@ dialog::backdrop{background:#10274588}
       <section class="panel" aria-labelledby="guest-heading">
         <h3 id="guest-heading">到访嘉宾</h3>
         <div class="report-metrics" id="guest-metrics"></div>
-        <p class="small muted">按「是否参加主会场」填「是」且姓名、职务齐全统计。同一集团同名嘉宾计一人，明确取消或不参加的嘉宾不计入。占比以到访总人数为分母。</p>
+        <p class="small muted">按「是否参加主会场」填「是」且姓名、职务齐全统计。同一集团同名嘉宾计一人，明确取消或不参加的嘉宾不计入。国籍暂按填报值汇总，优先采用确认参会记录中首个可识别的国籍。占比以到访总人数为分母。</p>
       </section>
       <p class="small muted" id="count-note"></p>
       <nav class="tabs" aria-label="工作台视图">
@@ -10337,21 +10337,23 @@ globalThis.createWorkbench = function (rules) {
       if (!confirmed(values)) continue;
       const id = JSON.stringify([key(values[1]),key(values[8])]);
       const attendance = clean(values[16]);
-      if (!people.has(id)) people.set(id,{yes:false,no:false,countries:new Set()});
+      if (!people.has(id)) people.set(id,{yes:false,no:false,confirmedNationality:"",otherNationality:""});
       const person = people.get(id);
       person.yes ||= attendanceYes.test(attendance);
       person.no ||= attendanceNo.test(attendance);
       const raw = clean(values[10]);
       const nationality = /^(港籍|香港籍)$/.test(raw) ? "中国香港" : country(raw);
-      if (nationality) person.countries.add(nationality === "中国香港" ? nationality : domestic.has(nationality) ? "中国" : nationality);
+      if (attendanceYes.test(attendance)) person.confirmedNationality ||= nationality;
+      else person.otherNationality ||= nationality;
     }
     const counts = {total:0,domestic:0,hongKong:0,foreign:0,unknown:0};
     for (const person of people.values()) {
       if (!person.yes || person.no) continue;
       counts.total++;
-      if (person.countries.size !== 1) counts.unknown++;
-      else if (person.countries.has("中国香港")) counts.hongKong++;
-      else if (person.countries.has("中国")) counts.domestic++;
+      const nationality = person.confirmedNationality || person.otherNationality;
+      if (!nationality) counts.unknown++;
+      else if (nationality === "中国香港") counts.hongKong++;
+      else if (domestic.has(nationality)) counts.domestic++;
       else counts.foreign++;
     }
     return counts;
