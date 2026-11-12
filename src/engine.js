@@ -647,12 +647,17 @@ globalThis.createWorkbench = function (rules) {
   }
   function priorityGroups(result, selected, lists) {
     const match = rankingMatcher(lists);
+    const rank = (group,index) => group.matches[index].row?.rank ?? 501;
     return result.confirmedEnterprises.flatMap(company=>{
       const categories = [...company.categories].filter(c=>selected.has(c)).sort((a,b)=>categorySequence(a)-categorySequence(b));
       if (!categories.length) return [];
       const guests = [...company.guests.values()].map(values=>({values,level:guestLevel(values[9])})).sort((a,b)=>a.level-b.level);
       return [{ company,categories,guests,matches:match(company),sequence:categorySequence(categories[0]) }];
-    }).sort((a,b)=>a.sequence-b.sequence || a.guests[0].level-b.guests[0].level || a.company.name.localeCompare(b.company.name,"zh"));
+    }).sort((a,b)=>a.sequence-b.sequence
+      || rank(a,0)-rank(b,0)
+      || rank(a,1)-rank(b,1)
+      || a.guests[0].level-b.guests[0].level
+      || a.company.name.localeCompare(b.company.name,"zh"));
   }
   function dailySummary(result, date) {
     const companies = new Map();

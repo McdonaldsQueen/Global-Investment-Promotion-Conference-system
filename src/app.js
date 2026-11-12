@@ -319,7 +319,7 @@
     const levels = api.priorityLevels;
     const fields = labels.map((label,i)=>'<label>'+safe(label)+'<textarea data-ranking="'+i+'" rows="3">'+safe(rankingText[i])+'</textarea></label>').join("");
     const filters = categories.map(label=>'<label><input type="checkbox" data-category="'+safe(label)+'"'+(priorityCategories.has(label)?" checked":"")+'> '+safe(label)+'</label>').join("");
-    content.innerHTML = '<section class="panel priority"><div class="panel-heading"><div><h3>重点企业候选</h3><p class="small muted">选择企业机构性质1的序号。先按序号，再按已确认嘉宾职级排序。</p></div><button id="download-priority" type="button" class="button primary">导出重点企业 Excel</button></div>'+
+    content.innerHTML = '<section class="panel priority"><div class="panel-heading"><div><h3>重点企业候选</h3><p class="small muted">依次按企业机构性质1序号、世界500强名次、中国民营企业500强名次排序。各榜未匹配的企业排在该榜有名次的企业之后，并列再按嘉宾职级排序。</p></div><button id="download-priority" type="button" class="button primary">导出重点企业 Excel</button></div>'+
       '<fieldset><legend>企业机构性质1</legend>'+filters+'</fieldset>'+
       '<details><summary>导入核验榜单</summary><p>从 Excel 复制「名次」「企业名称」两列并粘贴。可在右侧附加核实过的别名。</p>'+
       fields+'<button type="button" id="apply-ranking" class="button">应用榜单</button><p id="ranking-status" role="status"></p></details>'+
