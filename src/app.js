@@ -150,7 +150,7 @@
     ].map(([label,count])=>'<article class="metric"><span>'+safe(label)+'</span><strong>'+format(count)+'</strong></article>').join("");
     const guests = api.guestAttendance(result);
     const percent = count => guests.total ? (count/guests.total).toLocaleString("zh-CN",{style:"percent",maximumFractionDigits:1}) : "—";
-    const guestMetrics = [["到访嘉宾总人数",guests.total],["国内嘉宾（含港澳台）",guests.domestic],["外籍嘉宾",guests.foreign],["国籍待核实",guests.unknown]]
+    const guestMetrics = [["到访嘉宾总人数",guests.total],["其他国内嘉宾（含澳门、台湾）",guests.domestic],["港籍嘉宾",guests.hongKong],["外籍嘉宾",guests.foreign],["国籍待核实",guests.unknown]]
       .map(([label,count],index)=>'<article class="metric"><span>'+label+'</span><strong>'+format(count)+' <small>人'+(index ? ' · '+percent(count) : '')+'</small></strong></article>').join("");
     el("guest-metrics").innerHTML = guestMetrics;
     el("open-confirmed").addEventListener("click",()=>{setView("confirmed");render();});

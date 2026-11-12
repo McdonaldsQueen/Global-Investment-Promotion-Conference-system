@@ -690,14 +690,15 @@ globalThis.createWorkbench = function (rules) {
       person.yes ||= attendanceYes.test(attendance);
       person.no ||= attendanceNo.test(attendance);
       const raw = clean(values[10]);
-      const nationality = domestic.has(raw) ? raw : country(raw);
-      if (nationality) person.countries.add(domestic.has(nationality) ? "中国" : nationality);
+      const nationality = /^(港籍|香港籍)$/.test(raw) ? "中国香港" : country(raw);
+      if (nationality) person.countries.add(nationality === "中国香港" ? nationality : domestic.has(nationality) ? "中国" : nationality);
     }
-    const counts = {total:0,domestic:0,foreign:0,unknown:0};
+    const counts = {total:0,domestic:0,hongKong:0,foreign:0,unknown:0};
     for (const person of people.values()) {
       if (!person.yes || person.no) continue;
       counts.total++;
       if (person.countries.size !== 1) counts.unknown++;
+      else if (person.countries.has("中国香港")) counts.hongKong++;
       else if (person.countries.has("中国")) counts.domestic++;
       else counts.foreign++;
     }

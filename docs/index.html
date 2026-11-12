@@ -10342,14 +10342,15 @@ globalThis.createWorkbench = function (rules) {
       person.yes ||= attendanceYes.test(attendance);
       person.no ||= attendanceNo.test(attendance);
       const raw = clean(values[10]);
-      const nationality = domestic.has(raw) ? raw : country(raw);
-      if (nationality) person.countries.add(domestic.has(nationality) ? "中国" : nationality);
+      const nationality = /^(港籍|香港籍)$/.test(raw) ? "中国香港" : country(raw);
+      if (nationality) person.countries.add(nationality === "中国香港" ? nationality : domestic.has(nationality) ? "中国" : nationality);
     }
-    const counts = {total:0,domestic:0,foreign:0,unknown:0};
+    const counts = {total:0,domestic:0,hongKong:0,foreign:0,unknown:0};
     for (const person of people.values()) {
       if (!person.yes || person.no) continue;
       counts.total++;
       if (person.countries.size !== 1) counts.unknown++;
+      else if (person.countries.has("中国香港")) counts.hongKong++;
       else if (person.countries.has("中国")) counts.domestic++;
       else counts.foreign++;
     }
@@ -10585,7 +10586,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     ].map(([label,count])=>'<article class="metric"><span>'+safe(label)+'</span><strong>'+format(count)+'</strong></article>').join("");
     const guests = api.guestAttendance(result);
     const percent = count => guests.total ? (count/guests.total).toLocaleString("zh-CN",{style:"percent",maximumFractionDigits:1}) : "—";
-    const guestMetrics = [["到访嘉宾总人数",guests.total],["国内嘉宾（含港澳台）",guests.domestic],["外籍嘉宾",guests.foreign],["国籍待核实",guests.unknown]]
+    const guestMetrics = [["到访嘉宾总人数",guests.total],["其他国内嘉宾（含澳门、台湾）",guests.domestic],["港籍嘉宾",guests.hongKong],["外籍嘉宾",guests.foreign],["国籍待核实",guests.unknown]]
       .map(([label,count],index)=>'<article class="metric"><span>'+label+'</span><strong>'+format(count)+' <small>人'+(index ? ' · '+percent(count) : '')+'</small></strong></article>').join("");
     el("guest-metrics").innerHTML = guestMetrics;
     el("open-confirmed").addEventListener("click",()=>{setView("confirmed");render();});
