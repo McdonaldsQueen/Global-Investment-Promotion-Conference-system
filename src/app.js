@@ -8,7 +8,7 @@
   const edits = new Map();
   const groupRules = loadGroupRules();
   const leads = new Map();
-  let workbook, result, filename, busy = false, view = "dashboard", page = 0, search = "";
+  let workbook, result, filename, busy = false, view = "confirmed", page = 0, search = "";
   let downloadUrl;
   const priorityCategories = new Set();
   let rankingText = RankingData.lists.map(list => list.map(({rank,name,aliases}) => [rank,name,...aliases].join("\t")).join("\n"));
@@ -103,7 +103,7 @@
       el("batch").textContent = workbook.name;
       el("intro").hidden = true;
       el("workspace").hidden = false;
-      setView("dashboard");
+      setView("confirmed");
       refresh();
       status("导入成功。可直接下载整理稿，或先复核标记的记录。");
     } catch (error) {
@@ -159,7 +159,6 @@
   }
   function setView(next) {
     view = next;
-    el("report-panel").hidden = next !== "dashboard";
     page = 0;
     search = "";
     document.querySelectorAll("[data-view]").forEach(button=>{

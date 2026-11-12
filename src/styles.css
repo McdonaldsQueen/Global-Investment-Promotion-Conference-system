@@ -118,7 +118,8 @@ dialog::backdrop{background:#10274588}
 .priority details{margin:12px 0}
 .priority summary{cursor:pointer}
 .priority textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;font:inherit}
-#report-text{display:block;box-sizing:border-box;width:100%;margin:12px 0 8px;padding:12px;border:1px solid #dce5ee;border-radius:6px;background:#f8fafc;color:inherit;font:inherit;line-height:1.6;resize:vertical}
+#report-panel{background:#eaf2fc;border-color:#c9dcf4;border-inline-start:4px solid var(--blue)}
+#report-text{display:block;box-sizing:border-box;width:100%;margin:12px 0 8px;padding:12px;border:1px solid #c9dcf4;border-radius:6px;background:#fff;color:inherit;font:inherit;line-height:1.6;resize:vertical}
 #report-status:empty{display:none}
 .report-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px}
 .report-metrics .metric small{font-size:12px;font-weight:400}

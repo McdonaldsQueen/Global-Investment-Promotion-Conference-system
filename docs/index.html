@@ -128,7 +128,8 @@ dialog::backdrop{background:#10274588}
 .priority details{margin:12px 0}
 .priority summary{cursor:pointer}
 .priority textarea{display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;font:inherit}
-#report-text{display:block;box-sizing:border-box;width:100%;margin:12px 0 8px;padding:12px;border:1px solid #dce5ee;border-radius:6px;background:#f8fafc;color:inherit;font:inherit;line-height:1.6;resize:vertical}
+#report-panel{background:#eaf2fc;border-color:#c9dcf4;border-inline-start:4px solid var(--blue)}
+#report-text{display:block;box-sizing:border-box;width:100%;margin:12px 0 8px;padding:12px;border:1px solid #c9dcf4;border-radius:6px;background:#fff;color:inherit;font:inherit;line-height:1.6;resize:vertical}
 #report-status:empty{display:none}
 .report-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px}
 .report-metrics .metric small{font-size:12px;font-weight:400}
@@ -167,7 +168,7 @@ dialog::backdrop{background:#10274588}
         <div><p class="eyebrow">当前批次</p><h2 id="batch"></h2><p class="muted" id="batch-info"></p></div>
         <div class="actions"><label class="date-label">数据日期 <input type="date" id="date"></label><button class="button primary" id="download">下载 Excel</button><a id="download-ready" class="button" hidden>手动保存已生成文件</a></div>
       </div>
-      <section class="panel" id="report-panel" aria-labelledby="report-heading" hidden>
+      <section class="panel" id="report-panel" aria-labelledby="report-heading">
         <div class="panel-heading"><h3 id="report-heading">汇报摘要</h3><button type="button" class="button primary" id="copy-report">复制汇报摘要</button></div>
         <div class="report-metrics" id="report-metrics"></div>
         <textarea id="report-text" aria-label="汇报摘要" readonly rows="9"></textarea>
@@ -177,9 +178,9 @@ dialog::backdrop{background:#10274588}
       <div class="metrics" id="metrics"></div>
       <p class="small muted" id="count-note"></p>
       <nav class="tabs" aria-label="工作台视图">
-        <button data-view="confirmed" aria-pressed="false">确认参会集团</button>
+        <button data-view="confirmed" class="current" aria-pressed="true">确认参会集团</button>
         <button data-view="priority" aria-pressed="false">重点企业候选</button>
-        <button data-view="dashboard" class="current" aria-pressed="true">数据看板</button>
+        <button data-view="dashboard" aria-pressed="false">数据看板</button>
         <button data-view="review" aria-pressed="false">待复核 <span id="review-count"></span></button>
         <details class="more-views" id="more-views">
           <summary aria-label="更多视图" title="更多视图"><span aria-hidden="true">⋯</span></summary>
@@ -9450,7 +9451,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
   const edits = new Map();
   const groupRules = loadGroupRules();
   const leads = new Map();
-  let workbook, result, filename, busy = false, view = "dashboard", page = 0, search = "";
+  let workbook, result, filename, busy = false, view = "confirmed", page = 0, search = "";
   let downloadUrl;
   const priorityCategories = new Set();
   let rankingText = RankingData.lists.map(list => list.map(({rank,name,aliases}) => [rank,name,...aliases].join("\t")).join("\n"));
@@ -9545,7 +9546,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
       el("batch").textContent = workbook.name;
       el("intro").hidden = true;
       el("workspace").hidden = false;
-      setView("dashboard");
+      setView("confirmed");
       refresh();
       status("导入成功。可直接下载整理稿，或先复核标记的记录。");
     } catch (error) {
@@ -9601,7 +9602,6 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
   }
   function setView(next) {
     view = next;
-    el("report-panel").hidden = next !== "dashboard";
     page = 0;
     search = "";
     document.querySelectorAll("[data-view]").forEach(button=>{
