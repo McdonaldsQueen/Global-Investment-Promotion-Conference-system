@@ -247,6 +247,15 @@ globalThis.createWorkbench = function (rules) {
         naming.set(id, {name:proposed, approved:!!r.approvedGroup});
       }
     }
+    const guestIdentity = ({groupId,values}) => JSON.stringify([groupId,key(values[8]),key(values[9])]);
+    const guestNationalities = new Map();
+    for (const r of prepared) {
+      if (r.override.skip || !r.groupId || !guestComplete(r.values)) continue;
+      const id = guestIdentity(r);
+      if (!guestNationalities.has(id)) guestNationalities.set(id,new Set());
+      guestNationalities.get(id).add(country(r.values[10]) || key(r.values[10]));
+    }
+    let filledNationalities = 0;
     for (const r of prepared) {
       const { record, values, original, location, explicitCountry, normalizedLocation, kind, selectedName } = r;
       const { line } = record;
@@ -290,8 +299,16 @@ globalThis.createWorkbench = function (rules) {
         add(line, "机构性质与集团国别不一致", f, 5);
       }
       if (valid(values[8]) !== valid(values[9])) add(line, "姓名或职务缺一项，暂列待确认", valid(values[8]) ? values[9] : values[8], valid(values[8]) ? 9 : 8);
-      const nationality = /^(china|chinese|prc|中國)$/i.test(clean(values[10])) ? "中国" : clean(values[10]).replace(/^中國/, "中国");
-      if (confirmed(values) && !guestComplete(values)) add(line, "嘉宾国籍缺失，嘉宾资料待补齐", values[10], 10);
+      let nationality = /^(china|chinese|prc|中國)$/i.test(clean(values[10])) ? "中国" : clean(values[10]).replace(/^中國/, "中国");
+      const evidence = r.groupId ? guestNationalities.get(guestIdentity(r)) : undefined;
+      if (confirmed(values) && evidence?.size > 1) add(line, "同一嘉宾国籍填报冲突", [...evidence].join(" / "), 10);
+      if (confirmed(values) && !valid(nationality)) {
+        const inferred = evidence?.size === 1 ? country([...evidence][0]) : "";
+        if (inferred && !Object.hasOwn(r.override,10)) {
+          nationality = inferred;
+          filledNationalities++;
+        } else if (!(evidence?.size > 1)) add(line, "嘉宾国籍缺失，嘉宾资料待补齐", values[10], 10);
+      }
       const latinName = /^[\p{Script=Latin}][\p{Script=Latin}.'’ -]*[ .-][\p{Script=Latin}][\p{Script=Latin}.'’ -]*$/u.test(clean(values[8]));
       const nameWithMiddleDot = /\p{Script=Han}[·・‧]\p{Script=Han}/u.test(clean(values[8]).replace(/\s/g,""));
       if (guestComplete(values) && nationality === "中国" && (latinName || nameWithMiddleDot) && !r.override.nationalityVerified) {
@@ -446,7 +463,7 @@ globalThis.createWorkbench = function (rules) {
     const invitationStats = {invited:invited.size,feedback:feedback.size,
       units:[...invitationsByUnit].map(([name,items])=>({name,count:items.size}))
         .sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,"zh"))};
-    return { rows, notices, counts, groups, groupInputs, units, countryOptions, invitationStats, rankingCompanies:[...rankingCompanies.values()], confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
+    return { rows, notices, filledNationalities, counts, groups, groupInputs, units, countryOptions, invitationStats, rankingCompanies:[...rankingCompanies.values()], confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
   }
   function compatible(a,b) {
     return a.every((v,i) => i === 0 || (i >= 13 && i <= 15 && a[13] !== b[13]) || !v || !b[i] || (i === 2 ? v === b[i] : clean(v) === clean(b[i])));

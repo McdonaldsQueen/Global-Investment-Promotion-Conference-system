@@ -153,7 +153,8 @@
     el("export-confirmed-card").addEventListener("click",()=>download(true));
     el("batch-info").textContent = filename + " · 排除样例 " + format(workbook.excludedExamples) + " 行 · 有效明细 " + format(workbook.records.length) + " 行 · 整理后 " + format(result.rows.length) + " 行";
     el("count-note").textContent = "已合并 " + result.removed + " 条重复明细。企业意向按姓名和职务确认，嘉宾资料另核对国籍。";
-    el("review-count").textContent = result.notices.length ? format(result.notices.length) : "";
+    const reviewLines = new Set(result.notices.map(notice=>notice.line)).size;
+    el("review-count").textContent = reviewLines ? format(reviewLines) : "";
     el("download").textContent = result.notices.length ? "下载 Excel（含待复核）" : "下载 Excel";
     render();
   }
@@ -234,11 +235,18 @@
       return;
     }
     const names = [...result.groupInputs.values()];
+    const reviewByLine = new Map();
+    for (const notice of result.notices) {
+      if (!reviewByLine.has(notice.line)) reviewByLine.set(notice.line,[]);
+      reviewByLine.get(notice.line).push(notice);
+    }
+    const urgent = notices => notices.some(n=>/冲突|同集团同名|榜单|姓名或职务|机构性质与集团国别/.test(n.label));
+    const reviewRows = [...reviewByLine].sort((a,b)=>Number(urgent(b[1]))-Number(urgent(a[1])) || a[0]-b[0]);
     const views = {
       review: {
-        title:"待复核事项", hint:"按原表行号定位。可更正字段、选择牵头单位，或在确认重复后排除一行。",
-        data:result.notices.map(n=>[n.line,n.label,n.value,workbook.records.find(r=>r.line===n.line)?.values[1]]),
-        display:index=>{ const n=result.notices[index];return [safe(n.line),safe(n.label),safe(n.value)||"—",button("复核","edit",n.line)]; },
+        title:"待复核事项", hint:"本批自动补齐 "+format(result.filledNationalities)+" 条嘉宾国籍。同一原表行的提醒合在一起，优先显示会影响统计或榜单的冲突。",
+        data:reviewRows.map(([line,notices])=>[line,...notices.flatMap(n=>[n.label,n.value]),workbook.records.find(r=>r.line===line)?.values[1]]),
+        display:index=>{ const [line,notices]=reviewRows[index];return [safe(line),notices.map(n=>safe(n.label)).join("<br>"),notices.map(n=>safe(n.value)||"—").join("<br>"),button("复核","edit",line)]; },
         columns:["原表行","事项","原填值／冲突内容","操作"], empty:"当前没有待复核事项。"
       },
       names: {
