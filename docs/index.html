@@ -160,8 +160,8 @@ dialog::backdrop{background:#10274588}
       <section class="panel" id="report-panel" aria-labelledby="report-heading" hidden>
         <div class="panel-heading"><h3 id="report-heading">汇报摘要</h3><button type="button" class="button primary" id="copy-report">复制汇报摘要</button></div>
         <div class="report-metrics" id="report-metrics"></div>
-        <textarea id="report-text" aria-label="汇报摘要" readonly rows="4"></textarea>
-        <p class="small muted">初步意向与看板集团总数使用同一口径。500 强按填报类别统计，外籍高管按已填写国籍和职级统计。摘要中的确认参会举例取「是否参加主会场」填「是」的记录。</p>
+        <textarea id="report-text" aria-label="汇报摘要" readonly rows="9"></textarea>
+        <p class="small muted">邀请量取本批登记名单。初步意向反馈按填报单位及报名主体计数，去重后按集团计数。确认参会举例取「是否参加主会场」填「是」的记录。</p>
         <p class="small muted" id="report-status" role="status"></p>
       </section>
       <div class="metrics" id="metrics"></div>
@@ -3081,7 +3081,7 @@ globalThis.createWorkbench = function (rules) {
       }
       const normalized = [...values];
       Object.assign(normalized, {0:"",1:group,3:normalizedLocation,4:kind,5:kind === "意向投资企业" ? f : "",6:kind === "招商合作机构" ? g : "",7:industry,10:nationality,13:primary});
-      active.push({ line, name:group, values:normalized, sources, department, excluded:false });
+      active.push({ line, name:group, original, values:normalized, sources, department, excluded:false });
       const item = { values:normalized, sources:new Set(sources), lines:[line] };
       const fields = normalized.slice(1).map((value,index) => index + 1 === 2 ? value : clean(value));
       const duplicateKey = JSON.stringify([fields, ...(!group || !valid(normalized[8]) ? [primary] : [])]);
@@ -3209,7 +3209,26 @@ globalThis.createWorkbench = function (rules) {
       return {name, confirmed, pending:invited.size-confirmed};
     });
     const countryOptions = [...new Set([...defaultCountries,...prepared.flatMap(r=>r.override.skip ? [] : [r.location,r.normalizedLocation]).filter(Boolean)])];
-    return { rows, notices, counts, groups, groupInputs, units, countryOptions, rankingCompanies:[...rankingCompanies.values()], confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
+    const invited = new Set();
+    const feedback = new Set();
+    const invitationsByUnit = new Map();
+    for (const record of active) {
+      if (record.excluded || !valid(record.name)) continue;
+      const group = key(record.name);
+      invited.add(group);
+      for (const unit of record.sources) {
+        if (!inviters.includes(unit)) continue;
+        if (!invitationsByUnit.has(unit)) invitationsByUnit.set(unit,new Set());
+        invitationsByUnit.get(unit).add(group);
+      }
+      if (record.values[4]==="意向投资企业" && confirmed(record.values)) {
+        feedback.add(JSON.stringify([group,key(record.original),record.values[13]]));
+      }
+    }
+    const invitationStats = {invited:invited.size,feedback:feedback.size,
+      units:[...invitationsByUnit].map(([name,items])=>({name,count:items.size}))
+        .sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,"zh"))};
+    return { rows, notices, counts, groups, groupInputs, units, countryOptions, invitationStats, rankingCompanies:[...rankingCompanies.values()], confirmedEnterprises:[...confirmedEnterprises.values()], duplicates:[...groups.values()].filter(g => g.enterprise && g.units.size > 1), removed:active.filter(r=>!r.excluded).length - rows.length };
   }
   function compatible(a,b) {
     return a.every((v,i) => i === 0 || (i >= 13 && i <= 15 && a[13] !== b[13]) || !v || !b[i] || (i === 2 ? v === b[i] : clean(v) === clean(b[i])));
@@ -3412,24 +3431,20 @@ globalThis.createWorkbench = function (rules) {
     const companies = new Map();
     const yes = /^(是|已确认(?:参会|参加)?|确认(?:参会|参加)?|参加|参会|yes)$/i;
     const no = /^(否|不参加|不参会|无法参会|取消参会|no)$/i;
-    const domesticNationality = new Set(["中国","中国香港","中国澳门","中国台湾"]);
     for (const {values} of result.rows) {
-      const [ ,name,,,type,category,,,guest,title,nationality,,,,,,attendance] = values;
+      const [ ,name,,,type,category,,,guest,title,,,,,,,attendance] = values;
       if (!name || type!=="意向投资企业" || !confirmed(values)) continue;
       const id=key(name);
       if (!companies.has(id)) companies.set(id,{name,categories:new Set(),guests:new Map()});
       const company=companies.get(id);
       const guestId=key(guest);
-      if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,titles:[],confirmedTitles:[],nationalities:new Set(),declined:false});
+      if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,confirmedTitles:[],declined:false});
       const person=company.guests.get(guestId);
       if (no.test(clean(attendance))) person.declined=true;
       const level=guestLevel(title);
-      person.titles.push({title,level});
       if (yes.test(clean(attendance))) person.confirmedTitles.push({title,level});
       const code=categorySequence(category);
       if (code!==99) company.categories.add(code);
-      const nation=country(clean(nationality).replace(/籍$/,""));
-      if (nation) person.nationalities.add(nation);
     }
     const intents = [];
     for (const company of companies.values()) {
@@ -3438,31 +3453,32 @@ globalThis.createWorkbench = function (rules) {
       const confirmedGuests = guests.filter(person=>!person.declined).flatMap(person=>person.confirmedTitles
         .map(({title,level})=>({guest:person.guest,title,level}))
         .sort((a,b)=>a.level-b.level).slice(0,1)).sort((a,b)=>a.level-b.level);
-      intents.push({...company,guests,confirmedGuests,priority:Math.min(99,...company.categories)});
+      intents.push({...company,confirmedGuests,priority:Math.min(99,...company.categories)});
     }
     const ordered = intents.sort((a,b)=>a.priority-b.priority ||
       (a.confirmedGuests[0]?.level ?? 99)-(b.confirmedGuests[0]?.level ?? 99) || a.name.localeCompare(b.name,"zh"));
     const publishable = value=>!/(待定|待确认|待核实|暂定|拟邀|待补)/.test(value);
-    const inviteNames = ordered.filter(company=>company.priority<=3 && publishable(company.name)).slice(0,3).map(company=>company.name);
+    const inviteNames = [...result.rankingCompanies].filter(company=>publishable(company.name) && company.categories.size)
+      .sort((a,b)=>Math.min(...[...a.categories].map(categorySequence))-Math.min(...[...b.categories].map(categorySequence)) ||
+        a.name.localeCompare(b.name,"zh")).slice(0,21).map(company=>company.name);
     const confirmedCompanies = ordered.filter(company=>company.confirmedGuests.length && publishable(company.name));
-    const confirmedNames = confirmedCompanies.slice(0,4).map(company=>company.name);
+    const confirmedNames = confirmedCompanies.slice(0,6).map(company=>company.name);
     const guestNames = confirmedCompanies.flatMap(company=>{
       const guest=company.confirmedGuests.find(person=>person.level<=3 && publishable(person.guest) && publishable(person.title));
-      return guest ? [company.name+" "+guest.title+" "+guest.guest] : [];
-    }).slice(0,3);
+      return guest ? [company.name+guest.title+guest.guest] : [];
+    }).slice(0,8);
     const enterprises = result.confirmedEnterprises;
-    const world = enterprises.filter(company=>[...company.categories].some(category=>[1,2].includes(categorySequence(category)))).length;
-    const china = enterprises.filter(company=>[...company.categories].some(category=>categorySequence(category)===3)).length;
-    const foreignExecutives = intents.reduce((count,company)=>count+company.guests.filter(person=>
-      person.titles.some(role=>role.level<=3) && person.nationalities.size===1 && !domesticNationality.has([...person.nationalities][0])).length,0);
-    const day = date ? "截至"+date.replace(/^(\d{4})-(\d{2})-(\d{2})$/,(_,y,m,d)=>y+"年"+Number(m)+"月"+Number(d)+"日")+"，" : "";
-    const focus = inviteNames.length ? "本次重点邀约"+inviteNames.join("、")+"等企业。" : "";
-    const confirmedText = confirmedNames.length ? confirmedNames.join("、")+"等企业已确认参会。" :
+    const {invited,feedback,units} = result.invitationStats;
+    const day = date ? "截至"+date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>Number(m)+"月"+Number(d)+"日")+"，" : "";
+    const leaders = units.slice(0,4).map(unit=>unit.name);
+    const leadingUnits = leaders.length ? "，其中，"+leaders.join("、")+"登记邀请数量靠前" : "";
+    const focus = inviteNames.length ? "邀请包括"+inviteNames.join("、")+"等企业。" : "";
+    const confirmedText = confirmedNames.length ? "目前，已接受邀请和确认参会的公司包括"+confirmedNames.join("、")+"等。" :
       ordered.some(company=>company.confirmedGuests.length) ? "" : "本批暂无明确确认参加主会场的企业。";
     const guestText = guestNames.length ? "明确参会嘉宾包括"+guestNames.join("、")+"。" : "";
-    const metrics = [["初步参会意向",enterprises.length,"家"],["世界500强",world,"家"],["中国500强",china,"家"],["外籍高管",foreignExecutives,"人"]];
-    const text = focus+day+"累计收到初步参会意向 "+enterprises.length+" 家，按填报类别含世界500强 "+world+
-      " 家、中国500强 "+china+" 家，外籍高管 "+foreignExecutives+" 人。"+confirmedText+guestText;
+    const metrics = [["登记邀请企业和机构",invited,"家"],["初步意向反馈",feedback,"家"],["初步意向去重后",enterprises.length,"家"]];
+    const text = "一、整体情况\n"+day+"全市各区各相关部门共登记邀请"+invited+"家企业和机构"+leadingUnits+"。"+
+      focus+"已收到初步意向参会企业反馈"+feedback+"家，去重后为"+enterprises.length+"家。\n\n"+confirmedText+guestText;
     return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
