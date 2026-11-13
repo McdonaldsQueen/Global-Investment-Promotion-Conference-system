@@ -514,11 +514,37 @@ globalThis.createWorkbench = function (rules) {
       '<TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>form</vt:lpstr></vt:vector></TitlesOfParts></Properties>');
     return zip;
   }
+  function confirmedScope(result, scope) {
+    const conflicts = new Set(result.notices.filter(n=>n.label.startsWith("F／G 同时填写")).map(n=>n.line));
+    const cancelled = new Set(result.rows.filter(r=>attendanceNo.test(clean(r.values[16])))
+      .map(r=>JSON.stringify([key(r.values[1]),key(r.values[8])])));
+    const people = new Map();
+    const groups = new Map();
+    for (const row of result.rows) {
+      const v = row.values;
+      const kind = v[4] === "意向投资企业" && v[5] && !v[6] ? "enterprise"
+        : v[4] === "招商合作机构" && v[6] && !v[5] ? "partner" : "";
+      if (!v[1] || !kind || (scope !== "all" && scope !== kind) || !guestComplete(v)
+          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line))) continue;
+      const groupKey = key(v[1]);
+      const personKey = JSON.stringify([groupKey,key(v[8])]);
+      if (cancelled.has(personKey) || people.has(personKey)) continue;
+      people.set(personKey,row);
+      if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set()});
+      const group = groups.get(groupKey);
+      group.guests.set(personKey,v);
+      if (v[3]) group.locations.add(v[3]);
+      row.sources.forEach(unit=>group.units.add(unit));
+    }
+    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()]};
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
+    const scoped = typeof confirmedOnly === "string";
+    if (scoped) result = {...result,...confirmedScope(result,confirmedOnly)};
     const choiceColumns = [result.countryOptions,...baseOptions.slice(1)];
     const zip = template ? await root.JSZip.loadAsync(template,{base64:true}) : createBlankWorkbook();
     const get = path => zip.file(path).async("string");
-    const rows = confirmedOnly ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
+    const rows = confirmedOnly && !scoped ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
     const end = rows.length + 1;
     const names = ["CountryOptions","UnitTypes","CompanyTypes","PartnerTypes","IndustryOptions"];
     const lists = [...names];
@@ -550,8 +576,8 @@ globalThis.createWorkbench = function (rules) {
     }
     const relatedWidths = [8,42,28,16,21,25,29,28,19,38,18,19,20,24,22,20,20,24,26,26,18,45,16,16,36,20];
     const sheets = confirmedOnly ? [
-      ["确认参会集团",confirmedData,[15,44,18,36,52,25,42]],
-      ["确认企业全部明细",relatedData,relatedWidths],
+      [scoped?"确认参会单位":"确认参会集团",confirmedData,[15,44,18,36,52,25,42]],
+      ...(scoped ? [] : [["确认企业全部明细",relatedData,relatedWidths]]),
       optionSheet
     ] : [
       optionSheet,
@@ -791,6 +817,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);

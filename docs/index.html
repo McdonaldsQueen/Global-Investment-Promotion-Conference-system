@@ -10166,11 +10166,37 @@ globalThis.createWorkbench = function (rules) {
       '<TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>form</vt:lpstr></vt:vector></TitlesOfParts></Properties>');
     return zip;
   }
+  function confirmedScope(result, scope) {
+    const conflicts = new Set(result.notices.filter(n=>n.label.startsWith("F／G 同时填写")).map(n=>n.line));
+    const cancelled = new Set(result.rows.filter(r=>attendanceNo.test(clean(r.values[16])))
+      .map(r=>JSON.stringify([key(r.values[1]),key(r.values[8])])));
+    const people = new Map();
+    const groups = new Map();
+    for (const row of result.rows) {
+      const v = row.values;
+      const kind = v[4] === "意向投资企业" && v[5] && !v[6] ? "enterprise"
+        : v[4] === "招商合作机构" && v[6] && !v[5] ? "partner" : "";
+      if (!v[1] || !kind || (scope !== "all" && scope !== kind) || !guestComplete(v)
+          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line))) continue;
+      const groupKey = key(v[1]);
+      const personKey = JSON.stringify([groupKey,key(v[8])]);
+      if (cancelled.has(personKey) || people.has(personKey)) continue;
+      people.set(personKey,row);
+      if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set()});
+      const group = groups.get(groupKey);
+      group.guests.set(personKey,v);
+      if (v[3]) group.locations.add(v[3]);
+      row.sources.forEach(unit=>group.units.add(unit));
+    }
+    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()]};
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
+    const scoped = typeof confirmedOnly === "string";
+    if (scoped) result = {...result,...confirmedScope(result,confirmedOnly)};
     const choiceColumns = [result.countryOptions,...baseOptions.slice(1)];
     const zip = template ? await root.JSZip.loadAsync(template,{base64:true}) : createBlankWorkbook();
     const get = path => zip.file(path).async("string");
-    const rows = confirmedOnly ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
+    const rows = confirmedOnly && !scoped ? result.rows.filter(r=>r.values[4] === "意向投资企业" && confirmed(r.values)) : result.rows;
     const end = rows.length + 1;
     const names = ["CountryOptions","UnitTypes","CompanyTypes","PartnerTypes","IndustryOptions"];
     const lists = [...names];
@@ -10202,8 +10228,8 @@ globalThis.createWorkbench = function (rules) {
     }
     const relatedWidths = [8,42,28,16,21,25,29,28,19,38,18,19,20,24,22,20,20,24,26,26,18,45,16,16,36,20];
     const sheets = confirmedOnly ? [
-      ["确认参会集团",confirmedData,[15,44,18,36,52,25,42]],
-      ["确认企业全部明细",relatedData,relatedWidths],
+      [scoped?"确认参会单位":"确认参会集团",confirmedData,[15,44,18,36,52,25,42]],
+      ...(scoped ? [] : [["确认企业全部明细",relatedData,relatedWidths]]),
       optionSheet
     ] : [
       optionSheet,
@@ -10443,7 +10469,7 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
 
@@ -10595,7 +10621,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     result = api.process(workbook.records,edits,groupRules,leads);
     updateReport();
     const c = result.counts;
-    el("metrics").innerHTML = '<article class="metric"><span>确认参会企业集团</span><strong>'+format(result.confirmedEnterprises.length)+'</strong><div class="metric-actions"><button type="button" id="export-confirmed-card" class="button primary">导出确认企业 Excel ↓</button><button type="button" id="open-confirmed" class="metric-detail">查看明细 →</button></div></article>' + [
+    el("metrics").innerHTML = '<article class="metric"><span>确认参会企业集团</span><strong>'+format(result.confirmedEnterprises.length)+'</strong><div class="metric-actions"><button type="button" id="export-confirmed-card" class="button primary">查看三个导出口径 ↓</button><button type="button" id="open-confirmed" class="metric-detail">查看明细 →</button></div></article>' + [
       ["国内企业",c.domestic],["外资企业（含港澳台）",c.foreign],
       ["招商合作机构",c.partners],["确认企业内外资待核对",result.confirmedEnterprises.length-c.domestic-c.foreign]
     ].map(([label,count])=>'<article class="metric"><span>'+safe(label)+'</span><strong>'+format(count)+'</strong></article>').join("");
@@ -10606,7 +10632,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     el("guest-metrics").innerHTML = guestMetrics;
     el("open-confirmed").addEventListener("click",()=>{setView("confirmed");render();});
     el("export-confirmed-card").disabled = !result.confirmedEnterprises.length;
-    el("export-confirmed-card").addEventListener("click",()=>download(true));
+    el("export-confirmed-card").addEventListener("click",()=>{setView("confirmed");render();});
     el("batch-info").textContent = filename + " · 排除样例 " + format(workbook.excludedExamples) + " 行 · 有效明细 " + format(workbook.records.length) + " 行 · 整理后 " + format(result.rows.length) + " 行";
     el("count-note").textContent = "已合并 " + result.removed + " 条重复明细。企业意向按姓名和职务确认，嘉宾资料另核对国籍。";
     const reviewLines = new Set(result.notices.map(notice=>notice.line)).size;
@@ -10674,9 +10700,12 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     }
     if (view === "confirmed") {
       const groups = result.confirmedEnterprises;
-      content.innerHTML = '<section class="panel"><div class="panel-heading"><div><h3>确认参会企业集团 · '+format(groups.length)+' 家</h3><p class="small muted">企业至少有一位嘉宾填了姓名和职务。国籍缺失的嘉宾仍可补录。</p></div><button type="button" id="download-confirmed" class="button primary">导出确认集团 Excel</button></div>'+controls()+'<div id="listing"></div></section>';
-      el("download-confirmed").disabled = !groups.length;
-      el("download-confirmed").addEventListener("click",()=>download(true));
+      const exports = Object.entries(scopeLabels).map(([scope,label])=>{
+        const selection = api.confirmedScope(result,scope);
+        return '<article class="metric"><span>'+label+'</span><strong>'+format(selection.confirmedEnterprises.length)+' 家 · '+format(selection.rows.length)+' 人</strong><button type="button" class="button primary" data-confirmed-export="'+scope+'"'+(selection.rows.length?'':' disabled')+'>导出'+label+' Excel</button></article>';
+      }).join("");
+      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">主会场填「是」，姓名、职务和国籍齐全，按有效企业或机构性质归类。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>企业参会意向明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
+      content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
       attachListing(groups.map(g=>[g.name,...g.locations,...g.units,...[...g.guests.values()].map(r=>r.slice(8,11).join(" "))]), visible=>table(
         ["集团","国别（地区）","嘉宾资料","确认来源"],
         visible.map(i=>{
@@ -10916,6 +10945,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     downloadUrl = undefined;
     el("download-ready").hidden = true;
   }
+  const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构"};
   async function download(confirmedOnly = false, priorityRows = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
@@ -10930,7 +10960,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
       downloadUrl=URL.createObjectURL(new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
       const a=el("download-ready");
       a.href=downloadUrl;
-      a.download=(priorityRows?"重点企业候选_":confirmedOnly?"确认参会集团_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
+      a.download=(priorityRows?"重点企业候选_":confirmedOnly?scopeLabels[confirmedOnly]+"_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
       a.hidden=false;
       a.click();
       status(priorityRows?"已生成重点企业 Excel。如下载未开始，请点「手动保存已生成文件」。":confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
