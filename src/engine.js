@@ -834,7 +834,7 @@ globalThis.createWorkbench = function (rules) {
     }
     return counts;
   }
-  function dailySummary(result, date) {
+  function dailySummary(result, date, government = {}) {
     const companies = new Map();
     for (const {values} of result.rows) {
       const [ ,name,,,type,category,,,guest,title,,,,,,,attendance] = values;
@@ -886,17 +886,20 @@ globalThis.createWorkbench = function (rules) {
       guestNames.push(company.name+person.title+person.guest);
     }
     const enterprises = result.confirmedEnterprises;
-    const {invited,feedback,units} = result.invitationStats;
+    const {invited,feedback} = government;
+    const guests = guestAttendance(result);
     const day = date ? "截至"+date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>Number(m)+"月"+Number(d)+"日")+"，" : "";
-    const leaders = units.slice(0,4).map(unit=>unit.name);
-    const leadingUnits = leaders.length ? "，其中，"+leaders.join("、")+"登记邀请数量靠前" : "";
     const focus = inviteNames.length ? "邀请包括"+inviteNames.join("、")+"等企业。" : "";
     const confirmedText = confirmedNames.length ? "目前，已接受邀请和确认参会的公司包括"+confirmedNames.join("、")+"等。" :
       ordered.some(company=>company.confirmedGuests.length) ? "" : "本批暂无明确确认参加主会场的企业。";
     const guestText = guestNames.length ? "明确参会嘉宾包括"+guestNames.join("、")+"。" : "";
-    const metrics = [["登记邀请企业和机构",invited,"家"],["初步意向反馈",feedback,"家"],["初步意向去重后",enterprises.length,"家"]];
-    const text = "一、整体情况\n"+day+"全市各区各相关部门共登记邀请"+invited+"家企业和机构"+leadingUnits+"。"+
-      focus+"已收到初步意向参会企业反馈"+feedback+"家，去重后为"+enterprises.length+"家。\n\n"+confirmedText+guestText;
+    const metrics = [["有初步意向的企业（集团去重）",enterprises.length,"家"],
+      ["确认参会嘉宾",guests.total,"人"],["港籍嘉宾",guests.hongKong,"人"],["外籍嘉宾",guests.foreign,"人"]];
+    const inviteText = invited == null ? "全市发起邀请数量待政府汇总。" : "全市各区各相关部门已向"+invited+"家企业和机构发起邀请。";
+    const feedbackText = feedback == null ? "全市初步参会意向反馈数待政府汇总。" : "按全市汇总口径，已收到初步参会意向反馈"+feedback+"家。";
+    const text = "一、整体情况\n"+day+inviteText+focus+feedbackText+
+      "按主会场名单统计，有初步参会意向的企业按集团去重后为"+enterprises.length+"家。确认参会嘉宾"+guests.total+
+      "人，其中港籍嘉宾"+guests.hongKong+"人、外籍嘉宾"+guests.foreign+"人。\n\n"+confirmedText+guestText;
     return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];

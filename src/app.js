@@ -103,6 +103,7 @@
       el("batch").textContent = workbook.name;
       el("intro").hidden = true;
       el("workspace").hidden = false;
+      for (const id of ["gov-invited","gov-feedback"]) el(id).value = "";
       setView("confirmed");
       refresh();
       status("导入成功。可直接下载整理稿，或先复核标记的记录。");
@@ -121,13 +122,21 @@
   drop.addEventListener("drop",event=>{event.preventDefault();drop.classList.remove("over");openFile(event.dataTransfer.files[0]);});
   function updateReport() {
     if (!result) return;
-    const {text,metrics} = api.dailySummary(result,el("date").value);
+    const {text,metrics} = api.dailySummary(result,el("date").value,{invited:governmentCount("gov-invited"),feedback:governmentCount("gov-feedback")});
     el("report-text").value = text;
     el("report-metrics").innerHTML = metrics.map(([label,value,unit])=>
       '<article class="metric"><span>'+safe(label)+'</span><strong>'+format(value)+' <small>'+safe(unit)+'</small></strong></article>').join("");
     el("report-status").textContent = "";
   }
-  el("date").addEventListener("change",updateReport);
+  function governmentCount(id) {
+    const count = el(id).valueAsNumber;
+    return Number.isSafeInteger(count) && count >= 0 ? count : null;
+  }
+  for (const id of ["gov-invited","gov-feedback"]) el(id).addEventListener("input",updateReport);
+  el("date").addEventListener("change",()=>{
+    for (const id of ["gov-invited","gov-feedback"]) el(id).value = "";
+    updateReport();
+  });
   el("copy-report").addEventListener("click",async ()=>{
     const text = el("report-text");
     try {
