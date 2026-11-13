@@ -10271,7 +10271,7 @@ globalThis.createWorkbench = function (rules) {
     lists[3] = 'IF(AND($E2="招商合作机构",$F2=""),PartnerTypes,EmptyOption)';
     const validations = lists.map((formula,i) => '<dataValidation type="list" allowBlank="'+(i === 2 || i === 3 ? 0 : 1)+'" showErrorMessage="1" errorStyle="stop" sqref="'+letters(3+i)+'2:'+letters(3+i)+Math.max(end,2)+'"><formula1>'+xml(formula)+'</formula1></dataValidation>').join("");
     let form = await get("xl/worksheets/sheet1.xml");
-    const fullExport = confirmedOnly === "all";
+    const fullExport = scoped;
     const reviewByLine = new Map();
     if (fullExport) for (const notice of result.notices) {
       if (!reviewByLine.has(notice.line)) reviewByLine.set(notice.line,[]);
