@@ -848,18 +848,18 @@ globalThis.createWorkbench = function (rules) {
       .map(([name,,title])=>title+name);
     const confirmedNames = [["美国霍尼韦尔","霍尼韦尔"],["德国莱茵TÜV集团","莱茵"],["摩根士丹利","摩根士丹利"],["抖音集团","抖音"],["麦德龙","麦德龙"],["安谋科技","安谋"]]
       .filter(([,brand])=>arrivals.some(row=>matchesCompany(row,brand))).map(([name])=>name);
-    const enterprises = result.confirmedEnterprises;
+    const confirmedUnits = confirmedScope(result,"all").confirmedEnterprises.length;
     const {invited,feedback} = government;
     const guests = guestAttendance(result);
     const day = date ? "截至"+date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>Number(m)+"月"+Number(d)+"日")+"，" : "";
     const focus = "邀请包括"+inviteNames.join("、")+"等企业。";
     const guestText = guestNames.length ? "目前，明确参会的嘉宾包括："+guestNames.join("、")+"。" : "";
     const confirmedText = confirmedNames.length ? "已接受邀请和确认参会的公司包括："+confirmedNames.join("、")+"等。" : "";
-    const metrics = [["有初步意向的企业（集团去重）",enterprises.length,"家"],
+    const metrics = [["全部确认参会单位（去重）",confirmedUnits,"家"],
       ["确认参会嘉宾",guests.total,"人"],["港籍嘉宾",guests.hongKong,"人"],["外籍嘉宾",guests.foreign,"人"]];
     const text = "一、整体情况\n"+day+"全市各区各相关部门共登记邀请"+(invited ?? "____（自填）")+
       "家企业和机构，其中，市投资促进局、龙华区人民政府、龙岗区人民政府、盐田区人民政府登记邀请数量靠前。"+
-      focus+"已收到初步意向参会企业反馈"+(feedback ?? "____（自填）")+"家，去重后为"+enterprises.length+
+      focus+"已收到初步意向参会企业反馈"+(feedback ?? "____（自填）")+"家。明确参加主会场的单位去重后为"+confirmedUnits+
       "家。其中确认参会嘉宾"+guests.total+"人（包括港籍嘉宾"+guests.hongKong+"人，外籍嘉宾"+guests.foreign+"人）。\n"+
       guestText+confirmedText;
     return {text,metrics};
