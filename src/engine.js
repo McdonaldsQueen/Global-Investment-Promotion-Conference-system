@@ -423,22 +423,7 @@ globalThis.createWorkbench = function (rules) {
     for (const item of groupInputs.values()) {
       item.suggestions = [...(variants.get(item.variant) ?? [])].filter(name=>name!==item.group);
     }
-    const counts = { confirmed:0, domestic:0, foreign:0, partners:0, pending:0, countries:new Map() };
-    for (const g of groups.values()) {
-      if (!g.statuses.length) continue;
-      counts.confirmed++;
-      const types = new Set(g.statuses.map(([,kind]) => kind));
-      const locations = new Set(g.statuses.map(([location]) => location));
-      const clash = g.statuses.some(([location,,nature]) => (location === "中国" && foreignKinds.has(nature)) || (location && location !== "中国" && domesticKinds.has(nature)));
-      if (types.size === 1 && types.has("招商合作机构")) counts.partners++;
-      else if (types.size !== 1 || !types.has("意向投资企业") || locations.size !== 1 || locations.has("") || clash) counts.pending++;
-      else if (locations.has("中国")) counts.domestic++;
-      else {
-        counts.foreign++;
-        const location = [...locations][0];
-        counts.countries.set(location,(counts.countries.get(location) ?? 0) + 1);
-      }
-    }
+    const counts = classifyGroups(groups.values());
     const units = [...byUnit].map(([name,invited])=>{
       const confirmed = [...invited.values()].filter(Boolean).length;
       return {name, confirmed, pending:invited.size-confirmed};
@@ -514,6 +499,25 @@ globalThis.createWorkbench = function (rules) {
       '<TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>form</vt:lpstr></vt:vector></TitlesOfParts></Properties>');
     return zip;
   }
+  function classifyGroups(groups) {
+    const counts = { confirmed:0, domestic:0, foreign:0, partners:0, pending:0, countries:new Map() };
+    for (const g of groups) {
+      if (!g.statuses.length) continue;
+      counts.confirmed++;
+      const types = new Set(g.statuses.map(([,kind]) => kind));
+      const locations = new Set(g.statuses.map(([location]) => location));
+      const clash = g.statuses.some(([location,,nature]) => (location === "中国" && foreignKinds.has(nature)) || (location && location !== "中国" && domesticKinds.has(nature)));
+      if (types.size === 1 && types.has("招商合作机构")) counts.partners++;
+      else if (types.size !== 1 || !types.has("意向投资企业") || locations.size !== 1 || locations.has("") || clash) counts.pending++;
+      else if (locations.has("中国")) counts.domestic++;
+      else {
+        counts.foreign++;
+        const location = [...locations][0];
+        counts.countries.set(location,(counts.countries.get(location) ?? 0) + 1);
+      }
+    }
+    return counts;
+  }
   function confirmedScope(result, scope) {
     const conflicts = new Set(result.notices.filter(n=>n.label.startsWith("F／G 同时填写")).map(n=>n.line));
     const cancelled = new Set(result.rows.filter(r=>attendanceNo.test(clean(r.values[16])))
@@ -530,13 +534,14 @@ globalThis.createWorkbench = function (rules) {
       const personKey = JSON.stringify([groupKey,key(v[8])]);
       if ((scope !== "all" && cancelled.has(personKey)) || people.has(personKey)) continue;
       people.set(personKey,row);
-      if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set()});
+      if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set(),statuses:[]});
       const group = groups.get(groupKey);
+      group.statuses.push([v[3],v[4],substance(v[5])]);
       group.guests.set(personKey,v);
       if (v[3]) group.locations.add(v[3]);
       row.sources.forEach(unit=>group.units.add(unit));
     }
-    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()]};
+    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()],counts:classifyGroups(groups.values())};
   }
   async function exportExcel(result, date, confirmedOnly = false) {
     const scoped = typeof confirmedOnly === "string";

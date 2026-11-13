@@ -143,10 +143,10 @@
     clearDownloadLink();
     result = api.process(workbook.records,edits,groupRules,leads);
     updateReport();
-    const c = result.counts;
-    el("metrics").innerHTML = '<article class="metric"><span>确认参会企业集团</span><strong>'+format(result.confirmedEnterprises.length)+'</strong><div class="metric-actions"><button type="button" id="export-confirmed-card" class="button primary">查看三个导出口径 ↓</button><button type="button" id="open-confirmed" class="metric-detail">查看明细 →</button></div></article>' + [
+    const c = api.confirmedScope(result,"all").counts;
+    el("metrics").innerHTML = '<article class="metric"><span>全部确认参会单位</span><strong>'+format(c.confirmed)+'</strong><div class="metric-actions"><button type="button" id="export-confirmed-card" class="button primary">查看三个导出口径 ↓</button><button type="button" id="open-confirmed" class="metric-detail">查看明细 →</button></div></article>' + [
       ["国内企业",c.domestic],["外资企业（含港澳台）",c.foreign],
-      ["招商合作机构",c.partners],["确认企业内外资待核对",result.confirmedEnterprises.length-c.domestic-c.foreign]
+      ["招商合作机构",c.partners],["单位分类待核对",c.pending]
     ].map(([label,count])=>'<article class="metric"><span>'+safe(label)+'</span><strong>'+format(count)+'</strong></article>').join("");
     const guests = api.guestAttendance(result);
     const percent = count => guests.total ? (count/guests.total).toLocaleString("zh-CN",{style:"percent",maximumFractionDigits:1}) : "—";
@@ -154,7 +154,7 @@
       .map(([label,count],index)=>'<article class="metric"><span>'+label+'</span><strong>'+format(count)+' <small>人'+(index ? ' · '+percent(count) : '')+'</small></strong></article>').join("");
     el("guest-metrics").innerHTML = guestMetrics;
     el("open-confirmed").addEventListener("click",()=>{setView("confirmed");render();});
-    el("export-confirmed-card").disabled = !result.confirmedEnterprises.length;
+    el("export-confirmed-card").disabled = !c.confirmed;
     el("export-confirmed-card").addEventListener("click",()=>{setView("confirmed");render();});
     el("batch-info").textContent = filename + " · 排除样例 " + format(workbook.excludedExamples) + " 行 · 有效明细 " + format(workbook.records.length) + " 行 · 整理后 " + format(result.rows.length) + " 行";
     el("count-note").textContent = "已合并 " + result.removed + " 条重复明细。企业意向按姓名和职务确认，嘉宾资料另核对国籍。";
@@ -203,7 +203,7 @@
     if (view === "priority") {renderPriority(content);return;}
     if (view === "ranking") {renderRankingAudit(content);return;}
     if (view === "dashboard") {
-      const bars = [...result.counts.countries].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"zh"));
+      const bars = [...api.confirmedScope(result,"all").counts.countries].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],"zh"));
       const max = bars[0]?.[1] ?? 1;
       const barsHtml = bars.map(([country,count])=>'<div class="bar"><span>'+safe(country)+'</span><i aria-hidden="true"><span style="width:'+Math.round(count/max*100)+'%"></span></i><strong>'+count+'</strong></div>').join("");
       const duplicateRows = result.duplicates.map(g=>[g.name,[...g.units.keys()].join(" ")]);
@@ -212,7 +212,7 @@
         safe(u.name),'<span class="unit-count">'+format(u.confirmed)+'</span>','<span class="pending-count">'+format(u.pending)+'</span>',
         '<div class="unit-bars" aria-hidden="true"><span style="width:'+u.confirmed/unitMax*100+'%"></span><span style="width:'+u.pending/unitMax*100+'%"></span></div>'
       ]);
-      content.innerHTML = '<div class="unit-grid"><section class="panel"><h3>外资集团国别分布</h3><p class="small muted">确认参会意向的外资集团，含港澳台</p><div class="bar-list">'+(barsHtml || '<span class="empty">暂无已确认外资集团。</span>')+'</div></section><section class="panel"><h3>各邀请单位企业进度</h3><p class="small muted">单位内按企业集团去重。有姓名和职务的为确认，同一单位同一集团只计一次。</p>'+table(["邀请单位","确认","待确认","进度分布"],unitRows,"暂无邀请单位统计。")+'</section></div><section class="panel"><h3>跨单位重复邀请 · '+result.duplicates.length+' 家</h3><p class="small muted">含待确认记录。每个集团下列出全部邀请来源。</p>'+controls()+'<div id="listing"></div></section>';
+      content.innerHTML = '<div class="unit-grid"><section class="panel"><h3>外资集团国别分布</h3><p class="small muted">明确参加主会场的外资集团，含港澳台</p><div class="bar-list">'+(barsHtml || '<span class="empty">暂无已确认外资集团。</span>')+'</div></section><section class="panel"><h3>各邀请单位企业进度</h3><p class="small muted">单位内按企业集团去重。有姓名和职务的为确认，同一单位同一集团只计一次。</p>'+table(["邀请单位","确认","待确认","进度分布"],unitRows,"暂无邀请单位统计。")+'</section></div><section class="panel"><h3>跨单位重复邀请 · '+result.duplicates.length+' 家</h3><p class="small muted">含待确认记录。每个集团下列出全部邀请来源。</p>'+controls()+'<div id="listing"></div></section>';
       content.insertAdjacentHTML("afterbegin",'<section class="panel panel-heading"><div><h3>重点企业候选</h3><p class="small muted">按企业类别筛选，查看嘉宾职级和榜单核验结果。</p></div><button id="open-priority" type="button" class="button primary">查看重点企业</button></section>');
       el("open-priority").addEventListener("click",()=>{setView("priority");render();});
       attachListing(duplicateRows, visible=>table(["集团","邀请单位及嘉宾"],visible.map(index=>{
@@ -222,12 +222,12 @@
       return;
     }
     if (view === "confirmed") {
-      const groups = result.confirmedEnterprises;
+      const groups = api.confirmedScope(result,"all").confirmedEnterprises;
       const exports = Object.entries(scopeLabels).map(([scope,label])=>{
         const selection = api.confirmedScope(result,scope);
         return '<article class="metric"><span>'+label+'</span><strong>'+format(selection.confirmedEnterprises.length)+' 家 · '+format(selection.rows.length)+' 人</strong><button type="button" class="button primary" data-confirmed-export="'+scope+'"'+(selection.rows.length?'':' disabled')+'>导出'+label+' Excel</button></article>';
       }).join("");
-      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>企业参会意向明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
+      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
       attachListing(groups.map(g=>[g.name,...g.locations,...g.units,...[...g.guests.values()].map(r=>r.slice(8,11).join(" "))]), visible=>table(
         ["集团","国别（地区）","嘉宾资料","确认来源"],
