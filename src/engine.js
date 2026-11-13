@@ -519,21 +519,12 @@ globalThis.createWorkbench = function (rules) {
     return counts;
   }
   function confirmedScope(result, scope) {
-    const conflicts = new Set(result.notices.filter(n=>n.label.startsWith("F／G 同时填写")).map(n=>n.line));
-    const cancelled = new Set(result.rows.filter(r=>attendanceNo.test(clean(r.values[16])))
-      .map(r=>JSON.stringify([key(r.values[1]),key(r.values[8])])));
-    const people = new Map();
     const groups = new Map();
-    for (const row of scope === "all" ? arrivalRecords(result).map(person=>person.row) : result.rows) {
+    const arrivals = arrivalRecords(result).map(person=>person.row);
+    for (const row of arrivals) {
       const v = row.values;
-      const kind = v[4] === "意向投资企业" && v[5] && !v[6] ? "enterprise"
-        : v[4] === "招商合作机构" && v[6] && !v[5] ? "partner" : "";
-      if (scope !== "all" && (!v[1] || scope !== kind || !guestComplete(v)
-          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line)))) continue;
       const groupKey = key(v[1]);
       const personKey = JSON.stringify([groupKey,key(v[8])]);
-      if ((scope !== "all" && cancelled.has(personKey)) || people.has(personKey)) continue;
-      people.set(personKey,row);
       if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set(),statuses:[]});
       const group = groups.get(groupKey);
       group.statuses.push([v[3],v[4],substance(v[5])]);
@@ -541,7 +532,15 @@ globalThis.createWorkbench = function (rules) {
       if (v[3]) group.locations.add(v[3]);
       row.sources.forEach(unit=>group.units.add(unit));
     }
-    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()],counts:classifyGroups(groups.values())};
+    const selected = [...groups.values()].filter(group=>{
+      const types = new Set(group.statuses.map(status=>status[1]));
+      const kind = types.size === 1 && types.has("意向投资企业") ? "enterprise"
+        : types.size === 1 && types.has("招商合作机构") ? "partner" : "unclassified";
+      return scope === "all" || scope === kind;
+    });
+    const names = new Set(selected.map(group=>key(group.name)));
+    return {rows:arrivals.filter(row=>names.has(key(row.values[1]))),
+      confirmedEnterprises:selected,counts:classifyGroups(selected)};
   }
   function frontSeats(result, limit, priorityNames = new Set(), institutionEvidence = new Map()) {
     const groups = confirmedScope(result,"all").confirmedEnterprises;

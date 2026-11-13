@@ -10171,21 +10171,12 @@ globalThis.createWorkbench = function (rules) {
     return counts;
   }
   function confirmedScope(result, scope) {
-    const conflicts = new Set(result.notices.filter(n=>n.label.startsWith("F／G 同时填写")).map(n=>n.line));
-    const cancelled = new Set(result.rows.filter(r=>attendanceNo.test(clean(r.values[16])))
-      .map(r=>JSON.stringify([key(r.values[1]),key(r.values[8])])));
-    const people = new Map();
     const groups = new Map();
-    for (const row of scope === "all" ? arrivalRecords(result).map(person=>person.row) : result.rows) {
+    const arrivals = arrivalRecords(result).map(person=>person.row);
+    for (const row of arrivals) {
       const v = row.values;
-      const kind = v[4] === "意向投资企业" && v[5] && !v[6] ? "enterprise"
-        : v[4] === "招商合作机构" && v[6] && !v[5] ? "partner" : "";
-      if (scope !== "all" && (!v[1] || scope !== kind || !guestComplete(v)
-          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line)))) continue;
       const groupKey = key(v[1]);
       const personKey = JSON.stringify([groupKey,key(v[8])]);
-      if ((scope !== "all" && cancelled.has(personKey)) || people.has(personKey)) continue;
-      people.set(personKey,row);
       if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set(),statuses:[]});
       const group = groups.get(groupKey);
       group.statuses.push([v[3],v[4],substance(v[5])]);
@@ -10193,7 +10184,15 @@ globalThis.createWorkbench = function (rules) {
       if (v[3]) group.locations.add(v[3]);
       row.sources.forEach(unit=>group.units.add(unit));
     }
-    return {rows:[...people.values()],confirmedEnterprises:[...groups.values()],counts:classifyGroups(groups.values())};
+    const selected = [...groups.values()].filter(group=>{
+      const types = new Set(group.statuses.map(status=>status[1]));
+      const kind = types.size === 1 && types.has("意向投资企业") ? "enterprise"
+        : types.size === 1 && types.has("招商合作机构") ? "partner" : "unclassified";
+      return scope === "all" || scope === kind;
+    });
+    const names = new Set(selected.map(group=>key(group.name)));
+    return {rows:arrivals.filter(row=>names.has(key(row.values[1]))),
+      confirmedEnterprises:selected,counts:classifyGroups(selected)};
   }
   function frontSeats(result, limit, priorityNames = new Set(), institutionEvidence = new Map()) {
     const groups = confirmedScope(result,"all").confirmedEnterprises;
@@ -10807,7 +10806,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
         const selection = api.confirmedScope(result,scope);
         return '<article class="metric"><span>'+label+'</span><strong>'+format(selection.confirmedEnterprises.length)+' 家 · '+format(selection.rows.length)+' 人</strong><button type="button" class="button primary" data-confirmed-export="'+scope+'"'+(selection.rows.length?'':' disabled')+'>导出'+label+' Excel</button></article>';
       }).join("");
-      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
+      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径＝企业＋机构＋类型待核对。按参会单位类型归类，类型缺失或冲突的单位单列。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
       content.insertAdjacentHTML("afterbegin",'<section class="panel"><h3>前排重点嘉宾</h3><label>席位数 <input type="number" id="seat-limit" min="1" step="1" value="50"></label> <label>主办方指定嘉宾 <input id="seat-priority" placeholder="多个姓名用顿号分隔"></label> <button class="button primary" id="seat-export">导出前排名单 Excel</button><details><summary>补充机构规模依据</summary><label>每行填写「单位全称｜规模档（1–3，3为最高）｜依据或来源」<br><textarea id="seat-institutions" rows="3"></textarea></label></details><p id="seat-count" class="small muted"></p><div id="seat-preview"></div></section>');
       const seatLimit = el("seat-limit");
@@ -11071,7 +11070,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     downloadUrl = undefined;
     el("download-ready").hidden = true;
   }
-  const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构"};
+  const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构",unclassified:"参会单位类型待核对"};
   async function download(confirmedOnly = false, priorityRows = null, seats = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}

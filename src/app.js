@@ -227,7 +227,7 @@
         const selection = api.confirmedScope(result,scope);
         return '<article class="metric"><span>'+label+'</span><strong>'+format(selection.confirmedEnterprises.length)+' 家 · '+format(selection.rows.length)+' 人</strong><button type="button" class="button primary" data-confirmed-export="'+scope+'"'+(selection.rows.length?'':' disabled')+'>导出'+label+' Excel</button></article>';
       }).join("");
-      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
+      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径＝企业＋机构＋类型待核对。按参会单位类型归类，类型缺失或冲突的单位单列。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
       content.insertAdjacentHTML("afterbegin",'<section class="panel"><h3>前排重点嘉宾</h3><label>席位数 <input type="number" id="seat-limit" min="1" step="1" value="50"></label> <label>主办方指定嘉宾 <input id="seat-priority" placeholder="多个姓名用顿号分隔"></label> <button class="button primary" id="seat-export">导出前排名单 Excel</button><details><summary>补充机构规模依据</summary><label>每行填写「单位全称｜规模档（1–3，3为最高）｜依据或来源」<br><textarea id="seat-institutions" rows="3"></textarea></label></details><p id="seat-count" class="small muted"></p><div id="seat-preview"></div></section>');
       const seatLimit = el("seat-limit");
@@ -491,7 +491,7 @@
     downloadUrl = undefined;
     el("download-ready").hidden = true;
   }
-  const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构"};
+  const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构",unclassified:"参会单位类型待核对"};
   async function download(confirmedOnly = false, priorityRows = null, seats = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
