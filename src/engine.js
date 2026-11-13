@@ -520,15 +520,15 @@ globalThis.createWorkbench = function (rules) {
       .map(r=>JSON.stringify([key(r.values[1]),key(r.values[8])])));
     const people = new Map();
     const groups = new Map();
-    for (const row of result.rows) {
+    for (const row of scope === "all" ? arrivalRecords(result).map(person=>person.row) : result.rows) {
       const v = row.values;
       const kind = v[4] === "意向投资企业" && v[5] && !v[6] ? "enterprise"
         : v[4] === "招商合作机构" && v[6] && !v[5] ? "partner" : "";
-      if (!v[1] || !kind || (scope !== "all" && scope !== kind) || !guestComplete(v)
-          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line))) continue;
+      if (scope !== "all" && (!v[1] || scope !== kind || !guestComplete(v)
+          || !attendanceYes.test(clean(v[16])) || row.lines.some(line=>conflicts.has(line)))) continue;
       const groupKey = key(v[1]);
       const personKey = JSON.stringify([groupKey,key(v[8])]);
-      if (cancelled.has(personKey) || people.has(personKey)) continue;
+      if ((scope !== "all" && cancelled.has(personKey)) || people.has(personKey)) continue;
       people.set(personKey,row);
       if (!groups.has(groupKey)) groups.set(groupKey,{name:v[1],guests:new Map(),locations:new Set(),units:new Set()});
       const group = groups.get(groupKey);
@@ -704,10 +704,10 @@ globalThis.createWorkbench = function (rules) {
   }
   const attendanceYes = /^(是|已确认(?:参会|参加)?|确认(?:参会|参加)?|参加|参会|yes)$/i;
   const attendanceNo = /^(否|不参加|不参会|无法参会|取消参会|no)$/i;
-  function guestAttendance(result) {
+  function arrivalRecords(result) {
     const people = new Map();
-    const domestic = new Set(["中国","中国香港","中国澳门","中国台湾","香港","澳门","台湾"]);
-    for (const {values} of result.rows) {
+    for (const row of result.rows) {
+      const {values} = row;
       if (!confirmed(values)) continue;
       const id = JSON.stringify([key(values[1]),key(values[8])]);
       const attendance = clean(values[16]);
@@ -717,12 +717,18 @@ globalThis.createWorkbench = function (rules) {
       person.no ||= attendanceNo.test(attendance);
       const raw = clean(values[10]);
       const nationality = /^(港籍|香港籍)$/.test(raw) ? "中国香港" : country(raw);
-      if (attendanceYes.test(attendance)) person.confirmedNationality ||= nationality;
+      if (attendanceYes.test(attendance)) {
+        if (!person.row || (!person.confirmedNationality && nationality)) person.row = row;
+        person.confirmedNationality ||= nationality;
+      }
       else person.otherNationality ||= nationality;
     }
+    return [...people.values()].filter(person=>person.yes && !person.no);
+  }
+  function guestAttendance(result) {
+    const domestic = new Set(["中国","中国香港","中国澳门","中国台湾","香港","澳门","台湾"]);
     const counts = {total:0,domestic:0,hongKong:0,foreign:0,unknown:0};
-    for (const person of people.values()) {
-      if (!person.yes || person.no) continue;
+    for (const person of arrivalRecords(result)) {
       counts.total++;
       const nationality = person.confirmedNationality || person.otherNationality;
       if (!nationality) counts.unknown++;

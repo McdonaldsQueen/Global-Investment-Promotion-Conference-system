@@ -227,7 +227,7 @@
         const selection = api.confirmedScope(result,scope);
         return '<article class="metric"><span>'+label+'</span><strong>'+format(selection.confirmedEnterprises.length)+' 家 · '+format(selection.rows.length)+' 人</strong><button type="button" class="button primary" data-confirmed-export="'+scope+'"'+(selection.rows.length?'':' disabled')+'>导出'+label+' Excel</button></article>';
       }).join("");
-      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">主会场填「是」，姓名、职务和国籍齐全，按有效企业或机构性质归类。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>企业参会意向明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
+      content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>企业参会意向明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
       attachListing(groups.map(g=>[g.name,...g.locations,...g.units,...[...g.guests.values()].map(r=>r.slice(8,11).join(" "))]), visible=>table(
         ["集团","国别（地区）","嘉宾资料","确认来源"],
