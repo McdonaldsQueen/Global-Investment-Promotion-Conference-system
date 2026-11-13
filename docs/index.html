@@ -10204,8 +10204,37 @@ globalThis.createWorkbench = function (rules) {
     lists[3] = 'IF(AND($E2="招商合作机构",$F2=""),PartnerTypes,EmptyOption)';
     const validations = lists.map((formula,i) => '<dataValidation type="list" allowBlank="'+(i === 2 || i === 3 ? 0 : 1)+'" showErrorMessage="1" errorStyle="stop" sqref="'+letters(3+i)+'2:'+letters(3+i)+Math.max(end,2)+'"><formula1>'+xml(formula)+'</formula1></dataValidation>').join("");
     let form = await get("xl/worksheets/sheet1.xml");
+    const fullExport = confirmedOnly === "all";
+    const reviewByLine = new Map();
+    if (fullExport) for (const notice of result.notices) {
+      if (!reviewByLine.has(notice.line)) reviewByLine.set(notice.line,[]);
+      reviewByLine.get(notice.line).push(notice.label);
+    }
+    let highlight = "";
+    if (fullExport) {
+      let styles = await get("xl/styles.xml");
+      let fillId, styleId;
+      styles = styles.replace(/<fills count="(\d+)">([\s\S]*?)<\/fills>/,(_,count,body)=>{
+        fillId = Number(count);
+        return '<fills count="'+(fillId+1)+'">'+body+'<fill><patternFill patternType="solid"><fgColor rgb="FFFFEB9C"/><bgColor indexed="64"/></patternFill></fill></fills>';
+      }).replace(/<cellXfs count="(\d+)">([\s\S]*?)<\/cellXfs>/,(_,count,body)=>{
+        styleId = Number(count);
+        return '<cellXfs count="'+(styleId+1)+'">'+body+'<xf numFmtId="0" fontId="0" fillId="'+fillId+'" borderId="0" xfId="0" applyFill="1"/></cellXfs>';
+      });
+      if (styleId !== undefined && fillId !== undefined) {
+        zip.file("xl/styles.xml",styles);
+        highlight = ' s="'+styleId+'"';
+      }
+    }
     form = form.replace(/<dimension ref="[^"]+"\/>/, '<dimension ref="A1:V'+end+'"/>')
-      .replace("</sheetData>", rows.map((row,index) => rowXml([index+1,...row.values.slice(1)],index+2)).join("") + "</sheetData><autoFilter ref=\"A1:V"+end+"\"/>")
+      .replace("</sheetData>", rows.map((row,index) => {
+        const values = [index+1,...row.values.slice(1)];
+        if (!fullExport) return rowXml(values,index+2);
+        const issues = [...new Set(row.lines.flatMap(line=>reviewByLine.get(line) ?? []))];
+        if (!guestComplete(values) && !issues.some(issue=>issue.includes("国籍"))) issues.push("嘉宾国籍待补齐");
+        if (issues.length) values[21] = [values[21],"待核对："+issues.join("；")].filter(Boolean).join("｜");
+        return rowXml(values,index+2,issues.length ? highlight : "");
+      }).join("") + "</sheetData><autoFilter ref=\"A1:V"+end+"\"/>")
       // Excel requires phoneticPr to precede dataValidations.
       .replace("<pageMargins", '<dataValidations count="'+lists.length+'">'+validations+'</dataValidations><pageMargins');
     zip.file("xl/worksheets/sheet1.xml",form);
