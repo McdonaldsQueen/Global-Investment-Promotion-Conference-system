@@ -10207,14 +10207,17 @@ globalThis.createWorkbench = function (rules) {
       if (preferred) guests.unshift(...guests.splice(guests.indexOf(preferred),1));
       const institution = guests[0][4] === "招商合作机构";
       const evidence = institution ? institutionEvidence.get(key(group.name)) : null;
-      const reason = [preferred?"主办方指定":"",institution?evidence ? "主办方确认机构规模："+evidence.note : "按机构代表职务排序，机构规模待核实":"按企业类别、榜单和代表职务排序",
+      const central = /^(?:中国电子信息产业集团有限公司|华侨城集团有限公司|中国旅游集团有限公司|中国煤炭地质总局|中国农业发展集团有限公司)$/.test(group.name);
+      const reportedCentral = category===5 || /中央企业|央企/.test([...item?.company.rawCategories ?? []].join(" "));
+      const reason = [preferred?"主办方指定":"",central?"已核实央企，优先推荐":reportedCentral?"央企归属待核实":"",
+        institution?evidence ? "主办方确认机构规模："+evidence.note : "按机构代表职务排序，机构规模待核实":"按企业类别、榜单和代表职务排序",
         world<501?"2026世界500强第"+world+"名":"",
         privateRank<501?"2026中国民营企业500强第"+privateRank+"名":""].filter(Boolean).join("；");
-      return {guests,representative:guests[0],preferred:!!preferred,institution,institutionScale:evidence?.scale ?? 0,category,world,privateRank,reason};
+      return {guests,representative:guests[0],preferred:!!preferred,central,institution,institutionScale:evidence?.scale ?? 0,category,world,privateRank,reason};
     });
     candidates.sort((a,b)=>{
       const evidence = item=>item.institution ? 4 : item.category;
-      return Number(b.preferred)-Number(a.preferred) || evidence(a)-evidence(b) || a.world-b.world || a.privateRank-b.privateRank || b.institutionScale-a.institutionScale ||
+      return Number(b.preferred)-Number(a.preferred) || Number(b.central)-Number(a.central) || evidence(a)-evidence(b) || a.world-b.world || a.privateRank-b.privateRank || b.institutionScale-a.institutionScale ||
         seatLevel(a.representative[9])-seatLevel(b.representative[9]) ||
         a.representative[1].localeCompare(b.representative[1],"zh");
     });
