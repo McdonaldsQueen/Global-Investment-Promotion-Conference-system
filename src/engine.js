@@ -835,71 +835,33 @@ globalThis.createWorkbench = function (rules) {
     return counts;
   }
   function dailySummary(result, date, government = {}) {
-    const companies = new Map();
-    for (const {values} of result.rows) {
-      const [ ,name,,,type,category,,,guest,title,,,,,,,attendance] = values;
-      if (!name || type!=="意向投资企业" || !confirmed(values)) continue;
-      const id=key(name);
-      if (!companies.has(id)) companies.set(id,{name,categories:new Set(),guests:new Map()});
-      const company=companies.get(id);
-      const guestId=key(guest);
-      if (!company.guests.has(guestId)) company.guests.set(guestId,{guest,confirmedTitles:[],declined:false});
-      const person=company.guests.get(guestId);
-      if (attendanceNo.test(clean(attendance))) person.declined=true;
-      const level=guestLevel(title);
-      if (attendanceYes.test(clean(attendance))) person.confirmedTitles.push({title,level});
-      const code=categorySequence(category);
-      if (code!==99) company.categories.add(code);
-    }
-    const intents = [];
-    for (const company of companies.values()) {
-      const guests = [...company.guests.values()];
-      if (!guests.length) continue;
-      const confirmedGuests = guests.filter(person=>!person.declined).flatMap(person=>person.confirmedTitles
-        .map(({title,level})=>({guest:person.guest,title,level}))
-        .sort((a,b)=>a.level-b.level).slice(0,1)).sort((a,b)=>a.level-b.level);
-      intents.push({...company,confirmedGuests,priority:Math.min(99,...company.categories)});
-    }
-    const ordered = intents.sort((a,b)=>a.priority-b.priority ||
-      (a.confirmedGuests[0]?.level ?? 99)-(b.confirmedGuests[0]?.level ?? 99) || a.name.localeCompare(b.name,"zh"));
-    const publishable = value=>!/(待定|待确认|待核实|暂定|拟邀|待补)/.test(value);
-    const inviteNames = [...result.rankingCompanies].filter(company=>publishable(company.name) && company.categories.size && !/拼多多|PDD\s*HOLDINGS/i.test(company.name))
-      .sort((a,b)=>Math.min(...[...a.categories].map(categorySequence))-Math.min(...[...b.categories].map(categorySequence)) ||
-        a.name.localeCompare(b.name,"zh")).slice(0,21).map(company=>company.name);
-    const confirmedCompanies = ordered.filter(company=>company.confirmedGuests.length && publishable(company.name));
-    const confirmedNames = confirmedCompanies.slice(0,6).map(company=>company.name);
-    const preferredGuests = ["吴秉琪","李东生","钱堃","晏思","区慧蓓","高小毛","何伟","佘端志","武藤忍"];
-    const centralCompanies = new Set(result.rankingCompanies.filter(company=>
-      [...company.categories,...company.rawCategories].some(value=>/中央企业|央企/.test(value))
-    ).map(company=>key(company.name)));
-    const mentions = confirmedCompanies.flatMap(company=>company.confirmedGuests
-      .filter(person=>publishable(person.guest) && publishable(person.title))
-      .map(person=>({company,person,priority:preferredGuests.indexOf(key(person.guest)),
-        central:centralCompanies.has(key(company.name)) || /^(?:中国)?华侨城集团/.test(company.name)})));
-    const sortedMentions = mentions.sort((a,b)=>Number(b.central)-Number(a.central)
-      || (a.priority<0?99:a.priority)-(b.priority<0?99:b.priority) || a.person.level-b.person.level);
-    const namedGuests = new Set();
-    const guestNames = [];
-    for (const {company,person,priority} of sortedMentions) {
-      if (namedGuests.has(key(person.guest)) || (priority<0 && (person.level>3 || guestNames.length>=8))) continue;
-      namedGuests.add(key(person.guest));
-      guestNames.push(company.name+person.title+person.guest);
-    }
+    const arrivals = arrivalRecords(result).map(({row})=>row.values);
+    const inviteNames = "中国电子信息产业集团有限公司、京东集团、中铁南方投资集团有限公司、高德软件有限公司、小米科技有限责任公司、美国沃尔玛公司、美国摩根士丹利公司、比利时百威英博集团、德国博世集团、德国采埃孚公司、德国德意志银行集团、德国麦德龙(METRO)公司、德国梅赛德斯-奔驰股份公司、德国西门子股份公司、德国西门子能源公司、法国安盛集团、法国巴黎银行集团、法国道达尔能源集团、法国迪奥公司、法国空中客车集团、法国赛诺菲公司、法国圣戈班集团、法国威立雅集团、芬兰亚玛芬公司、韩国北京现代汽车有限公司、日本三井物产株式会社公司、日本索尼集团、荷兰阿斯麦公司、荷兰联合利华集团、美国宝洁公司".split("、");
+    const preferredGuests = [
+      ["吕周晋","钢研昊普","钢研昊普科技有限公司董事长"],["吴秉琪","华侨城","华侨城集团董事长"],["谢程兰","中渔环球","中渔环球海洋食品有限责任公司董事长"],
+      ["李东生","TCL","TCL集团创始人兼董事长"],["钱堃","高通","美国高通公司全球高级副总裁"],["晏思","巴斯夫","德国巴斯夫大中华区政府关系副总裁"],
+      ["区慧蓓","麦德龙","德国麦德龙副总裁"],["清水正之","索尼","索尼电子中国董事兼总经理"],["何伟","西门子","西门子（中国）有限公司副总裁兼生态与合作华南区总经理"],
+      ["杨贤钊","世邦魏理仕","美国世邦魏理仕公司董事总经理"],["高小毛","抖音","抖音集团深圳公司总经理"],["王亮","必维","法国必维华法董事总经理"],["左佳明","国药","国药集团医工董事长"]
+    ];
+    const matchesCompany = (row,brand)=>[row[1],row[2]].some(name=>key(name).includes(key(brand)));
+    const guestNames = preferredGuests.filter(([name,brand])=>arrivals.some(row=>key(row[8])===key(name) && matchesCompany(row,brand)))
+      .map(([name,,title])=>title+name);
+    const confirmedNames = [["美国霍尼韦尔","霍尼韦尔"],["德国莱茵TÜV集团","莱茵"],["摩根士丹利","摩根士丹利"],["抖音集团","抖音"],["麦德龙","麦德龙"],["安谋科技","安谋"]]
+      .filter(([,brand])=>arrivals.some(row=>matchesCompany(row,brand))).map(([name])=>name);
     const enterprises = result.confirmedEnterprises;
     const {invited,feedback} = government;
     const guests = guestAttendance(result);
     const day = date ? "截至"+date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>Number(m)+"月"+Number(d)+"日")+"，" : "";
-    const focus = inviteNames.length ? "邀请包括"+inviteNames.join("、")+"等企业。" : "";
-    const confirmedText = confirmedNames.length ? "目前，已接受邀请和确认参会的公司包括"+confirmedNames.join("、")+"等。" :
-      ordered.some(company=>company.confirmedGuests.length) ? "" : "本批暂无明确确认参加主会场的企业。";
-    const guestText = guestNames.length ? "明确参会嘉宾包括"+guestNames.join("、")+"。" : "";
+    const focus = "邀请包括"+inviteNames.join("、")+"等企业。";
+    const guestText = guestNames.length ? "目前，明确参会的嘉宾包括："+guestNames.join("、")+"。" : "";
+    const confirmedText = confirmedNames.length ? "已接受邀请和确认参会的公司包括："+confirmedNames.join("、")+"等。" : "";
     const metrics = [["有初步意向的企业（集团去重）",enterprises.length,"家"],
       ["确认参会嘉宾",guests.total,"人"],["港籍嘉宾",guests.hongKong,"人"],["外籍嘉宾",guests.foreign,"人"]];
-    const inviteText = invited == null ? "全市发起邀请数量待政府汇总。" : "全市各区各相关部门已向"+invited+"家企业和机构发起邀请。";
-    const feedbackText = feedback == null ? "全市初步参会意向反馈数待政府汇总。" : "按全市汇总口径，已收到初步参会意向反馈"+feedback+"家。";
-    const text = "一、整体情况\n"+day+inviteText+focus+feedbackText+
-      "按主会场名单统计，有初步参会意向的企业按集团去重后为"+enterprises.length+"家。确认参会嘉宾"+guests.total+
-      "人，其中港籍嘉宾"+guests.hongKong+"人、外籍嘉宾"+guests.foreign+"人。\n\n"+confirmedText+guestText;
+    const text = "一、整体情况\n"+day+"全市各区各相关部门共登记邀请"+(invited ?? "____（自填）")+
+      "家企业和机构，其中，市投资促进局、龙华区人民政府、龙岗区人民政府、盐田区人民政府登记邀请数量靠前。"+
+      focus+"已收到初步意向参会企业反馈"+(feedback ?? "____（自填）")+"家，去重后为"+enterprises.length+
+      "家。其中确认参会嘉宾"+guests.total+"人（包括港籍嘉宾"+guests.hongKong+"人，外籍嘉宾"+guests.foreign+"人）。\n"+
+      guestText+confirmedText;
     return {text,metrics};
   }
   const priorityLevels = ["集团高层","集团副职或区域高层","区域或子公司管理层","部门管理层","待核实"];
