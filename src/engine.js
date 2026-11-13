@@ -543,6 +543,66 @@ globalThis.createWorkbench = function (rules) {
     }
     return {rows:[...people.values()],confirmedEnterprises:[...groups.values()],counts:classifyGroups(groups.values())};
   }
+  function frontSeats(result, limit, priorityNames = new Set(), institutionEvidence = new Map()) {
+    const groups = confirmedScope(result,"all").confirmedEnterprises;
+    const audit = new Map(rankingAudit(result,RankingData.lists).map(item=>[key(item.company.name),item]));
+    const candidates = groups.map(group=>{
+      const guests = [...group.guests.values()].sort((a,b)=>seatLevel(a[9])-seatLevel(b[9]));
+      const item = audit.get(key(group.name));
+      const [world,privateRank] = item?.matches.map(match=>match.row?.rank ?? 501) ?? [501,501];
+      const category = Math.min(...guests.map(v=>categorySequence(v[5])));
+      const preferred = guests.find(v=>priorityNames.has(key(v[8])));
+      if (preferred) guests.unshift(...guests.splice(guests.indexOf(preferred),1));
+      const institution = guests[0][4] === "招商合作机构";
+      const evidence = institution ? institutionEvidence.get(key(group.name)) : null;
+      const reason = [preferred?"主办方指定":"",institution?evidence ? "主办方确认机构规模："+evidence.note : "按机构代表职务排序，机构规模待核实":"按企业类别、榜单和代表职务排序",
+        world<501?"2026世界500强第"+world+"名":"",
+        privateRank<501?"2026中国民营企业500强第"+privateRank+"名":""].filter(Boolean).join("；");
+      return {guests,representative:guests[0],preferred:!!preferred,institution,institutionScale:evidence?.scale ?? 0,category,world,privateRank,reason};
+    });
+    candidates.sort((a,b)=>{
+      const evidence = item=>item.institution ? 4 : item.category;
+      return Number(b.preferred)-Number(a.preferred) || evidence(a)-evidence(b) || a.world-b.world || a.privateRank-b.privateRank || b.institutionScale-a.institutionScale ||
+        seatLevel(a.representative[9])-seatLevel(b.representative[9]) ||
+        a.representative[1].localeCompare(b.representative[1],"zh");
+    });
+    return {selected:candidates.slice(0,limit),remaining:candidates.slice(limit)};
+  }
+  function seatLevel(title) {
+    if (/副会长|副理事长|秘书长/.test(title)) return 2;
+    if (/会长|理事长/.test(title)) return 1;
+    return guestLevel(title);
+  }
+  async function exportSeats(result, limit, priorityNames, institutionEvidence) {
+    const {selected,remaining} = frontSeats(result,limit,priorityNames,institutionEvidence);
+    const widths = [8,35,25,15,20,25,25,20,18,40,17,18,18,23,20,18,18,20,22,22,18,65];
+    const zip = createBlankWorkbook(widths);
+    const columns = headers.map((name,i)=>i===10?"参会嘉宾国籍":name);
+    const row = (v,reason)=>[...v.slice(0,21),[v[21],reason,!valid(v[10])?"国籍待补齐":""].filter(Boolean).join("；")];
+    const sheets = [
+      ["前排建议名单",selected.map(g=>row(g.representative,g.reason))],
+      ["候补名单",[...remaining.map(g=>row(g.representative,"超出本次席位数；"+g.reason)),
+        ...[...selected,...remaining].flatMap(g=>g.guests.slice(1).map(v=>row(v,"同单位已推荐其他代表")))]],
+      ["头部央企",selected.concat(remaining).filter(g=>g.category===5 || /中央企业|央企/.test([...auditCategories(result,g.representative[1])].join(" "))).map(g=>row(g.representative,g.reason))],
+      ["世界500强中企",selected.concat(remaining).filter(g=>g.world<501 && g.representative[3]==="中国").sort((a,b)=>a.world-b.world).map(g=>row(g.representative,g.reason))],
+      ["世界500强外企",selected.concat(remaining).filter(g=>g.world<501 && g.representative[3] && g.representative[3]!=="中国").sort((a,b)=>a.world-b.world).map(g=>row(g.representative,g.reason))],
+      ["国内头部民企",selected.concat(remaining).filter(g=>g.privateRank<501 && g.representative[3]==="中国").sort((a,b)=>a.privateRank-b.privateRank).map(g=>row(g.representative,g.reason))],
+      ["商会及其他机构",selected.concat(remaining).filter(g=>g.institution).map(g=>row(g.representative,g.reason))]
+    ];
+    for (const [i,[name,rows]] of sheets.entries()) {
+      const n=i+1;
+      zip.file("xl/worksheets/sheet"+n+".xml",simpleSheet([columns,...rows.map((v,j)=>[j+1,...v.slice(1)])],widths));
+    }
+    const rewrite = async (path,fn)=>zip.file(path,fn(await zip.file(path).async("string")));
+    await rewrite("xl/workbook.xml",xmlText=>xmlText.replace(/<sheet name="form"[^>]*\/>/,sheets.map(([name],i)=>'<sheet name="'+xml(name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i?90+i:1)+'"/>').join("")));
+    await rewrite("xl/_rels/workbook.xml.rels",value=>value.replace("</Relationships>",sheets.slice(1).map((_,i)=>'<Relationship Id="rId'+(91+i)+'" Type="'+relationshipXml+'/worksheet" Target="worksheets/sheet'+(i+2)+'.xml"/>').join("")+"</Relationships>"));
+    await rewrite("[Content_Types].xml",value=>value.replace("</Types>",sheets.slice(1).map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+2)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("")+"</Types>"));
+    await rewrite("docProps/app.xml",value=>value.replace(/<vt:i4>1<\/vt:i4>/,"<vt:i4>"+sheets.length+"</vt:i4>").replace(/<vt:vector size="1" baseType="lpstr">.*?<\/vt:vector>/,'<vt:vector size="'+sheets.length+'" baseType="lpstr">'+sheets.map(([name])=>"<vt:lpstr>"+xml(name)+"</vt:lpstr>").join("")+"</vt:vector>"));
+    return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
+  }
+  function auditCategories(result,name) {
+    return result.rankingCompanies.find(company=>key(company.name)===key(name))?.rawCategories ?? [];
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
     const scoped = typeof confirmedOnly === "string";
     if (scoped) result = {...result,...confirmedScope(result,confirmedOnly)};
@@ -857,6 +917,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, frontSeats, exportSeats, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);

@@ -10195,6 +10195,66 @@ globalThis.createWorkbench = function (rules) {
     }
     return {rows:[...people.values()],confirmedEnterprises:[...groups.values()],counts:classifyGroups(groups.values())};
   }
+  function frontSeats(result, limit, priorityNames = new Set(), institutionEvidence = new Map()) {
+    const groups = confirmedScope(result,"all").confirmedEnterprises;
+    const audit = new Map(rankingAudit(result,RankingData.lists).map(item=>[key(item.company.name),item]));
+    const candidates = groups.map(group=>{
+      const guests = [...group.guests.values()].sort((a,b)=>seatLevel(a[9])-seatLevel(b[9]));
+      const item = audit.get(key(group.name));
+      const [world,privateRank] = item?.matches.map(match=>match.row?.rank ?? 501) ?? [501,501];
+      const category = Math.min(...guests.map(v=>categorySequence(v[5])));
+      const preferred = guests.find(v=>priorityNames.has(key(v[8])));
+      if (preferred) guests.unshift(...guests.splice(guests.indexOf(preferred),1));
+      const institution = guests[0][4] === "招商合作机构";
+      const evidence = institution ? institutionEvidence.get(key(group.name)) : null;
+      const reason = [preferred?"主办方指定":"",institution?evidence ? "主办方确认机构规模："+evidence.note : "按机构代表职务排序，机构规模待核实":"按企业类别、榜单和代表职务排序",
+        world<501?"2026世界500强第"+world+"名":"",
+        privateRank<501?"2026中国民营企业500强第"+privateRank+"名":""].filter(Boolean).join("；");
+      return {guests,representative:guests[0],preferred:!!preferred,institution,institutionScale:evidence?.scale ?? 0,category,world,privateRank,reason};
+    });
+    candidates.sort((a,b)=>{
+      const evidence = item=>item.institution ? 4 : item.category;
+      return Number(b.preferred)-Number(a.preferred) || evidence(a)-evidence(b) || a.world-b.world || a.privateRank-b.privateRank || b.institutionScale-a.institutionScale ||
+        seatLevel(a.representative[9])-seatLevel(b.representative[9]) ||
+        a.representative[1].localeCompare(b.representative[1],"zh");
+    });
+    return {selected:candidates.slice(0,limit),remaining:candidates.slice(limit)};
+  }
+  function seatLevel(title) {
+    if (/副会长|副理事长|秘书长/.test(title)) return 2;
+    if (/会长|理事长/.test(title)) return 1;
+    return guestLevel(title);
+  }
+  async function exportSeats(result, limit, priorityNames, institutionEvidence) {
+    const {selected,remaining} = frontSeats(result,limit,priorityNames,institutionEvidence);
+    const widths = [8,35,25,15,20,25,25,20,18,40,17,18,18,23,20,18,18,20,22,22,18,65];
+    const zip = createBlankWorkbook(widths);
+    const columns = headers.map((name,i)=>i===10?"参会嘉宾国籍":name);
+    const row = (v,reason)=>[...v.slice(0,21),[v[21],reason,!valid(v[10])?"国籍待补齐":""].filter(Boolean).join("；")];
+    const sheets = [
+      ["前排建议名单",selected.map(g=>row(g.representative,g.reason))],
+      ["候补名单",[...remaining.map(g=>row(g.representative,"超出本次席位数；"+g.reason)),
+        ...[...selected,...remaining].flatMap(g=>g.guests.slice(1).map(v=>row(v,"同单位已推荐其他代表")))]],
+      ["头部央企",selected.concat(remaining).filter(g=>g.category===5 || /中央企业|央企/.test([...auditCategories(result,g.representative[1])].join(" "))).map(g=>row(g.representative,g.reason))],
+      ["世界500强中企",selected.concat(remaining).filter(g=>g.world<501 && g.representative[3]==="中国").sort((a,b)=>a.world-b.world).map(g=>row(g.representative,g.reason))],
+      ["世界500强外企",selected.concat(remaining).filter(g=>g.world<501 && g.representative[3] && g.representative[3]!=="中国").sort((a,b)=>a.world-b.world).map(g=>row(g.representative,g.reason))],
+      ["国内头部民企",selected.concat(remaining).filter(g=>g.privateRank<501 && g.representative[3]==="中国").sort((a,b)=>a.privateRank-b.privateRank).map(g=>row(g.representative,g.reason))],
+      ["商会及其他机构",selected.concat(remaining).filter(g=>g.institution).map(g=>row(g.representative,g.reason))]
+    ];
+    for (const [i,[name,rows]] of sheets.entries()) {
+      const n=i+1;
+      zip.file("xl/worksheets/sheet"+n+".xml",simpleSheet([columns,...rows.map((v,j)=>[j+1,...v.slice(1)])],widths));
+    }
+    const rewrite = async (path,fn)=>zip.file(path,fn(await zip.file(path).async("string")));
+    await rewrite("xl/workbook.xml",xmlText=>xmlText.replace(/<sheet name="form"[^>]*\/>/,sheets.map(([name],i)=>'<sheet name="'+xml(name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i?90+i:1)+'"/>').join("")));
+    await rewrite("xl/_rels/workbook.xml.rels",value=>value.replace("</Relationships>",sheets.slice(1).map((_,i)=>'<Relationship Id="rId'+(91+i)+'" Type="'+relationshipXml+'/worksheet" Target="worksheets/sheet'+(i+2)+'.xml"/>').join("")+"</Relationships>"));
+    await rewrite("[Content_Types].xml",value=>value.replace("</Types>",sheets.slice(1).map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+2)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("")+"</Types>"));
+    await rewrite("docProps/app.xml",value=>value.replace(/<vt:i4>1<\/vt:i4>/,"<vt:i4>"+sheets.length+"</vt:i4>").replace(/<vt:vector size="1" baseType="lpstr">.*?<\/vt:vector>/,'<vt:vector size="'+sheets.length+'" baseType="lpstr">'+sheets.map(([name])=>"<vt:lpstr>"+xml(name)+"</vt:lpstr>").join("")+"</vt:vector>"));
+    return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
+  }
+  function auditCategories(result,name) {
+    return result.rankingCompanies.find(company=>key(company.name)===key(name))?.rawCategories ?? [];
+  }
   async function exportExcel(result, date, confirmedOnly = false) {
     const scoped = typeof confirmedOnly === "string";
     if (scoped) result = {...result,...confirmedScope(result,confirmedOnly)};
@@ -10509,7 +10569,7 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, frontSeats, exportSeats, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);
 
@@ -10746,6 +10806,29 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
       }).join("");
       content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
+      content.insertAdjacentHTML("afterbegin",'<section class="panel"><h3>前排重点嘉宾</h3><label>席位数 <input type="number" id="seat-limit" min="1" step="1" value="50"></label> <label>主办方指定嘉宾 <input id="seat-priority" placeholder="多个姓名用顿号分隔"></label> <button class="button primary" id="seat-export">导出前排名单 Excel</button><details><summary>补充机构规模依据</summary><label>每行填写「单位全称｜规模档（1–3，3为最高）｜依据或来源」<br><textarea id="seat-institutions" rows="3"></textarea></label></details><p id="seat-count" class="small muted"></p><div id="seat-preview"></div></section>');
+      const seatLimit = el("seat-limit");
+      const seatPriority = el("seat-priority");
+      const priorityNames = ()=>new Set(seatPriority.value.normalize("NFKC").toLowerCase().split(/[、,，;；\n]/).map(name=>name.replace(/\s/g,"")).filter(Boolean));
+      const institutionInput = el("seat-institutions");
+      const institutionEvidence = ()=>new Map(institutionInput.value.split(/\r?\n/).flatMap(line=>{
+        const [name,scale,note] = line.split(/[｜|]/).map(value=>value.trim());
+        return name && /^[1-3]$/.test(scale) && note ? [[name.normalize("NFKC").replace(/\s/g,"").toLowerCase(),{scale:Number(scale),note}]] : [];
+      }));
+      const previewSeats = ()=>{
+        const limit = seatLimit.valueAsNumber;
+        const validLimit = Number.isInteger(limit) && limit>0;
+        el("seat-export").disabled = !validLimit || !groups.length;
+        if (!validLimit) {el("seat-count").textContent="请输入正整数席位数。";el("seat-preview").innerHTML="";return;}
+        const {selected,remaining}=api.frontSeats(result,limit,priorityNames(),institutionEvidence());
+        el("seat-count").textContent="推荐 "+selected.length+" 位；可用单位 "+(selected.length+remaining.length)+" 家。每个单位推荐一位。";
+        el("seat-preview").innerHTML='<details><summary>查看前排建议</summary>'+table(["顺序","单位","嘉宾","职务","推荐依据"],selected.map((g,i)=>[String(i+1),safe(g.representative[1]),safe(g.representative[8]),safe(g.representative[9]),safe(g.reason)]),"暂无可用嘉宾。")+'</details>';
+      };
+      seatLimit.addEventListener("input",previewSeats);
+      institutionInput.addEventListener("input",previewSeats);
+      seatPriority.addEventListener("input",previewSeats);
+      el("seat-export").addEventListener("click",()=>download(false,null,{limit:seatLimit.valueAsNumber,priorityNames:priorityNames(),institutionEvidence:institutionEvidence()}));
+      previewSeats();
       attachListing(groups.map(g=>[g.name,...g.locations,...g.units,...[...g.guests.values()].map(r=>r.slice(8,11).join(" "))]), visible=>table(
         ["集团","国别（地区）","嘉宾资料","确认来源"],
         visible.map(i=>{
@@ -10986,7 +11069,7 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     el("download-ready").hidden = true;
   }
   const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构"};
-  async function download(confirmedOnly = false, priorityRows = null) {
+  async function download(confirmedOnly = false, priorityRows = null, seats = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
     busy = true;
@@ -10996,11 +11079,11 @@ if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalTh
     const date=el("date").value;
     const draft=result.notices.length>0;
     try {
-      const data=priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
+      const data=seats ? await api.exportSeats(result,seats.limit,seats.priorityNames,seats.institutionEvidence) : priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
       downloadUrl=URL.createObjectURL(new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
       const a=el("download-ready");
       a.href=downloadUrl;
-      a.download=(priorityRows?"重点企业候选_":confirmedOnly?scopeLabels[confirmedOnly]+"_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
+      a.download=(seats?"前排重点嘉宾_":priorityRows?"重点企业候选_":confirmedOnly?scopeLabels[confirmedOnly]+"_":"主会场嘉宾整理_")+date+(!seats && !priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
       a.hidden=false;
       a.click();
       status(priorityRows?"已生成重点企业 Excel。如下载未开始，请点「手动保存已生成文件」。":confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");

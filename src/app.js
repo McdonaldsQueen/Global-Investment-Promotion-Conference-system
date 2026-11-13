@@ -229,6 +229,29 @@
       }).join("");
       content.innerHTML = '<section class="panel"><h3>确认参会导出</h3><p class="small muted">全口径与到访嘉宾看板一致。企业和机构专项导出要求国籍齐全、机构性质有效。</p><div class="report-metrics">'+exports+'</div></section><section class="panel"><h3>全部确认参会单位明细 · '+format(groups.length)+' 家</h3>'+controls()+'<div id="listing"></div></section>';
       content.querySelectorAll("[data-confirmed-export]").forEach(button=>button.addEventListener("click",()=>download(button.dataset.confirmedExport)));
+      content.insertAdjacentHTML("afterbegin",'<section class="panel"><h3>前排重点嘉宾</h3><label>席位数 <input type="number" id="seat-limit" min="1" step="1" value="50"></label> <label>主办方指定嘉宾 <input id="seat-priority" placeholder="多个姓名用顿号分隔"></label> <button class="button primary" id="seat-export">导出前排名单 Excel</button><details><summary>补充机构规模依据</summary><label>每行填写「单位全称｜规模档（1–3，3为最高）｜依据或来源」<br><textarea id="seat-institutions" rows="3"></textarea></label></details><p id="seat-count" class="small muted"></p><div id="seat-preview"></div></section>');
+      const seatLimit = el("seat-limit");
+      const seatPriority = el("seat-priority");
+      const priorityNames = ()=>new Set(seatPriority.value.normalize("NFKC").toLowerCase().split(/[、,，;；\n]/).map(name=>name.replace(/\s/g,"")).filter(Boolean));
+      const institutionInput = el("seat-institutions");
+      const institutionEvidence = ()=>new Map(institutionInput.value.split(/\r?\n/).flatMap(line=>{
+        const [name,scale,note] = line.split(/[｜|]/).map(value=>value.trim());
+        return name && /^[1-3]$/.test(scale) && note ? [[name.normalize("NFKC").replace(/\s/g,"").toLowerCase(),{scale:Number(scale),note}]] : [];
+      }));
+      const previewSeats = ()=>{
+        const limit = seatLimit.valueAsNumber;
+        const validLimit = Number.isInteger(limit) && limit>0;
+        el("seat-export").disabled = !validLimit || !groups.length;
+        if (!validLimit) {el("seat-count").textContent="请输入正整数席位数。";el("seat-preview").innerHTML="";return;}
+        const {selected,remaining}=api.frontSeats(result,limit,priorityNames(),institutionEvidence());
+        el("seat-count").textContent="推荐 "+selected.length+" 位；可用单位 "+(selected.length+remaining.length)+" 家。每个单位推荐一位。";
+        el("seat-preview").innerHTML='<details><summary>查看前排建议</summary>'+table(["顺序","单位","嘉宾","职务","推荐依据"],selected.map((g,i)=>[String(i+1),safe(g.representative[1]),safe(g.representative[8]),safe(g.representative[9]),safe(g.reason)]),"暂无可用嘉宾。")+'</details>';
+      };
+      seatLimit.addEventListener("input",previewSeats);
+      institutionInput.addEventListener("input",previewSeats);
+      seatPriority.addEventListener("input",previewSeats);
+      el("seat-export").addEventListener("click",()=>download(false,null,{limit:seatLimit.valueAsNumber,priorityNames:priorityNames(),institutionEvidence:institutionEvidence()}));
+      previewSeats();
       attachListing(groups.map(g=>[g.name,...g.locations,...g.units,...[...g.guests.values()].map(r=>r.slice(8,11).join(" "))]), visible=>table(
         ["集团","国别（地区）","嘉宾资料","确认来源"],
         visible.map(i=>{
@@ -469,7 +492,7 @@
     el("download-ready").hidden = true;
   }
   const scopeLabels = {all:"全部确认参会单位",enterprise:"确认参会企业",partner:"确认参会机构"};
-  async function download(confirmedOnly = false, priorityRows = null) {
+  async function download(confirmedOnly = false, priorityRows = null, seats = null) {
     if (!result || busy) return;
     if (!el("date").value) {status("请选择数据日期后下载。",true);el("date").focus();return;}
     busy = true;
@@ -479,11 +502,11 @@
     const date=el("date").value;
     const draft=result.notices.length>0;
     try {
-      const data=priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
+      const data=seats ? await api.exportSeats(result,seats.limit,seats.priorityNames,seats.institutionEvidence) : priorityRows ? await api.exportPriority(priorityRows,date) : await api.exportExcel(result,date,confirmedOnly);
       downloadUrl=URL.createObjectURL(new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
       const a=el("download-ready");
       a.href=downloadUrl;
-      a.download=(priorityRows?"重点企业候选_":confirmedOnly?scopeLabels[confirmedOnly]+"_":"主会场嘉宾整理_")+date+(!priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
+      a.download=(seats?"前排重点嘉宾_":priorityRows?"重点企业候选_":confirmedOnly?scopeLabels[confirmedOnly]+"_":"主会场嘉宾整理_")+date+(!seats && !priorityRows && !confirmedOnly && draft?"_含待复核":"")+".xlsx";
       a.hidden=false;
       a.click();
       status(priorityRows?"已生成重点企业 Excel。如下载未开始，请点「手动保存已生成文件」。":confirmedOnly?"已生成确认企业核验 Excel。如下载未开始，请点「手动保存已生成文件」。":draft?"已生成整理稿。请查看工作簿中的「待复核」和「跨单位重复邀请」。":"已生成整理后的 Excel。");
