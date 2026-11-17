@@ -107,7 +107,7 @@ globalThis.createWorkbench = function (rules) {
     }
     return result.has(1) && result.has(8) && result.has(9) ? result : null;
   }
-  async function readExcel(buffer) {
+  async function readExcel(buffer, progress = false) {
     const zip = await root.JSZip.loadAsync(buffer);
     const get = async path => zip.file(path)?.async("string");
     const bookText = await get("xl/workbook.xml");
@@ -125,6 +125,11 @@ globalThis.createWorkbench = function (rules) {
       const content = await get(target.startsWith("/") ? target.slice(1) : "xl/" + target);
       if (!content) continue;
       const { rows, merges } = worksheet(content, strings);
+      if (progress) {
+        const data = progressSheet(rows);
+        if (data) return data;
+        continue;
+      }
       if (![...rows.values()].some(matchHeaders)) continue;
       const horizontal = new Set(merges.filter(([[a,b],[c,d]]) => a === c && b === 0 && d >= 4).map(m => m[0][0]));
       const vertical = new Map();
@@ -834,6 +839,77 @@ globalThis.createWorkbench = function (rules) {
     }
     return counts;
   }
+  function progressSheet(rows) {
+    for (const [line,cells] of rows) {
+      const find = pattern=>[...cells].find(([,value])=>pattern.test(clean(value)))?.[0];
+      const name=find(/^责任单位$/), target=find(/^目标数量/), sent=find(/^已发送邀请/), count=find(/^已确认(?:参会|参加)数量/);
+      if ([name,target,sent,count].some(value=>value===undefined)) continue;
+      const districts=[], city=[];
+      let current=districts;
+      for (const [n,row] of rows) {
+        if (n<=line) continue;
+        const label=clean(row.get(name));
+        if (/各区合计/.test(label)) {current=city;continue;}
+        if (/市直.*合计/.test(label)) break;
+        const numbers=[target,sent,count].map(column=>clean(row.get(column)));
+        if (label && numbers.every(value=>/^\d+$/.test(value))) current.push({label,target:+numbers[0],sent:+numbers[1],count:+numbers[2]});
+      }
+      if (districts.length && city.length) return {districts,city};
+    }
+  }
+  function progressReport(result,date,progress,brief) {
+    const sum=(rows,field)=>rows.reduce((total,row)=>total+row[field],0);
+    const rate=(a,b)=>b ? (a/b*100).toFixed(2)+"%" : "待核对";
+    const {districts,city}=progress;
+    const combined=[...districts,...city];
+    const target=sum(combined,"target"),sent=sum(combined,"sent"),count=sum(combined,"count");
+    const attendance=guestAttendance(result);
+    const units=confirmedScope(result,"all").counts;
+    const seats=frontSeats(result,Infinity).selected.filter(item=>item.central || item.world<501 || item.privateRank<501);
+    const examples=seats.slice(0,brief?8:15).map(item=>item.representative[1]);
+    const guests=seats.slice(0,brief?4:13).map(item=>item.representative.slice(8,10).reverse().join(""));
+    const summary=(label,rows)=>label+"任务"+sum(rows,"target")+"家，已发送"+sum(rows,"sent")+"份，确认"+sum(rows,"count")+"家，完成率"+rate(sum(rows,"count"),sum(rows,"target"))+"。";
+    const describe=rows=>rows.map(row=>row.label+"确认"+row.count+"家"+(brief?"":"、完成率"+rate(row.count,row.target))).join("；")+"。";
+    const zero=city.filter(row=>row.count===0).map(row=>row.label);
+    const day=date.replace(/^\d{4}-(\d{2})-(\d{2})$/,(_,m,d)=>+m+"月"+ +d+"日");
+    const leaders=city.filter(row=>row.count>0).sort((a,b)=>b.count-a.count).slice(0,5);
+    const ranked=rankingAudit(result,RankingData.lists);
+    const confirmedNames=new Set(confirmedScope(result,"all").confirmedEnterprises.map(group=>group.name));
+    const listed=ranked.filter(item=>confirmedNames.has(item.company.name)&&item.matches[0].row);
+    const listedForeign=listed.filter(item=>item.company.locations.size===1 && !item.company.locations.has("中国") && !item.company.locations.has("")).length;
+    const industries=new Map();
+    const seen=new Set();
+    for (const {row} of arrivalRecords(result)) {
+      const name=key(row.values[1]), industry=row.values[7];
+      const id=JSON.stringify([name,industry]);
+      if (!industry || seen.has(id)) continue;
+      seen.add(id);
+      industries.set(industry,(industries.get(industry) ?? 0)+1);
+    }
+    const sectors=[...industries].sort((a,b)=>b[1]-a[1]).slice(0,brief?1:8)
+      .map(([name,n])=>name+n+"家").join("、");
+    const structure="已明确参会单位中，国内企业"+units.domestic+"家、外资企业（含港澳台）"+units.foreign+
+      "家、招商合作机构"+units.partners+"家、分类待核对"+units.pending+"家。匹配2026年世界500强"+listed.length+
+      "家，其中外资"+listedForeign+"家。"+(sectors?"已填报行业中，"+sectors+"。":"");
+    return [
+      "2026深圳全球招商大会嘉宾邀请情况汇报",
+      "根据大会筹备工作总体安排，全市嘉宾邀请任务为"+target+"家，其中各区"+sum(districts,"target")+"家、市直单位"+sum(city,"target")+"家。现将截至"+day+"有关情况汇报如下。",
+      "一、整体情况",
+      "（一）"+(brief?"总体情况。":"总体进展。")+"全市累计发出邀请函"+sent+"份，责任单位汇总确认"+count+"家，总体完成率"+rate(count,target)+"。按主会场名单去重后，明确参会单位"+units.confirmed+"家，确认嘉宾"+attendance.total+"人，其中港籍"+attendance.hongKong+"人、外籍"+attendance.foreign+"人。"+structure+
+        (examples.length?"确认参会重点企业包括"+examples.join("、")+"等。":"")+(guests.length?"明确参会的重点嘉宾包括"+guests.join("、")+"等。":""),
+      "（二）各区邀请进展情况。"+summary("各区",districts)+describe(districts),
+      "（三）市直单位邀请进展情况。"+summary("市直单位",city)+describe(brief?leaders:city)+(zero.length?"确认数为零的单位有"+zero.join("、")+"。":""),
+      "二、存在的问题",
+      "（一）持续跟进企业参会确认。各单位应及时跟进已发出的邀请，补齐邀约数量缺口。",
+      "（二）各单位进展有差距。全市确认数与已发邀请数之比为"+rate(count,sent)+"，市直单位为"+rate(sum(city,"count"),sum(city,"sent"))+"。",
+      "（三）继续核对嘉宾职务、国籍和单位信息，完善名单。",
+      "三、下一步工作措施",
+      "（一）坚持每日跟踪、每周分析，持续更新发送数、确认数和完成率。",
+      "（二）督促进度滞后和确认数为零的单位，逐一跟进已发送未确认的邀请。",
+      "（三）持续优化嘉宾结构，重点邀请产业龙头、总部级嘉宾和知名商协会负责人，严格审核嘉宾资料。",
+      "附件：1.企业及机构邀请任务目标与进展\n      2.已确认参会单位及嘉宾名单"
+    ].join("\n");
+  }
   function dailySummary(result, date, government = {}) {
     const arrivals = arrivalRecords(result).map(({row})=>row.values);
     const inviteNames = "中国电子信息产业集团有限公司、京东集团、中铁南方投资集团有限公司、高德软件有限公司、小米科技有限责任公司、美国沃尔玛公司、美国摩根士丹利公司、比利时百威英博集团、德国博世集团、德国采埃孚公司、德国德意志银行集团、德国麦德龙(METRO)公司、德国梅赛德斯-奔驰股份公司、德国西门子股份公司、德国西门子能源公司、法国安盛集团、法国巴黎银行集团、法国道达尔能源集团、法国迪奥公司、法国空中客车集团、法国赛诺菲公司、法国圣戈班集团、法国威立雅集团、芬兰亚玛芬公司、韩国北京现代汽车有限公司、日本三井物产株式会社公司、日本索尼集团、荷兰阿斯麦公司、荷兰联合利华集团、美国宝洁公司".split("、");
@@ -884,6 +960,6 @@ globalThis.createWorkbench = function (rules) {
     }
     return zip.generateAsync({type:"uint8array",compression:"DEFLATE"});
   }
-  return { readExcel, process, exportExcel, exportPriority, frontSeats, exportSeats, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, guestAttendance, priorityLevels, rankingLabels };
+  return { readExcel, process, exportExcel, exportPriority, frontSeats, exportSeats, confirmedScope, options:baseOptions, inviters, headers, confirmed, guestComplete, title, priorityGroups, rankingAudit, dailySummary, progressReport, guestAttendance, priorityLevels, rankingLabels };
 };
 if (globalThis.RULES) globalThis.Workbench = globalThis.createWorkbench(globalThis.RULES);

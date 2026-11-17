@@ -128,6 +128,33 @@
       '<article class="metric"><span>'+safe(label)+'</span><strong>'+format(value)+' <small>'+safe(unit)+'</small></strong></article>').join("");
     el("report-status").textContent = "";
   }
+  let reportProgress;
+  el("progress-file").addEventListener("change",async event=>{
+    const file=event.target.files[0];
+    reportProgress=null;
+    for(const id of ["report-full","report-brief"]) el(id).disabled=true;
+    if (!file) return;
+    try {
+      const data=await api.readExcel(await file.arrayBuffer(),true);
+      if (event.target.files[0]!==file) return;
+      reportProgress=data;
+      el("progress-status").textContent=file.name+" · 已读取 "+data.districts.length+" 个区及 "+data.city.length+" 个市直单位。请核对汇报日期与两份表的统计日期。";
+      for(const id of ["report-full","report-brief"]) el(id).disabled=false;
+    } catch {
+      if (event.target.files[0]===file) el("progress-status").textContent="未识别到各区及市直邀请进展表，请检查责任单位和确认参会数量列。";
+    }
+  });
+  for (const [id,brief] of [["report-full",false],["report-brief",true]]) el(id).addEventListener("click",()=>{
+    if (!result || !reportProgress || !el("date").value) return;
+    const date=el("date").value;
+    const content=api.progressReport(result,date,reportProgress,brief);
+    const url=URL.createObjectURL(new Blob(["\uFEFF",content],{type:"text/plain;charset=utf-8"}));
+    const link=document.createElement("a");
+    link.href=url;
+    link.download="嘉宾邀请情况汇报_"+(brief?"简版":"详版")+"_"+date+".txt";
+    link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
   function governmentCount(id) {
     const count = el(id).valueAsNumber;
     return Number.isSafeInteger(count) && count >= 0 ? count : null;
