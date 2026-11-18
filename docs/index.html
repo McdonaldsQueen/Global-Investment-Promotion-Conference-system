@@ -9693,10 +9693,10 @@ globalThis.createWorkbench = function (rules) {
   const domesticKinds = new Set(["世界500强(国内企业)", "中国500强", "中央企业", "国有企业"]);
   const foreignKinds = new Set(["世界500强(外企)", "外资企业"]);
   const knownGroups = new Map(Object.entries(companyAliases).map(([k,v]) => [core(k),v]));
-  // Explicit parent mappings only; Siemens Energy is a separate group.
+  // Organizer reporting scope: subsidiaries share the parent group's count.
   for (const [parent,names] of [
     ["日本佳能集团",["日本佳能公司","日本佳能株式会社公司","日本佳能株式会社","日本佳能(中国)有限公司","佳能(中国)有限公司","日本佳能","日本佳能集团"]],
-    ["德国西门子股份公司",["德国西门子股份公司","德国西门子集团","西门子(中国)有限公司","德国西门子(中国)有限公司"]]
+    ["德国西门子集团",["德国西门子股份公司","德国西门子集团","西门子(中国)有限公司","德国西门子(中国)有限公司","德国西门子能源公司","德国西门子能源集团","西门子能源","西门子能源有限公司"]]
   ]) for (const name of names) knownGroups.set(core(name),parent);
   const districtSource = value => /(?:区人民政府|区政府|新区|合作区|前海管理局|^(?:罗湖|福田|南山|盐田|宝安|龙岗|龙华|坪山|光明|大鹏|深汕)(?:区|新区)?$)/.test(clean(value));
   const fieldKeys = headers.map(key);
@@ -9872,6 +9872,54 @@ globalThis.createWorkbench = function (rules) {
       if (candidates?.size === 1) record.selectedName = [...candidates][0];
     }
   }
+  function matchGroupKeywords(records) {
+    const places = [...mainland].sort((a,b)=>b.length-a.length);
+    const generic = new Set("中国 中华 国际 全球 国家 中央 联合 投资 招商 科技 技术 信息 电子 能源 电力 建设 建筑 工程 发展 实业 控股 资本 金融 银行 保险 证券 贸易 商业 物流 供应链 汽车 集团 公司 中铁 中交 中建 中电 中航 华南 华东 深圳 北京 上海 广东 航天 大华 南山 中鼎 华北 先导 思朗 蒙泰".split(" "));
+    const stem = value => {
+      let text = key(value).replace(/\([^()]*\)/g,"");
+      const location = nameCountry(text);
+      if (location && location !== "中国") text = text.slice(key(location).length);
+      for (let pass=0;pass<2;pass++) {
+        const place = places.find(p=>text.startsWith(p) && text.length>p.length+2);
+        if (place) text=text.slice(place.length).replace(/^(?:省|市)/,"");
+      }
+      return text.replace(/(?:股份有限责任公司|股份有限公司|有限责任公司|有限公司|株式会社|集团|总公司|分公司|公司|控股)$/g,"")
+        .replace(/(?:股份有限责任公司|股份有限公司|有限责任公司|有限公司|株式会社|集团|总公司|分公司|公司|控股)$/g,"");
+    };
+    const usable = keyword => /^[\p{Script=Han}a-z0-9& .-]+$/u.test(keyword) && !generic.has(keyword) && (/\p{Script=Han}/u.test(keyword)?keyword.length>=2:keyword.length>=4);
+    const index = new Map();
+    const add = (name,target,score) => {
+      const keyword=stem(name);
+      if (!usable(keyword)) return;
+      if (!index.has(keyword)) index.set(keyword,[]);
+      index.get(keyword).push({target,score,keyword});
+    };
+    for (const [name,parent] of knownGroups) add(name,parent,100);
+    for (const record of records) {
+      if (record.kind!=="意向投资企业" || record.override.skip) continue;
+      add(record.selectedName,record.selectedName,record.approvedGroup?110:record.known?100:record.review?.group?90:/集团/.test(record.selectedName)?65:50);
+      // Remove only business/legal descriptors, not arbitrary common characters.
+      const brand=stem(record.selectedName).replace(/(?:安全技术|信息技术|科技|投资|商业零售|百货零售|百货|供应链|贸易|实业|控股)$/g,"");
+      if (usable(brand) && brand!==stem(record.selectedName)) add(brand,record.selectedName,45);
+    }
+    for (const list of RankingData.lists) for (const company of list) add(company.name,company.name,55);
+    const keywords=[...index.keys()].sort((a,b)=>a.length-b.length || a.localeCompare(b,"zh"));
+    for (const record of records) {
+      if (record.kind!=="意向投资企业" || record.override.skip || record.approvedGroup) continue;
+      const text=stem(record.original);
+      const matches=keywords.filter(word=>text.startsWith(word) && (!/^[a-z]/.test(word) || text.length===word.length || !/[a-z]/.test(text[word.length])));
+      if (!matches.length) continue;
+      const keyword=matches[0];
+      const choices=index.get(keyword).filter(item=> {
+        const location=nameCountry(item.target);
+        return item.score>=90 || !location || !record.normalizedLocation || location===record.normalizedLocation;
+      }).sort((a,b)=>b.score-a.score || a.target.length-b.target.length || a.target.localeCompare(b.target,"zh"));
+      if (!choices.length) continue;
+      const parent=choices[0];
+      record.selectedName=parent.target;
+      if (parent.score>=90 && nameCountry(parent.target)) record.normalizedLocation=nameCountry(parent.target);
+    }
+  }
   function process(records, edits = new Map(), groupRules = new Map(), selections = new Map()) {
     const notices = [];
     const rows = [];
@@ -9898,6 +9946,7 @@ globalThis.createWorkbench = function (rules) {
       return { record, override, values, original, location, explicitCountry, normalizedLocation, kind, selectedName, known, approvedGroup, review };
     });
     matchRegionalCompanies(prepared);
+    matchGroupKeywords(prepared);
     const naming = new Map();
     for (const r of prepared) {
       if (!r.selectedName || !r.normalizedLocation) continue;
@@ -9910,7 +9959,7 @@ globalThis.createWorkbench = function (rules) {
         naming.set(id, {name:proposed, approved:!!r.approvedGroup});
       }
     }
-    const guestIdentity = ({groupId,values}) => JSON.stringify([groupId,key(values[8]),key(values[9])]);
+    const guestIdentity = ({groupId,values}) => JSON.stringify([groupId,key(values[8])]);
     const guestNationalities = new Map();
     for (const r of prepared) {
       if (r.override.skip || !r.groupId || !guestComplete(r.values)) continue;
