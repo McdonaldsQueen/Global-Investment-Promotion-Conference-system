@@ -43,10 +43,41 @@ globalThis.createWorkbench = function (rules) {
   const knownGroups = new Map(Object.entries(companyAliases).map(([k,v]) => [core(k),v]));
   // Organizer reporting scope: subsidiaries share the parent group's count.
   for (const [parent,names] of [
+    ["美国百胜中国控股有限公司",["百胜中国控股有限公司","百胜餐饮(深圳)有限公司","百胜餐饮(中国)投资有限公司","百胜餐饮(中国)有限公司","百胜中国"]],
+    ["挪威美威集团",["挪威美威集团","美威水产(上海)有限公司","美威水产","美威集团"]],
+    ["美团公司",["美团","美团公司","北京三快在线科技有限公司"]],
+    ["海尔集团",["海尔集团","卡泰驰","青岛卡泰驰汽车科技发展有限公司","深圳卡泰驰中百科技发展有限公司"]],
+    ["中国百度集团",["百度集团","百度集团股份有限公司","中国香港百度集团股份有限公司","阿波罗智能技术(北京)有限公司","中国香港阿波罗智能技术(北京)有限公司"]],
+    ["中国复星集团",["复星集团","中国复星集团","中国香港中国复星集团","复星国际有限公司","复星旅游文化集团","新加坡复星健康管理有限公司","葡萄牙光明医疗集团","中国香港葡萄牙光明医疗集团"]],
     ["日本佳能集团",["日本佳能公司","日本佳能株式会社公司","日本佳能株式会社","日本佳能(中国)有限公司","佳能(中国)有限公司","日本佳能","日本佳能集团"]],
     ["德国西门子集团",["德国西门子股份公司","德国西门子集团","西门子(中国)有限公司","德国西门子(中国)有限公司","德国西门子能源公司","德国西门子能源集团","西门子能源","西门子能源有限公司"]]
   ]) for (const name of names) knownGroups.set(core(name),parent);
   const districtSource = value => /(?:区人民政府|区政府|新区|合作区|前海管理局|^(?:罗湖|福田|南山|盐田|宝安|龙岗|龙华|坪山|光明|大鹏|深汕)(?:区|新区)?$)/.test(clean(value));
+  function mergeGuestTitles(titles) {
+    const signature = value => key(value).replace(/(?:股份有限责任公司|股份有限公司|有限责任公司|有限公司|株式会社|控股|集团|公司)/g,"").replace(/[，,、;；\s]/g,"");
+    const variants = new Map();
+    for (const title of titles.flatMap(value=>clean(value).split(/[；;]+/)).filter(valid)) {
+      const id=signature(title), prior=variants.get(id);
+      if (!prior || title.length>prior.length || title.length===prior.length && title.localeCompare(prior,"zh")<0) variants.set(id,title);
+    }
+    // A qualified title supersedes its shorter version, but distinct roles survive.
+    const entries=[...variants];
+    return entries.filter(([id])=>!entries.some(([other])=>{
+      if (other===id) return false;
+      if (other.includes(id)) return true;
+      const general=/^(.{1,10})负责人$/.exec(id);
+      return general && other.includes(general[1]) && /董事长|总裁|总经理|总监/.test(other);
+    }))
+      .sort((a,b)=>b[0].length-a[0].length || a[1].localeCompare(b[1],"zh")).map(([,title])=>title).join("；");
+  }
+  function clearPreviousReviewNotes(value) {
+    const recalculated = new Set(["机构性质与集团国别不一致","集团名称与国别不一致","多来源合并，需确认牵头邀请单位","同集团同名嘉宾已合并，职务差异待核对","同集团同名嘉宾已合并，职务采用区级上报","同集团同名嘉宾已合并，字段差异保留待核对"]);
+    return clean(value).split("｜").flatMap(part=>{
+      if (!part.startsWith("待核对：")) return [part];
+      const remaining=part.slice(4).split("；").filter(label=>!recalculated.has(label));
+      return remaining.length ? ["待核对："+remaining.join("；")] : [];
+    }).filter(Boolean).join("｜");
+  }
   const fieldKeys = headers.map(key);
   const title = field => ["企业性质", "合作机构性质"][field - 5] ?? headers[field];
   const xml = value => String(value ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"})[c]);
@@ -222,15 +253,20 @@ globalThis.createWorkbench = function (rules) {
   }
   function matchGroupKeywords(records) {
     const places = [...mainland].sort((a,b)=>b.length-a.length);
-    const generic = new Set("中国 中华 国际 全球 国家 中央 联合 投资 招商 科技 技术 信息 电子 能源 电力 建设 建筑 工程 发展 实业 控股 资本 金融 银行 保险 证券 贸易 商业 物流 供应链 汽车 集团 公司 中铁 中交 中建 中电 中航 华南 华东 深圳 北京 上海 广东 航天 大华 南山 中鼎 华北 先导 思朗 蒙泰".split(" "));
+    const generic = new Set("中国 中华 国际 全球 国家 中央 联合 投资 招商 科技 技术 信息 电子 能源 电力 建设 建筑 工程 发展 实业 控股 资本 金融 银行 保险 证券 贸易 商业 物流 供应链 汽车 集团 公司 中铁 中交 中建 中电 中航 华南 华东 深圳 北京 上海 广东 航天 大华 南山 中鼎 华北 先导 思朗 蒙泰 现代".split(" "));
     const stem = value => {
       let text = key(value).replace(/\([^()]*\)/g,"");
-      const location = nameCountry(text);
-      if (location && location !== "中国") text = text.slice(key(location).length);
+      for (let pass=0;pass<3;pass++) {
+        const location = nameCountry(text);
+        if (!location) break;
+        text = text.slice(key(location).length);
+      }
+      text=text.replace(/^(?:香港|澳门|台湾|沙特|前海)/,"");
       for (let pass=0;pass<2;pass++) {
         const place = places.find(p=>text.startsWith(p) && text.length>p.length+2);
         if (place) text=text.slice(place.length).replace(/^(?:省|市)/,"");
       }
+      text=text.replace(/^前海/,"");
       return text.replace(/(?:股份有限责任公司|股份有限公司|有限责任公司|有限公司|株式会社|集团|总公司|分公司|公司|控股)$/g,"")
         .replace(/(?:股份有限责任公司|股份有限公司|有限责任公司|有限公司|株式会社|集团|总公司|分公司|公司|控股)$/g,"");
     };
@@ -247,25 +283,37 @@ globalThis.createWorkbench = function (rules) {
       if (record.kind!=="意向投资企业" || record.override.skip) continue;
       add(record.selectedName,record.selectedName,record.approvedGroup?110:record.known?100:record.review?.group?90:/集团/.test(record.selectedName)?65:50);
       // Remove only business/legal descriptors, not arbitrary common characters.
-      const brand=stem(record.selectedName).replace(/(?:安全技术|信息技术|科技|投资|商业零售|百货零售|百货|供应链|贸易|实业|控股)$/g,"");
+      let brand=stem(record.selectedName);
+      for (let pass=0;pass<4;pass++) brand=brand.replace(/(?:安全技术|信息技术|在线科技|智能科技|科技|技术|投资|商业零售|百货零售|百货|供应链|贸易|实业|控股|餐饮|水产|旅游文化|健康管理|健康|中国|汽车|发展)$/g,"");
       if (usable(brand) && brand!==stem(record.selectedName)) add(brand,record.selectedName,45);
     }
     for (const list of RankingData.lists) for (const company of list) add(company.name,company.name,55);
     const keywords=[...index.keys()].sort((a,b)=>a.length-b.length || a.localeCompare(b,"zh"));
+    const targetLocations=new Map();
+    for (const record of records) {
+      if (!targetLocations.has(record.selectedName)) targetLocations.set(record.selectedName,new Set());
+      if (record.normalizedLocation) targetLocations.get(record.selectedName).add(record.normalizedLocation);
+    }
     for (const record of records) {
       if (record.kind!=="意向投资企业" || record.override.skip || record.approvedGroup) continue;
       const text=stem(record.original);
       const matches=keywords.filter(word=>text.startsWith(word) && (!/^[a-z]/.test(word) || text.length===word.length || !/[a-z]/.test(text[word.length])));
       if (!matches.length) continue;
       const keyword=matches[0];
-      const choices=index.get(keyword).filter(item=> {
-        const location=nameCountry(item.target);
-        return item.score>=90 || !location || !record.normalizedLocation || location===record.normalizedLocation;
-      }).sort((a,b)=>b.score-a.score || a.target.length-b.target.length || a.target.localeCompare(b.target,"zh"));
+      // Country describes the group, not the local subsidiary's registration.
+      const choices=index.get(keyword).sort((a,b)=>b.score-a.score || a.target.length-b.target.length || a.target.localeCompare(b.target,"zh"));
       if (!choices.length) continue;
       const parent=choices[0];
       record.selectedName=parent.target;
-      if (parent.score>=90 && nameCountry(parent.target)) record.normalizedLocation=nameCountry(parent.target);
+      const parentCountry=nameCountry(parent.target);
+      if (parentCountry) record.normalizedLocation=parentCountry;
+      else {
+        const countries=new Set(choices.filter(item=>item.target===parent.target).map(item=>nameCountry(item.target)).filter(Boolean));
+        if (!parentCountry && countries.size===0) {
+          const locations=targetLocations.get(parent.target);
+          if (locations?.size===1) record.normalizedLocation=[...locations][0];
+        }
+      }
     }
   }
   function process(records, edits = new Map(), groupRules = new Map(), selections = new Map()) {
@@ -280,6 +328,7 @@ globalThis.createWorkbench = function (rules) {
     const prepared = records.map(record => {
       const override = edits.get(record.line) ?? {};
       const values = record.values.map((value, field) => override[field] ?? value);
+      values[21] = clearPreviousReviewNotes(values[21]);
       const original = clean(values[1]);
       const location = country(values[3]);
       const approvedGroup = groupRules.get(aliasKey(original, location));
@@ -377,7 +426,7 @@ globalThis.createWorkbench = function (rules) {
       const normalized = [...values];
       Object.assign(normalized, {0:"",1:group,3:normalizedLocation,4:kind,5:kind === "意向投资企业" ? f : "",6:kind === "招商合作机构" ? g : "",7:industry,10:nationality,13:primary});
       active.push({ line, name:group, original, values:normalized, sources, department, excluded:false });
-      const item = { values:normalized, sources:new Set(sources), lines:[line], titleDistrict:districtSource(primary) || districtSource(department) };
+      const item = { values:normalized, sources:new Set(sources), lines:[line], titles:[normalized[9]], titleDistrict:districtSource(primary) || districtSource(department) };
       const fields = normalized.slice(1).map((value,index) => index + 1 === 2 ? value : clean(value));
       const duplicateKey = JSON.stringify([fields, ...(!group || !valid(normalized[8]) ? [primary] : [])]);
       const same = exact.get(duplicateKey);
@@ -392,17 +441,13 @@ globalThis.createWorkbench = function (rules) {
         const prior = lookup.get(id) ?? [];
         if (prior.length) {
           const existing = prior[0];
-          if (prior.length === 1 && (confirmed(existing.values) && confirmed(normalized) || compatible(existing.values, normalized))) {
-            const differentTitle = clean(existing.values[9]) !== clean(normalized[9]);
+          if (prior.length === 1) {
             const preferDistrict = item.titleDistrict && !existing.titleDistrict;
-            if (differentTitle) {
-              const oneDistrict = item.titleDistrict !== existing.titleDistrict;
-              add(line, oneDistrict ? "同集团同名嘉宾已合并，职务采用区级上报" : "同集团同名嘉宾已合并，职务差异待核对", existing.values[9] + " / " + normalized[9], 9);
-            }
             for (const field of [3,4,5,6,7,10,16,17,18,19,20,21]) {
               if (existing.values[field] && normalized[field] && clean(existing.values[field]) !== clean(normalized[field])) add(line,"同集团同名嘉宾已合并，字段差异保留待核对",headers[field] + "：" + existing.values[field] + " / " + normalized[field],field);
             }
-            if (preferDistrict) existing.values[9] = normalized[9];
+            existing.titles.push(normalized[9]);
+            existing.values[9] = mergeGuestTitles(existing.titles);
             existing.titleDistrict ||= item.titleDistrict;
             if (clean(existing.values[16]) !== clean(normalized[16]) && normalized[16]) {
               // Keep explicit cancellation and confirmed attendance visible to arrivalRecords.
@@ -427,6 +472,17 @@ globalThis.createWorkbench = function (rules) {
     for (const record of active) {
       const selected = mergedPeople.get(JSON.stringify([key(record.values[1]),key(record.values[8])]));
       if (selected && confirmed(record.values)) record.values[9] = selected.values[9];
+    }
+    const namesAcrossGroups=new Map();
+    for (const row of rows) {
+      if (!valid(row.values[8])) continue;
+      const name=key(row.values[8]);
+      if (!namesAcrossGroups.has(name)) namesAcrossGroups.set(name,new Set());
+      namesAcrossGroups.get(name).add(row.values[1]);
+    }
+    for (const row of rows) {
+      const candidates=namesAcrossGroups.get(key(row.values[8]));
+      if (candidates?.size>1) add(row.lines[0],"同名嘉宾涉及不同集团，集团关系或同名情况待核对",row.values[8]+"："+[...candidates].sort((a,b)=>a.localeCompare(b,"zh")).join(" / "),1);
     }
     const sourceByLine = new Map(active.map(record => [record.line,record]));
     rows.forEach((row,index) => {
