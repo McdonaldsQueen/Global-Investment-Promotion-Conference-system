@@ -71,10 +71,10 @@ globalThis.createWorkbench = function (rules) {
       .sort((a,b)=>b[0].length-a[0].length || a[1].localeCompare(b[1],"zh")).map(([,title])=>title).join("；");
   }
   function clearPreviousReviewNotes(value) {
-    const recalculated = new Set(["机构性质与集团国别不一致","集团名称与国别不一致","多来源合并，需确认牵头邀请单位","同集团同名嘉宾已合并，职务差异待核对","同集团同名嘉宾已合并，职务采用区级上报","同集团同名嘉宾已合并，字段差异保留待核对"]);
-    return clean(value).split("｜").flatMap(part=>{
-      if (!part.startsWith("待核对：")) return [part];
-      const remaining=part.slice(4).split("；").filter(label=>!recalculated.has(label));
+    const recalculated = new Set(["机构性质与集团国别不一致","集团名称与国别不一致","多来源合并，需确认牵头邀请单位","同集团同名嘉宾已合并，职务差异待核对","同集团同名嘉宾已合并，职务采用区级上报","同集团同名嘉宾已合并，字段差异保留待核对"].map(key));
+    return clean(value).split(/[｜|]/).flatMap(part=>{
+      if (!/^待核对[:：]/.test(part)) return [part];
+      const remaining=part.slice(4).split(/[；;]/).filter(label=>!recalculated.has(key(label)));
       return remaining.length ? ["待核对："+remaining.join("；")] : [];
     }).filter(Boolean).join("｜");
   }
@@ -383,7 +383,8 @@ globalThis.createWorkbench = function (rules) {
       }
       if (!group) add(line, "缺少参会单位名称", "", 1);
       if (!normalizedLocation) add(line, "国别（地区）待确认", values[3], 3);
-      if (explicitCountry && location && explicitCountry !== location) add(line, "集团名称与国别不一致", values[3], 3);
+      const groupCountry = nameCountry(group);
+      if (groupCountry && normalizedLocation && groupCountry !== normalizedLocation) add(line, "集团名称与国别不一致", values[3], 3);
       if (!kind) add(line, "参会单位类型待确认", values[4], 4);
       const originalCategory = byOption[2].get(substance(values[5])) ?? (/^外资$/.test(clean(values[5])) ? "4.外资企业" : "");
       const f = !Object.hasOwn(r.override,5) && r.review?.category

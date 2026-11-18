@@ -26,6 +26,8 @@ const record=(line,name,title,location='中国',guest='测试嘉宾',unit='市�
   assert.deepEqual(results[0].rows[0].values.slice(1,11),results[1].rows[0].values.slice(1,11));
  }
  const mowi=api.process(cases[0]);assert.equal(mowi.rows[0].values[1],'挪威美威集团');assert.equal(mowi.rows[0].values[3],'挪威');assert.equal(mowi.rows[0].values[9],'中国区总经理');
+ assert(!mowi.notices.some(n=>n.label==='集团名称与国别不一致'));
+ const annotated=record(1,'美威水产(上海)有限公司','总经理');annotated.values[21]='原备注｜待核对：机构性质与集团国别不一致；同集团同名嘉宾已合并，职务差异待核对';assert.equal(api.process([annotated]).rows[0].values[21],'原备注');
  const roles=api.process(cases[3]).rows[0].values[9];assert(roles.includes('市场总监'));assert(roles.includes('战略总监'));
  const distinct=api.process([record(1,'测试甲集团','总经理'),record(2,'测试乙集团','总经理')]);assert.equal(distinct.rows.length,2);assert(distinct.notices.some(n=>n.label.includes('同名嘉宾涉及不同集团')));
  const multiplePeople=api.process([record(1,'美威水产(上海)有限公司','总经理','中国','嘉宾甲'),record(2,'挪威美威集团','董事长','挪威','嘉宾乙')]);assert.equal(multiplePeople.rows.length,2);assert.equal(api.confirmedScope(multiplePeople,'all').confirmedEnterprises.length,1);
