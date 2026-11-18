@@ -9693,6 +9693,12 @@ globalThis.createWorkbench = function (rules) {
   const domesticKinds = new Set(["世界500强(国内企业)", "中国500强", "中央企业", "国有企业"]);
   const foreignKinds = new Set(["世界500强(外企)", "外资企业"]);
   const knownGroups = new Map(Object.entries(companyAliases).map(([k,v]) => [core(k),v]));
+  // Explicit parent mappings only; Siemens Energy is a separate group.
+  for (const [parent,names] of [
+    ["日本佳能集团",["日本佳能公司","日本佳能株式会社公司","日本佳能株式会社","日本佳能(中国)有限公司","佳能(中国)有限公司","日本佳能","日本佳能集团"]],
+    ["德国西门子股份公司",["德国西门子股份公司","德国西门子集团","西门子(中国)有限公司","德国西门子(中国)有限公司"]]
+  ]) for (const name of names) knownGroups.set(core(name),parent);
+  const districtSource = value => /(?:区人民政府|区政府|新区|合作区|前海管理局|^(?:罗湖|福田|南山|盐田|宝安|龙岗|龙华|坪山|光明|大鹏|深汕)(?:区|新区)?$)/.test(clean(value));
   const fieldKeys = headers.map(key);
   const title = field => ["企业性质", "合作机构性质"][field - 5] ?? headers[field];
   const xml = value => String(value ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"})[c]);
@@ -9883,7 +9889,7 @@ globalThis.createWorkbench = function (rules) {
       const approvedGroup = groupRules.get(aliasKey(original, location));
       const known = knownGroups.get(core(original));
       const review = reviewRules.get(key(original));
-      const selectedName = approvedGroup ?? review?.group ?? known ?? original;
+      const selectedName = approvedGroup ?? known ?? review?.group ?? original;
       const prefixed = nameCountry(selectedName);
       const explicitCountry = prefixed === "中国" && location !== "中国" ? "" : prefixed;
       const normalizedLocation = explicitCountry && (known || approvedGroup)
@@ -9974,7 +9980,7 @@ globalThis.createWorkbench = function (rules) {
       const normalized = [...values];
       Object.assign(normalized, {0:"",1:group,3:normalizedLocation,4:kind,5:kind === "意向投资企业" ? f : "",6:kind === "招商合作机构" ? g : "",7:industry,10:nationality,13:primary});
       active.push({ line, name:group, original, values:normalized, sources, department, excluded:false });
-      const item = { values:normalized, sources:new Set(sources), lines:[line] };
+      const item = { values:normalized, sources:new Set(sources), lines:[line], titleDistrict:districtSource(primary) || districtSource(department) };
       const fields = normalized.slice(1).map((value,index) => index + 1 === 2 ? value : clean(value));
       const duplicateKey = JSON.stringify([fields, ...(!group || !valid(normalized[8]) ? [primary] : [])]);
       const same = exact.get(duplicateKey);
@@ -9989,8 +9995,24 @@ globalThis.createWorkbench = function (rules) {
         const prior = lookup.get(id) ?? [];
         if (prior.length) {
           const existing = prior[0];
-          if (prior.length === 1 && compatible(existing.values, normalized)) {
+          if (prior.length === 1 && (confirmed(existing.values) && confirmed(normalized) || compatible(existing.values, normalized))) {
+            const differentTitle = clean(existing.values[9]) !== clean(normalized[9]);
+            const preferDistrict = item.titleDistrict && !existing.titleDistrict;
+            if (differentTitle) {
+              const oneDistrict = item.titleDistrict !== existing.titleDistrict;
+              add(line, oneDistrict ? "同集团同名嘉宾已合并，职务采用区级上报" : "同集团同名嘉宾已合并，职务差异待核对", existing.values[9] + " / " + normalized[9], 9);
+            }
+            for (const field of [3,4,5,6,7,10,16,17,18,19,20,21]) {
+              if (existing.values[field] && normalized[field] && clean(existing.values[field]) !== clean(normalized[field])) add(line,"同集团同名嘉宾已合并，字段差异保留待核对",headers[field] + "：" + existing.values[field] + " / " + normalized[field],field);
+            }
+            if (preferDistrict) existing.values[9] = normalized[9];
+            existing.titleDistrict ||= item.titleDistrict;
+            if (clean(existing.values[16]) !== clean(normalized[16]) && normalized[16]) {
+              // Keep explicit cancellation and confirmed attendance visible to arrivalRecords.
+              if (attendanceNo.test(clean(normalized[16])) || !attendanceNo.test(clean(existing.values[16])) && attendanceYes.test(clean(normalized[16]))) existing.values[16] = normalized[16];
+            }
             existing.values = existing.values.map((value, field) => field >= 13 && field <= 15 ? value : (value || normalized[field]));
+            if (preferDistrict) for (const field of [13,14,15]) existing.values[field] = normalized[field];
             existing.lines.push(line);
             sources.forEach(source => existing.sources.add(source));
             exact.set(duplicateKey,existing);
@@ -10002,6 +10024,12 @@ globalThis.createWorkbench = function (rules) {
         lookup.set(id,prior);
       }
       rows.push(item);
+    }
+    // All downstream company/priority lists use the same selected guest title.
+    const mergedPeople = new Map(rows.filter(row=>confirmed(row.values)).map(row=>[JSON.stringify([key(row.values[1]),key(row.values[8])]),row]));
+    for (const record of active) {
+      const selected = mergedPeople.get(JSON.stringify([key(record.values[1]),key(record.values[8])]));
+      if (selected && confirmed(record.values)) record.values[9] = selected.values[9];
     }
     const sourceByLine = new Map(active.map(record => [record.line,record]));
     rows.forEach((row,index) => {
@@ -10052,8 +10080,9 @@ globalThis.createWorkbench = function (rules) {
         if (input?.known || input?.approvedGroup) company.verifiedGroup = true;
         if (record.values[5]) company.categories.add(record.values[5]);
         if (record.values[3]) company.locations.add(record.values[3]);
-        const personKey = JSON.stringify([key(record.values[8]),key(record.values[9])]);
-        if (!company.guests.has(personKey) || !valid(company.guests.get(personKey)[10])) company.guests.set(personKey,record.values);
+        const personKey = key(record.values[8]);
+        const previous = company.guests.get(personKey);
+        if (!previous || districtSource(record.values[13]) && !districtSource(previous[13])) company.guests.set(personKey,record.values);
         record.sources.forEach(unit=>company.units.add(unit));
       }
       for (const inviter of record.sources) {
